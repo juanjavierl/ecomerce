@@ -1,0 +1,81 @@
+
+<div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">Confirmar Pedido</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Producto</th>
+            <th scope="col">Precio</th>
+            <th scope="col">Cantidad</th>
+            <th scope="col">Total</th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          
+          {% for i in datos %}
+            <tr>
+                <td>{{forloop.counter}}</td>
+                <td>{{i.name}}</td>
+                <td>{{i.precio_uni}}</td>
+                <td>{{i.cantidad}}</td>
+                <td>{{i.total}}</td>
+                <td><button onclick="eliminarProducto('eliminarProducto/{{forloop.counter0}}')" data-bs-toggle="tooltip" title="Eliminar" class="btn btn-danger btn-sm"><i class="bi bi-trash3"></i></button></td>
+            </tr>
+            
+          {% empty %}
+            <tr>
+              <td colspan="5">No hay productos</td>
+            </tr>
+          {% endfor %}
+          
+          {% if datos %}
+          <tr>
+            <td colspan="6" style="text-align: right;"><strong>Total a Pagar: {{t_pago}}</strong></td>
+          </tr>
+          {% endif %}
+            
+        </tbody>
+      </table>
+</div>
+
+{% if datos %}
+<div class="modal-footer">
+  <!--   <button id="boton-vaciar" class="btn btn-danger" onclick="vaciar_carito('vaciar_carrito/')">Vaciar</button>
+   -->  <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">Continuar</button>
+    <form action="ver_carrito/" id="confirmarPedido" method="post">{% csrf_token %}
+        <div class="col-auto">
+            <button type="submit" class="btn btn-success btn-sm">Confirmar</button>
+        </div>
+    </form>
+  </div>
+{% endif %}
+  
+
+<script>
+  function vaciar_carito(urls){
+      $.ajax({
+          type:'GET',
+          url:urls,
+          success:function(resp){
+              $("#compras_id").show(5000).html(resp);
+              $(".modal-body .table tbody").show(5000).html("<tr><td COLSPAN='5'>Seleccione Productos<td></tr>")
+          }
+      });
+    }
+  function eliminarProducto(urls){
+    $.ajax({
+          type:'GET',
+          url:urls,
+          success:function(resp){
+            $("#compras_id").html(resp);
+            verCarrito('ver_carrito/')
+          }
+      });
+      return false;
+  }
+</script>

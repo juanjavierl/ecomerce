@@ -1,0 +1,61 @@
+
+<div class="modal-header">
+  <h5 class="modal-title" id="exampleModalLabel">{{p.name}}</h5>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+  <div class="modal-body card_producto card">
+      <div class="card" style="width: 18rem; border-width: 0px;">
+        <img src="/media/{{p.image}}" class="card-img-top" alt="...">
+        <div class="card-body">
+          <!-- <h5 class="card-title">{{p.name}}</h5> -->
+          <p class="card-text">{{p.description}}</p>
+        </div>
+      </div>
+  </div>
+  <div class="modal-footer" style="justify-content: space-around;">
+  <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button> -->
+    <form action="optenerProducto/{{p.id}}" id="form_pedido" method="post">{% csrf_token %}
+        <div class="row centrar_elementos">
+            <div class="col-auto">
+              <label for="inputPassword6" class="col-form-label">Cantidad:</label>
+            </div>
+            <div class="col-auto">
+              <input type="number" name="cantidad" placeholder="Ingrese la Cantidad" value="1" id="inputPassword6" class="form-control" aria-describedby="passwordHelpInline" required>
+            </div>
+            <div class="alert alert-danger" role="alert" style="display: none;"></div>
+            <div class="alert alert-success" role="alert" style="display: none;"></div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary btn-sm">Agregar al Carrito</button>
+            </div>
+        </div>
+    </form>
+  </div>
+</div>
+<script>
+  $('.modal-footer #form_pedido').submit(function(e){
+  e.preventDefault();
+  $.ajax({
+        type:'POST',
+        url:$(this).attr("action"),
+        data:$(this).serialize(),
+        success:function(resp){
+          if(resp.error){
+            console.log(resp.error);
+            $(".alert-danger").html(resp.error).show();
+            $(".alert-success").html(resp.success).hide();
+          }
+          else{
+            $(".alert-success").html(resp.success).show();
+            $("#compras_id").html(resp.total_compra);
+            $("#datas").prepend("<a class='dropdown-item'><strong>"+resp.producto+ " </strong> Cant:  <strong>"+ resp.cantidad+"</strong> Precio Uni:  <strong> "+resp.precio_uni+" </strong> Total: <strong> "+resp.total+" </strong></a>");
+            $("#id_Total_pagos").html(resp.total_pago);
+            $(".toast .alert-success").html("Bien !!! agregaste:"+"<strong>"+resp.producto+"</strong>");
+            $('.toast').toast({delay: 4000});
+            $('.toast').toast('show');
+          }
+          
+          //$("#hay_compra").html("<a class='dropdown-item' id='hay' href='registrar_cliente_orden/{{object.id}}' data-toggle='modal' data-target='#staticBackdrop'>Confirmar Compra</a>");
+        }
+    });
+})
+</script>

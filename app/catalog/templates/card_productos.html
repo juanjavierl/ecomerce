@@ -1,0 +1,62 @@
+<section id="team" class="team">
+    <div class="container">
+      <div class="row">
+          <div class="col-12">
+              <div class="section-title">
+
+                  <h2>Productos disponibles</h2>
+                  <p>There are many variations of passages of Lorem Ipsum available, but the majority have
+                      suffered alteration in some form.</p>
+              </div>
+          </div>
+      </div>
+      <div class="row">
+          
+          {% for p in productos %}
+              <div class="col-lg-3 col-md-6 col-12">
+                  <div class="single-product">
+                      <div class="product-image">
+                          
+                      <img src="/media/{{p.image}}" alt="#">
+                      <span class="badge rounded-pill bg-primary sale-tag">Nuevo</span>
+                      <div class="button">
+                        <button onclick="datos('optenerProducto/{{p.id}}')" class="btn" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="lni lni-cart"></i> Comprar</button>
+                          
+                      </div>
+                      <div class="product-info">
+                          <span class="category">{{p.category}}</span>
+                          <h4 class="title">
+                              <a href="product-grids.html">{{p.name}}</a>
+                          </h4>
+                          <ul class="review">
+                              <li><i class="lni lni-star-filled"></i></li>
+                              <li><i class="lni lni-star-filled"></i></li>
+                              <li><i class="lni lni-star-filled"></i></li>
+                              <li><i class="lni lni-star-filled"></i></li>
+                              <li><i class="lni lni-star-filled"></i></li>
+                              <li><span>5.0 Review(s)</span></li>
+                          </ul>
+                          <div class="price">
+                              <span>Bs.{{p.pvp}}</span>
+                          </div>
+                      </div>
+                  </div>
+                  </div>
+              </div>
+          {% endfor %}
+              
+      </div>
+  </div>
+  <script>
+    function datos(urls){//optener producto
+        $.ajax({
+                type:'GET',
+                url:urls,
+                success:function(resp){
+                   // $("#exampleModalLabel").html(name_prod);
+                    $("#optenerProducto").html(resp);
+                }
+            });
+    }
+  </script>
+  </section>

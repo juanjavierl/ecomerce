@@ -1,0 +1,28 @@
+<section id="about" class="about">
+    <div class="container menus">
+        <div>
+            <nav class="navbar navbar-light bg-light">
+                <form class="form-inline">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="basic-addon1">@</span>
+                    </div>
+                    <input type="search" name="search" id="shear_product" class="form-control" placeholder="Buscar Producto" aria-label="buscar" aria-describedby="basic-addon1">
+                  </div>
+                </form>
+              </nav>
+        </div>
+
+    </div>
+</section>
+{% block scritp_js %}
+<script>
+  $(function(){
+    alert("bien");
+    /* $("#shear_product").on('keypress', function(){
+    alert("buscar");
+  }); */
+  });
+  
+</script>
+{% endblock scritp_js %}
