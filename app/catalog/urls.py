@@ -9,4 +9,5 @@ urlpatterns = [
     path('ver_carrito/', ver_carrito, name='ver_carrito'),
     path('vaciar_carrito/', vaciar_carrito, name='vaciar_carrito'),
     path('eliminarProducto/<int:id_producto>', eliminarProducto, name='eliminarProducto'),
+    path('shear_product/',shear_product, name='eliminarProducto'),
 ]

@@ -1,10 +1,32 @@
 
+<style>
+  .cantidades{
+    display: flex;
+  }
+  .cant input{
+    width: 60px;
+    text-align: center;
+    font-family: cursive;
+  }
+  .valores{
+    text-align: center;
+    background-color: rgb(167, 182, 182);
+    padding: 5px 10px 5px 10px;
+    height: 30px;
+    font-family: cursive;
+  }
+  .valores:hover{
+    background-color: rgb(24, 24, 22);
+    color: white;
+    cursor: pointer;
+  }
+</style>
 <div class="modal-header">
   <h5 class="modal-title" id="exampleModalLabel">{{p.name}}</h5>
   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
   <div class="modal-body card_producto card">
-      <div class="card" style="width: 18rem; border-width: 0px;">
+      <div class="card" style="width: 18rem; border-width: 0px; margin-top: 5px;">
         <img src="/media/{{p.image}}" class="card-img-top" alt="...">
         <div class="card-body">
           <!-- <h5 class="card-title">{{p.name}}</h5> -->
@@ -19,8 +41,12 @@
             <div class="col-auto">
               <label for="inputPassword6" class="col-form-label">Cantidad:</label>
             </div>
-            <div class="col-auto">
-              <input type="number" name="cantidad" placeholder="Ingrese la Cantidad" value="1" id="inputPassword6" class="form-control" aria-describedby="passwordHelpInline" required>
+            <div class="col-auto cantidades">
+              <div class="valores menos"> - </div>
+              <div class="cant">
+                <input disabled type="number" name="cantidad" placeholder="Ingrese la Cantidad" value="1" min="1" max="9999" id="inputPassword6" class="form-control form-control-sm valor_numerico" aria-describedby="passwordHelpInline" required>
+              </div>
+              <div class="valores mas"> + </div>
             </div>
             <div class="alert alert-danger" role="alert" style="display: none;"></div>
             <div class="alert alert-success" role="alert" style="display: none;"></div>
@@ -57,5 +83,31 @@
           //$("#hay_compra").html("<a class='dropdown-item' id='hay' href='registrar_cliente_orden/{{object.id}}' data-toggle='modal' data-target='#staticBackdrop'>Confirmar Compra</a>");
         }
     });
-})
+});
+$(function(){
+  input = $(".valor_numerico");
+  min = $(".valor_numerico").attr('min'),
+  max = $(".valor_numerico").attr('max');
+  $(".menos").on('click',function(){
+    var oldValue = parseFloat(input.val());
+    if (oldValue <= min) {
+      var newVal = oldValue;
+    } else {
+      var newVal = oldValue - 1;
+    }
+    $(".valor_numerico").val(newVal);
+    $(".valor_numerico").trigger("change");
+  });
+  //cuando se preciona el boton mas
+  $(".mas").on('click',function(){
+    var oldValue = parseFloat(input.val());
+    if (oldValue >= max) {
+      var newVal = oldValue;
+    } else {
+      var newVal = oldValue + 1;
+    }
+    $(".valor_numerico").val(newVal);
+    $(".valor_numerico").trigger("change");
+    });
+});
 </script>

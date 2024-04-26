@@ -18,10 +18,25 @@
 {% block scritp_js %}
 <script>
   $(function(){
-    alert("bien");
-    /* $("#shear_product").on('keypress', function(){
-    alert("buscar");
-  }); */
+
+    $("#shear_product").on('keypress', function(){
+        $.ajax({
+              type:'GET',
+              url:'shear_product/',
+              data:$("#shear_product").serialize(),
+              success:resultado,
+              error:errores
+          });
+          function resultado(data){
+            $(".card_product_shear").slideDown(1000);
+            console.log(data);
+            $(".card_product_shear").html(data).slideDown(5000);
+          }
+          function errores(){
+            console.log("Error");
+          }
+      });
+
   });
   
 </script>

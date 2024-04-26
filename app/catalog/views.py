@@ -1,6 +1,8 @@
 from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse, request
 from django.views.generic import DeleteView, CreateView, UpdateView, TemplateView,DetailView
+from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Q
 from app.catalog.models import *
 # Create your views here.
 class CatalogView(TemplateView):
@@ -77,3 +79,25 @@ def eliminarProducto(request, id_producto):#el id_producto es el indicen
     productos.pop(int(id_producto))
     request.session['compra'] = productos
     return HttpResponse(len(request.session['compra']))
+
+@csrf_exempt
+def shear_product(request):
+    if request.method=="POST":
+        print("post")
+        texto=request.POST["search"]
+        busqueda=(
+            Q(name=texto) |
+            Q(description__icontains=texto) |
+            Q(code__icontains=texto)
+        )
+        resultados=Product.objects.filter(busqueda).distinct()
+        return render(request,'catalog/shear_product.html',{'datos':resultados})
+    else:
+        texto=request.GET["search"]
+        busqueda=(
+            Q(name__icontains=texto) |
+            Q(description__icontains=texto) |
+            Q(code__icontains=texto)
+        )
+        resultados=Product.objects.filter(busqueda).distinct()
+        return render(request,'catalog/shear_product.html',{'datos':resultados})
