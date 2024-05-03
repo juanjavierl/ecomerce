@@ -101,3 +101,12 @@ def shear_product(request):
         )
         resultados=Product.objects.filter(busqueda).distinct()
         return render(request,'catalog/shear_product.html',{'datos':resultados})
+
+"""
+select *
+from Product
+whire id_categoria = {{id_categoria}}
+"""
+def mostrar_por_categoria(request, id_categoria):
+    productos = Product.objects.filter(category = id_categoria)
+    return render(request, 'card_productos.html', {'productos':productos})

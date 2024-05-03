@@ -34,19 +34,26 @@
 </head>
 
 <body>
-
+  
+  
+    
   <!-- ======= Header ======= -->
   {% include 'header_catalog.html' %}
   <!-- End Header -->
 
-  <main id="main">
+  <main id="main"> 
     <!-- ======= Services Section ======= -->
     {% include 'menus.html' %}
     <!-- End Services Section -->
-
+    {% include 'catalog/card_categorias.html' %}
     <!-- ======= Team Section ======= -->
     <div class="card_product_shear"></div>
-    {% include 'card_productos.html' %}
+
+    <section id="team" class="team">
+      <div class="container productos_por_categorias">
+        {% include 'card_productos.html' %}
+      </div>
+    </section>
     <!-- End Team Section -->
     <!-- Modal -->
     <div class="modal fade" id="exampleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
