@@ -1,98 +1,69 @@
 <style>
-    .carousel-inner {
-  padding: 1em;
-}
-.card {
-  margin: 0 0.5em;
-  box-shadow: 2px 6px 8px 0 rgba(22, 22, 26, 0.18);
-  border: none;
-}
-.carousel-control-prev,
-.carousel-control-next {
-  background-color: #e1e1e1;
-  width: 6vh;
-  height: 6vh;
-  border-radius: 50%;
-  top: 50%;
-  transform: translateY(-50%);
-}
-@media (min-width: 768px) {
-  .carousel-item {
-    margin-right: 0;
-    flex: 0 0 33.333333%;
-    display: block;
-  }
-  .carousel-inner {
-    display: flex;
-  }
-}
-@media (min-width: 1024px){
-    .carousel-inner{
-        margin-top: 40px;
+    .multiple-card-slider .carousel-inner {
+      padding: 1em;
     }
-}
-@media (max-width: 1450px){
-    .carousel-inner{
-        margin-top: 60px;
+    .multiple-card-slider .card {
+      margin: 0 0.5em;
+      box-shadow: 2px 6px 8px 0 rgba(22, 22, 26, 0.18);
+      border: none;
     }
-}
-.card .img-wrapper {
-    max-width: 100%;
-    height: 13em;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.card img {
-    max-height: 100%;
-}
-@media (max-width: 767px) {
-  .card .img-wrapper {
-    height: 17em;
-  }
-}
+    .multiple-card-slider .carousel-control-prev,
+    .multiple-card-slider .carousel-control-next {
+      background-color: #e1e1e1;
+      width: 3em;
+      height: 3em;
+      border-radius: 50%;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    @media (min-width: 768px) {
+      .multiple-card-slider .carousel-item {
+        margin-right: 0;
+        flex: 0 0 calc(100% / 3);
+        display: block;
+        backface-visibility: visible;
+      }
+      .multiple-card-slider .carousel-inner {
+        display: flex;
+      }
+    }
+    .carousel-item{
+      cursor: pointer;
+    }
+
 </style>
-<div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
-    <div class="carousel-inner">
+
+<div class="multiple-card-slider carousel slide" data-bs-ride="carousel" style="margin-top: 60px;">
+  <div id="carouselExampleControls" class="carousel" data-bs-ride="false">
+      <div class="carousel-inner">
         
-        {% for c in categorias  %}
-        <div class="carousel-item active" data-bs-interval="100">
-            <div class="card">
-                <div class="img-wrapper">
-                    <img src="/media/{{c.image}}" class="d-block w-100" alt="..."> </div>
-                <div class="card-body">
-                    <h5 class="card-title">{{c.name}}</h5>
-                    <p class="card-text">{{c.description}}</p>
-                    <button class="btn btn-primary" onclick="mostrar_por_categoria('{{c.id}}')">Mostrar</button>
+        {% for c in categorias %}
+        <div class="carousel-item" onclick="mostrar_por_categoria('{{c.id}}')">
+
+          <div class="card mb-3" style="max-width: 540px;">
+            <div class="row g-0">
+              <div class="col-md-4">
+                <img src="/media/{{c.image}}" class="img-fluid rounded-start" alt="...">
+              </div>
+              <div class="col-md-8">
+                <div class="card-body"><!---d-none  //par desapareser los item cuando la plla. es pequeña-->
+                  <h5 class="card-title">{{c.name}}</h5>
+                  <p class="card-text">{{c.description}}</p>
+                  <p class="card-text"><small class="text-muted">Última actualización hace 3 minutos</small></p>
                 </div>
+              </div>
             </div>
+          </div>
         </div>
         {% endfor %}
-            
-        
-        
-    </div>
-    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-    </button>
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+      </button>
+  </div>
 </div>
-
-
-<script>
-    function mostrar_por_categoria(id_categoria){
-        //alert("id: " + id_categoria);
-        $.ajax({
-            type: 'GET',
-            url:'mostrar_por_categoria/'+id_categoria,
-            data:{'id_categoria':id_categoria},
-            success:function(resp){
-                $(".productos_por_categorias").html(resp);
-            }
-        });
-    }
-</script>

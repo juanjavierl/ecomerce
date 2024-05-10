@@ -1,4 +1,19 @@
-
+<style>
+.oferta{
+    margin: 0px 70px auto 70px;
+    /* position: absolute; */
+    background: #f73232;
+    border-radius: 2px;
+    font-size: 12px;
+    color: #fff;
+    font-weight: bold;
+    position: absolute;
+    top: 0;
+    padding: 5px 10px;
+    left: 0;
+    z-index: 22;
+}
+</style>
       <div class="row">
           <div class="col-12">
               <div class="section-title">
@@ -10,16 +25,20 @@
           </div>
       </div>
       <div class="row">
-          
           {% for p in productos %}
               <div class="col-lg-3 col-md-6 col-12">
                   <div class="single-product">
                       <div class="product-image">
                           
                       <img src="/media/{{p.image}}" alt="#">
+                      {% if p.is_new %}
                       <span class="badge rounded-pill bg-primary sale-tag">Nuevo</span>
+                      {% endif %}
+                      {% if p.is_promotion %}
+                      <span class="badge rounded-pill bg-warning oferta">En Oferta</span>
+                      {% endif %}
                       <div class="button">
-                        <button onclick="datos('optenerProducto/{{p.id}}')" class="btn" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="lni lni-cart"></i> Comprar</button>
+                        <a href="/optenerProducto/{{p.id}}" class="btn" type="button"><i class="lni lni-cart"></i> Comprar</a>
                           
                       </div>
                       <div class="product-info">
@@ -42,6 +61,10 @@
                   </div>
                   </div>
               </div>
+            {% empty %}
+            <div class="alert alert-info" role="alert">
+                No se encontro registros para esta categoria.
+            </div>
           {% endfor %}
               
       </div>

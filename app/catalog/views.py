@@ -1,4 +1,4 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render, HttpResponse, get_object_or_404
 from django.http import JsonResponse, request
 from django.views.generic import DeleteView, CreateView, UpdateView, TemplateView,DetailView
 from django.views.decorators.csrf import csrf_exempt
@@ -22,7 +22,8 @@ class CatalogView(TemplateView):
         return render(request,self.template_name, dic)
 
 def optenerProducto(request, id_producto):
-    p = Product.objects.get(id = id_producto)
+    p = get_object_or_404(Product, id=id_producto)
+    
     datos = {}
     dic = {}
     data_cli = request.session['compra']
@@ -49,11 +50,7 @@ def optenerProducto(request, id_producto):
         else:
             dic['error'] = "Ya ingreso el Producto"
             return JsonResponse(dic)
-
-        
-        
-    
-    return render(request,'catalog/OptenerProducto.html',{'p':p})
+    return render(request,'catalog/OptenerProducto.html',{'p':p, 'total_compra':len(request.session['compra'])})
 
 def ver_carrito(request):
     datos = request.session['compra']

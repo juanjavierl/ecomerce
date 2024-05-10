@@ -51,7 +51,10 @@
 
     <section id="team" class="team">
       <div class="container productos_por_categorias">
-        {% include 'card_productos.html' %}
+        {% block contenidos %}
+          {% include 'card_productos.html' %}
+        {% endblock contenidos %}
+        
       </div>
     </section>
     <!-- End Team Section -->
@@ -90,7 +93,53 @@
   {% block scritp_js %}
     
   {% endblock scritp_js %}
-    
+  <script>
+    $('.multiple-card-slider .carousel').each(function(){
+      var currentCarouselId = '#' + $(this).attr('id');
+      const multipleItemCarousel = document.querySelector(currentCarouselId);
+  
+      if(window.matchMedia("(min-width:576px)").matches){
+          const carousel = new bootstrap.Carousel(multipleItemCarousel, {
+              interval: false,
+              wrap: false
+          })
+          var carouselWidth = $(currentCarouselId + ' .carousel-inner')[0].scrollWidth;
+          var cardWidth = $(currentCarouselId + ' .carousel-item').width();
+          var scrollPosition = 0;    
+          $(currentCarouselId + ' .carousel-control-next').on('click', function(){
+              if(scrollPosition < (carouselWidth - (cardWidth * 4))){
+                  console.log('next');
+                  scrollPosition = scrollPosition + cardWidth;
+                  $(currentCarouselId + ' .carousel-inner').animate({scrollLeft: scrollPosition},600);
+              }
+          });
+          $(currentCarouselId + ' .carousel-control-prev').on('click', function(){
+              if(scrollPosition > 0){
+                  console.log('prev');
+                  scrollPosition = scrollPosition - cardWidth;
+                  $(currentCarouselId + ' .carousel-inner').animate({scrollLeft: scrollPosition},600);
+              }
+          });
+      }else{
+          $(multipleItemCarousel).addClass('slide');
+      }
+  });
+  $(function(){
+    $('.carousel-item:first-child').addClass('active');
+  });
+  
+  function mostrar_por_categoria(id_categoria){
+        //alert("id: " + id_categoria);
+        $.ajax({
+            type: 'GET',
+            url:'mostrar_por_categoria/'+id_categoria,
+            data:{'id_categoria':id_categoria},
+            success:function(resp){
+                $(".productos_por_categorias").html(resp);
+            }
+        });
+    }
+  </script>
 </body>
 
 </html>
