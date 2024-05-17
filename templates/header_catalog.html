@@ -2,9 +2,10 @@
     <div class="container d-flex justify-content-between">
 
       <div class="logo" style="display: flex;width: 300px;justify-content: space-around;">
-        <h1><a href="/">CasaUtil</a></h1>
+        <h1><a href="/">{{company.name|title}}</a></h1>
         <!-- Uncomment below if you prefer to use an image logo -->
         <!-- <a href="index.html"><img src="assets/img/logo.png" alt="" class="img-fluid"></a>-->
+        <h1><a href="#" onclick="buscar_producto()"><i class="bi bi-search"></i></a></h1>
         <h1><a class="nav-link scrollto" href="#" onclick="verCarrito('/ver_carrito/')" data-bs-toggle="modal" data-bs-target="#exampleModal"><i style="" class="bi bi-cart-check"></i><span style="font-family: initial;font-size: smaller;" id="compras_id">
           {% if total_compra > 0 %}
           {{total_compra}}
@@ -33,5 +34,8 @@
               $("#optenerProducto").html(resp);
           }
       });
+    }
+    function buscar_producto(){
+      $('.menus').slideToggle(1000);
     }
   </script>

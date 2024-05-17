@@ -52,10 +52,11 @@
     <section id="team" class="team">
       <div class="container productos_por_categorias">
         {% block contenidos %}
-          {% include 'card_productos.html' %}
+          {% include 'catalog/card_productos.html' %}
         {% endblock contenidos %}
-        
       </div>
+      <hr>
+      {% include 'pag_productos.html' %}
     </section>
     <!-- End Team Section -->
     <!-- Modal -->
@@ -127,18 +128,6 @@
   $(function(){
     $('.carousel-item:first-child').addClass('active');
   });
-  
-  function mostrar_por_categoria(id_categoria){
-        //alert("id: " + id_categoria);
-        $.ajax({
-            type: 'GET',
-            url:'mostrar_por_categoria/'+id_categoria,
-            data:{'id_categoria':id_categoria},
-            success:function(resp){
-                $(".productos_por_categorias").html(resp);
-            }
-        });
-    }
   </script>
 </body>
 

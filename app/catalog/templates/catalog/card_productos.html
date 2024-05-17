@@ -1,0 +1,83 @@
+<style>
+    .oferta{
+        margin: 0px 70px auto 70px;
+        /* position: absolute; */
+        background: #f73232;
+        border-radius: 2px;
+        font-size: 12px;
+        color: #fff;
+        font-weight: bold;
+        position: absolute;
+        top: 0;
+        padding: 5px 10px;
+        left: 0;
+        z-index: 22;
+    }
+    </style>
+          <div class="row">
+              <div class="col-12">
+                  <div class="section-title">
+    
+                      <h2>Productos disponibles</h2>
+                      <p>There are many variations of passages of Lorem Ipsum available, but the majority have
+                          suffered alteration in some form.</p>
+                  </div>
+              </div>
+          </div>
+          <div class="row">
+              {% for p in productos %}
+                  <div class="col-lg-3 col-md-6 col-12">
+                      <div class="single-product">
+                          <div class="product-image">
+                              
+                          <img src="/media/{{p.image}}" alt="#">
+                          {% if p.is_new %}
+                          <span class="badge rounded-pill bg-primary sale-tag">Nuevo</span>
+                          {% endif %}
+                          {% if p.is_promotion %}
+                          <span class="badge rounded-pill bg-warning oferta">En Oferta</span>
+                          {% endif %}
+                          <div class="button">
+                            <a href="/optenerProducto/{{p.id}}" class="btn" type="button"><i class="lni lni-cart"></i> Comprar</a>
+                              
+                          </div>
+                          <div class="product-info">
+                              <span class="category">{{p.category}}</span>
+                              <h4 class="title">
+                                  <a href="product-grids.html">{{p.name}}</a>
+                              </h4>
+                              <ul class="review">
+                                  <li><i class="lni lni-star-filled"></i></li>
+                                  <li><i class="lni lni-star-filled"></i></li>
+                                  <li><i class="lni lni-star-filled"></i></li>
+                                  <li><i class="lni lni-star-filled"></i></li>
+                                  <li><i class="lni lni-star-filled"></i></li>
+                                  <li><span>5.0 Review(s)</span></li>
+                              </ul>
+                              <div class="price">
+                                  <span>Bs.{{p.pvp}}</span>
+                              </div>
+                          </div>
+                      </div>
+                      </div>
+                  </div>
+                {% empty %}
+                <div class="alert alert-info" role="alert">
+                    No se encontro registros para esta categoria.
+                </div>
+              {% endfor %}
+                  
+          </div>
+    
+      <script>
+        function datos(urls){//optener producto
+            $.ajax({
+                    type:'GET',
+                    url:urls,
+                    success:function(resp){
+                       // $("#exampleModalLabel").html(name_prod);
+                        $("#optenerProducto").html(resp);
+                    }
+                });
+        }
+      </script>

@@ -1,22 +1,43 @@
+#importamos todos lo modulos de propios de django
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from django.http import JsonResponse, request
+from django.core.paginator import Paginator
 from django.views.generic import DeleteView, CreateView, UpdateView, TemplateView,DetailView
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
+from django.http import Http404
+#importamos modulos de terceros
+
+
+#importamos los modelos de nuestra aplicacion
 from app.catalog.models import *
 # Create your views here.
 class CatalogView(TemplateView):
     template_name = "index.html" 
     def get(self, request, *args, **kwargs):
+
+        productos = Product.objects.all()
+        try:
+            page = request.GET.get('page',1)
+
+            paginator = Paginator(productos,2)
+            productos = paginator.page(page)
+        except:
+            raise Http404
+
         try:
             request.session['compra']
         except:
             request.session['compra'] = []
         dic = {
             'categorias':Category.objects.all().order_by('-id'),
-            'productos':Product.objects.all(),
+            'productos':productos,
+            'entity':productos,
+            'page':page,
+            'paginator':paginator,
             'total_compra':len(request.session['compra']),
-            'total_pago':0
+            'total_pago':0,
+            'company':Company.objects.all()[0]
         }
         
         return render(request,self.template_name, dic)
@@ -50,7 +71,7 @@ def optenerProducto(request, id_producto):
         else:
             dic['error'] = "Ya ingreso el Producto"
             return JsonResponse(dic)
-    return render(request,'catalog/OptenerProducto.html',{'p':p, 'total_compra':len(request.session['compra'])})
+    return render(request,'catalog/OptenerProducto.html',{'p':p, 'total_compra':len(request.session['compra']),'company':Company.objects.all()[0]})
 
 def ver_carrito(request):
     datos = request.session['compra']
@@ -105,5 +126,5 @@ from Product
 whire id_categoria = {{id_categoria}}
 """
 def mostrar_por_categoria(request, id_categoria):
-    productos = Product.objects.filter(category = id_categoria)
-    return render(request, 'card_productos.html', {'productos':productos})
+    productos = Product.objects.filter(category_id = id_categoria)
+    return render(request, 'catalog/card_productos.html', {'productos':productos})
