@@ -1,3 +1,4 @@
+
 {% if paginator.num_pages > 1%}
 <div class="d-flex justify-content-center">
     <ul class="pagination">
@@ -31,8 +32,9 @@
                 <a class="page-link" href="?page={{ entity.next_page_number }}#pagtable">Siguiente</a>
             </li>
         {% endif %}
-    </ul>
+    </ul><br>
 </div>
+<p style="display: block; text-align: center;"><strong>Pagina:</strong> {{page}} <strong>de:</strong> {{paginator.num_pages}}</p>
 <div class="d-flex justify-content-center d-sm-none">            
     {% if entity.has_previous %}
         <span class="page-item"><a  class="page-link" href="?page={{ entity.previous_page_number }}#pagtable">Anterior</a></span>
@@ -41,6 +43,7 @@
         <span class="page-item"><a class="page-link" href="?page={{ entity.next_page_number }}#pagtable">Siguiente</a></span>
     {% endif %}
     <br>
-    <br>
+    
 </div>
+
 {% endif %}

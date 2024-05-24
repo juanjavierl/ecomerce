@@ -22,6 +22,7 @@ class CatalogView(TemplateView):
 
             paginator = Paginator(productos,2)
             productos = paginator.page(page)
+            print(dir(productos))
         except:
             raise Http404
 
@@ -44,17 +45,18 @@ class CatalogView(TemplateView):
 
 def optenerProducto(request, id_producto):
     p = get_object_or_404(Product, id=id_producto)
-    
     datos = {}
     dic = {}
     data_cli = request.session['compra']
     if request.method == 'POST':
+        print("el cliente envio la informacion")
         datos['id_producto'] = int(p.id)
         datos['name'] = p.name
         datos['cantidad'] = int(request.POST['cantidad'])
         datos['precio_uni'] = float(p.price)
         datos['total'] = float(int(request.POST['cantidad']) * float(p.price))
-        if not datos in data_cli:
+        print(datos)
+        if len(data_cli) == 0:
             data_cli.append(datos)
             request.session['compra'] = data_cli
             dic = {
@@ -68,7 +70,12 @@ def optenerProducto(request, id_producto):
             }
             dic['success'] = "Producto Registrado"
             return JsonResponse(dic)
-        else:
+        elif len(data_cli) > 0:
+            for produt int data_cli:
+                pass
+            #si el producto ya existe en la variable data_cli entonces buscar
+
+            #si el producto es diferente a los demas entonces agrgar a la session
             dic['error'] = "Ya ingreso el Producto"
             return JsonResponse(dic)
     return render(request,'catalog/OptenerProducto.html',{'p':p, 'total_compra':len(request.session['compra']),'company':Company.objects.all()[0]})

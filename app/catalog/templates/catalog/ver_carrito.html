@@ -24,7 +24,7 @@
                 <td>{{i.precio_uni}}</td>
                 <td>{{i.cantidad}}</td>
                 <td>{{i.total}}</td>
-                <td><button onclick="eliminarProducto('eliminarProducto/{{forloop.counter0}}')" data-bs-toggle="tooltip" title="Eliminar" class="btn btn-danger btn-sm"><i class="bi bi-trash3"></i></button></td>
+                <td><button onclick="eliminarProducto('/eliminarProducto/{{forloop.counter0}}')" data-bs-toggle="tooltip" title="Eliminar" class="btn btn-danger btn-sm"><i class="bi bi-trash3"></i></button></td>
             </tr>
             
           {% empty %}
@@ -73,7 +73,7 @@
           url:urls,
           success:function(resp){
             $("#compras_id").html(resp);
-            verCarrito('ver_carrito/')
+            verCarrito('/ver_carrito/')
           }
       });
       return false;
