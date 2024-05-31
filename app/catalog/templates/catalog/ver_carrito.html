@@ -42,16 +42,11 @@
         </tbody>
       </table>
 </div>
-
 {% if datos %}
 <div class="modal-footer">
   <!--   <button id="boton-vaciar" class="btn btn-danger" onclick="vaciar_carito('vaciar_carrito/')">Vaciar</button>
-   -->  <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">Continuar</button>
-    <form action="ver_carrito/" id="confirmarPedido" method="post">{% csrf_token %}
-        <div class="col-auto">
-            <button type="submit" class="btn btn-success btn-sm">Confirmar</button>
-        </div>
-    </form>
+   -->  <a type="button" href="/"  class="btn btn-primary btn-sm">Atras</a>
+        <a type="button" href="/confirmar_pedido" class="btn btn-success btn-sm">Confirmar</a>    
   </div>
 {% endif %}
   

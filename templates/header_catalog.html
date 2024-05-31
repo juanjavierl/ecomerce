@@ -2,7 +2,7 @@
     <div class="container d-flex justify-content-between">
 
       <div class="logo" style="display: flex;width: 300px;justify-content: space-around;">
-        <h1><a href="/">{{company.name|title|truncatechars:10 }}</a></h1>
+        <h1><a href="/">{{company.name|title|truncatechars:10|default:" company " }}</a></h1>
         <!-- Uncomment below if you prefer to use an image logo -->
         <!-- <a href="index.html"><img src="assets/img/logo.png" alt="" class="img-fluid"></a>-->
         <h1><a href="#" onclick="buscar_producto()"><i class="bi bi-search"></i></a></h1>

@@ -1,0 +1,12 @@
+{% extends 'index.html' %}
+
+{% block contenidos %}
+<h1>Registro</h1>
+
+<form action="confirmar_pedido/" method="post">
+
+    {{form}}
+
+    <button type="submit" >Realizar Pedido</button>
+</form>
+{% endblock %}

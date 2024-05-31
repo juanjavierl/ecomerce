@@ -11,6 +11,7 @@ from django.http import Http404
 
 #importamos los modelos de nuestra aplicacion
 from app.catalog.models import *
+from app.catalog.forms import *
 # Create your views here.
 class CatalogView(TemplateView):
     template_name = "index.html" 
@@ -19,10 +20,8 @@ class CatalogView(TemplateView):
         productos = Product.objects.all()
         try:
             page = request.GET.get('page',1)
-
             paginator = Paginator(productos,2)
             productos = paginator.page(page)
-            print(dir(productos))
         except:
             raise Http404
 
@@ -30,6 +29,8 @@ class CatalogView(TemplateView):
             request.session['compra']
         except:
             request.session['compra'] = []
+
+        
         dic = {
             'categorias':Category.objects.all().order_by('-id'),
             'productos':productos,
@@ -38,10 +39,17 @@ class CatalogView(TemplateView):
             'paginator':paginator,
             'total_compra':len(request.session['compra']),
             'total_pago':0,
-            'company':Company.objects.all()[0]
+            'company':get_company()
         }
         
         return render(request,self.template_name, dic)
+
+def get_company():
+    try:
+        company = Company.objects.all()[0]
+    except:
+        company = 'Compania'
+    return company
 
 def optenerProducto(request, id_producto):
     p = get_object_or_404(Product, id=id_producto)
@@ -55,8 +63,7 @@ def optenerProducto(request, id_producto):
         datos['cantidad'] = int(request.POST['cantidad'])
         datos['precio_uni'] = float(p.price)
         datos['total'] = float(int(request.POST['cantidad']) * float(p.price))
-        print(datos)
-        if len(data_cli) == 0:
+        if len(data_cli) == 0:#cuando el carrio esta vacio
             data_cli.append(datos)
             request.session['compra'] = data_cli
             dic = {
@@ -70,15 +77,30 @@ def optenerProducto(request, id_producto):
             }
             dic['success'] = "Producto Registrado"
             return JsonResponse(dic)
-        elif len(data_cli) > 0:
-            for produt int data_cli:
-                pass
-            #si el producto ya existe en la variable data_cli entonces buscar
-
+        elif len(data_cli) > 0:#si el producto ya existe en la variable data_cli entonces buscar
+            for indice in range(0,len(data_cli),1):
+                if datos['id_producto'] == data_cli[indice]['id_producto']:
+                    data_cli[indice]['cantidad'] = int(data_cli[indice]['cantidad']) + int(datos['cantidad'])
+                    data_cli[indice]['total'] = float(data_cli[indice]['cantidad'] * float(p.price))
+                    data_cli[indice] = data_cli[indice]
+                    request.session['compra'] = data_cli
+                    dic['success'] = "Se actualizo su compra"
+                    return JsonResponse(dic)
             #si el producto es diferente a los demas entonces agrgar a la session
-            dic['error'] = "Ya ingreso el Producto"
-            return JsonResponse(dic)
-    return render(request,'catalog/OptenerProducto.html',{'p':p, 'total_compra':len(request.session['compra']),'company':Company.objects.all()[0]})
+            if not datos in data_cli:
+                data_cli.append(datos)
+                request.session['compra'] = data_cli
+                
+                dic['success'] = "Producto Registrado"
+                dic['total_compra'] = len(request.session['compra'])
+                return JsonResponse(dic)
+
+    return render(request,'catalog/OptenerProducto.html',{
+                    'p':p,
+                    'total_compra':len(request.session['compra']),
+                    'company':get_company()
+                    }
+                )
 
 def ver_carrito(request):
     datos = request.session['compra']
@@ -135,3 +157,8 @@ whire id_categoria = {{id_categoria}}
 def mostrar_por_categoria(request, id_categoria):
     productos = Product.objects.filter(category_id = id_categoria)
     return render(request, 'catalog/card_productos.html', {'productos':productos})
+
+def confirmar_pedido(request):
+    form = form_cliente()
+
+    return render(request, 'catalog/confirmar_pedido.html',{'form':form})
