@@ -57,6 +57,11 @@ def optenerProducto(request, id_producto):
     dic = {}
     data_cli = request.session['compra']
     if request.method == 'POST':
+        if not request.POST['cantidad'].isdigit():
+            return JsonResponse({'error':"La cantidad debe ser mayor a cero"})
+        if int(request.POST['cantidad']) > p.stock:
+            menj = "La cantidad Maxima disponible es: ",p.stock
+            return JsonResponse({'error':menj})
         print("el cliente envio la informacion")
         datos['id_producto'] = int(p.id)
         datos['name'] = p.name
@@ -159,6 +164,13 @@ def mostrar_por_categoria(request, id_categoria):
     return render(request, 'catalog/card_productos.html', {'productos':productos})
 
 def confirmar_pedido(request):
+    if request.method == 'POST':
+        form = form_cliente(request.POST)
+        if form.is_valid():
+            #form.save()
+            cliente = form.save(commit=False)
+            
+            c = cliente.objects.get(dni=int(request.POST['dni']))
     form = form_cliente()
 
     return render(request, 'catalog/confirmar_pedido.html',{'form':form})
