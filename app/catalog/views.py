@@ -166,12 +166,76 @@ def mostrar_por_categoria(request, id_categoria):
 
 def confirmar_pedido(request):
     if request.method == 'POST':
-        form = form_cliente(request.POST)
-        if form.is_valid():
-            #form.save()
-            cliente = form.save(commit=False)
-            
-            c = cliente.objects.get(dni=int(request.POST['dni']))
-    form = form_cliente()
+        if not request.POST['dni'].isdigit():
+            return JsonResponse({'error': "El Nro de Nit/CI debe ser numérico."})
+        if not request.POST['mobile'].isdigit():
+            return JsonResponse({'error': "El Nro de Celular debe ser numérico."})
+        forms=ClientFormOrder(request.POST)
 
-    return render(request, 'catalog/confirmar_pedido.html',{'form':form})
+        try:#si ya existe ese cliente
+            print("ya existe ese cliente")
+            cliente = Client.objects.get(dni = int(request.POST['dni']))
+            orden = crear_orden(cliente.id)#se crea una orden
+            for productos in request.session['compra']:#[{'id_producto':12,'cantidad':1},{'id_producto':10,'cantidad':2}]
+                pedido = Pedido()
+                pedido.orden_id = int(orden.id)
+                pedido.product_id = int(productos['id_producto'])
+                pedido.cant = int(productos['cantidad'])
+                pedido.price = float(productos['precio_uni'])
+                pedido.total = float(int(productos['cantidad']) * float(productos['precio_uni']))
+                pedido.save()
+            t_pago = calcular_pago(request)
+            request.session['compra'] = []#cuando al cliente confirma su pedido se resetea al carrito a 0
+            return JsonResponse(
+                        {
+                            'company':orden.company.name,
+                            'cliente':orden.client.names,
+                            'products':len(request.session['compra']),
+                            'success':"Bien, tu pedido a sido registrado. <a href='/'> Ir al Inicio</a>",
+
+                            't_pago':t_pago
+                        }
+                    )
+        except Client.DoesNotExist:
+            print("NO existe ese cliente")
+            if forms.is_valid():
+                cliente = forms.save(commit=False)
+                cliente.save()
+                orden = crear_orden(cliente.id)
+                for productos in request.session['compra']:#[{'id_producto':12,'cantidad':1},{'id_producto':10,'cantidad':2}]
+                    pedido = Pedido()
+                    pedido.orden_id = int(orden.id)
+                    pedido.product_id = int(productos['id_producto'])
+                    pedido.cant = int(productos['cantidad'])
+                    pedido.price = float(productos['precio_uni'])
+                    pedido.total = float(int(productos['cantidad']) * float(productos['precio_uni']))
+                    pedido.save()
+                t_pago = calcular_pago(request)
+                request.session['compra'] = []#cuando al cliente confirma su pedido se resetea al carrito a 0
+                return JsonResponse(
+                            {
+                                'company':orden.company.name,
+                                'cel_company':orden.company.mobile,
+                                'cliente':orden.client.names,
+                                'products':len(request.session['compra']),
+                                'success':"En hora buena realizaste tu pedido.<a href='/'> Ir al Inicio</a>",
+                                't_pago':t_pago
+                            }
+                        )
+    dic = {
+        'form':ClientFormOrder(),
+        'total_compra':len(request.session['compra']),
+        'company':get_company(),
+        'categorias':Category.objects.all(),
+        'datos':request.session['compra'],
+         "t_pago":calcular_pago(request)
+    }
+    return render(request,'catalog/confirmar_pedido.html',dic)
+
+def crear_orden(id_cliente):
+    orden = Orden()
+    orden.client_id = int(id_cliente)
+    orden.company_id = int(get_company().id)
+    orden.total = float(calcular_pago(request))
+    orden.save()
+    return orden

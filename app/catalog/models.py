@@ -267,3 +267,59 @@ class SaleDetail(models.Model):
         verbose_name = 'Detalle de Venta'
         verbose_name_plural = 'Detalle de Ventas'
         default_permissions = ()
+
+
+
+class Orden(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.PROTECT, verbose_name='Compañia')
+    client = models.ForeignKey(Client, on_delete=models.PROTECT, verbose_name='Cliente')
+    #employee = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name='Empleado')
+    subtotal_12 = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Subtotal 12%')
+    subtotal_0 = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Subtotal 0%')
+    dscto = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Descuento')
+    total_dscto = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Valor del descuento')
+    iva = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Iva')
+    total_iva = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Valor de iva')
+    total = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Total a pagar')
+    creation_date = models.DateTimeField(auto_now_add=True, verbose_name='Fecha y hora de registro')
+    date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')
+    estado = models.BooleanField(default = True)
+    # TODO: Define fields here
+
+
+    class Meta:
+        """Meta definition for Orden."""
+
+
+        verbose_name = 'Orden'
+        verbose_name_plural = 'Ordens'
+
+
+    def __str__(self):
+        return self.client.names
+
+
+class Pedido(models.Model):
+    orden = models.ForeignKey(Orden, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.PROTECT)
+    cant = models.IntegerField(default=0)
+    price = models.DecimalField(max_digits=9, decimal_places=2, default=0.00)
+    subtotal = models.DecimalField(max_digits=9, decimal_places=2, default=0.00)
+    #iva = models.DecimalField(max_digits=9, decimal_places=2, default=0.00)
+    #total_iva = models.DecimalField(max_digits=9, decimal_places=2, default=0.00)
+    dscto = models.DecimalField(max_digits=9, decimal_places=2, default=0.00)
+    total_dscto = models.DecimalField(max_digits=9, decimal_places=2, default=0.00)
+    total = models.DecimalField(max_digits=9, decimal_places=2, default=0.00)
+
+
+    class Meta:
+        """Meta definition for Pedido."""
+
+
+        verbose_name = 'Pedido'
+        verbose_name_plural = 'Pedidos'
+
+
+    def __str__(self):
+        """Unicode representation of Pedido."""
+        return "%s, orden # %s"%(self.product.name, self.orden)

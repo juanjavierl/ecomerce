@@ -6,8 +6,8 @@
 
 <h1>Registro de pedido</h1>
 
-<form action="confirmar_pedido/" method="post">
-
+<form action="/confirmar_pedido/" method="post">
+    {% csrf_token %}
     {{form|crispy}}
 
     <button type="submit" class="btn btn-success" >Realizar Pedido</button>
