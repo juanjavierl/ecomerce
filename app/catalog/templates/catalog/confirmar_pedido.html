@@ -1,12 +1,15 @@
 {% extends 'index.html' %}
 
 {% block contenidos %}
-<h1>Registro</h1>
+
+{% load crispy_forms_tags %} 
+
+<h1>Registro de pedido</h1>
 
 <form action="confirmar_pedido/" method="post">
 
-    {{form}}
+    {{form|crispy}}
 
-    <button type="submit" >Realizar Pedido</button>
+    <button type="submit" class="btn btn-success" >Realizar Pedido</button>
 </form>
 {% endblock %}

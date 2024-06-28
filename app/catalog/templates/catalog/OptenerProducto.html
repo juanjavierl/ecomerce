@@ -57,7 +57,7 @@
           <p style="color: blue;">precio: {{p.pvp}}</p>
           <p class="text-decoration-line-through" style="color: red;">Antes: {{p.price_before}}</p>
         </div>
-        <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+        <p class="card-text"><small class="text-muted">Cantidad disponible: {{p.stock}}</small></p>
         <div class="modal-footer" style="justify-content: space-around;">
           <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button> -->
            
@@ -71,6 +71,7 @@
                       <div class="valores menos"> - </div>
                       <div class="cant">
                         <input type="text" name="cantidad" placeholder="Ingrese la Cantidad" value="1" min="1" id="inputPassword6" class="form-control form-control-sm valor_numerico" required>
+
                       </div>
                       <div class="valores mas"> + </div>
                     </div>
@@ -96,8 +97,8 @@
         data:$(this).serialize(),
         success:function(resp){
           if(resp.error){
-            $(".alert-danger").html(resp.error).show();
-            $(".alert-success").html(resp.success).hide();
+            $(".alert-danger").html(resp.error).show();//mostrar 
+            $(".alert-success").html(resp.success).hide();//sigui escondido
           }
           else{
             $(".alert-success").html(resp.success).show();
