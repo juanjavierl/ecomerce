@@ -94,6 +94,7 @@ def optenerProducto(request, id_producto):
                 dic['success'] = "Producto Registrado"
                 dic['total_compra'] = len(request.session['compra'])
                 return JsonResponse(dic)
+        
 
     return render(request,'catalog/OptenerProducto.html',{
                     'p':p,

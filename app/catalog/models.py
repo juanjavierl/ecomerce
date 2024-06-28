@@ -9,7 +9,6 @@ from django.forms import model_to_dict
 #from config import settings
 #from core.user.models import User
 
-
 class Category(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name='Nombre')
     description = models.CharField(max_length=500, null=True, blank=True, verbose_name='Descripción')
