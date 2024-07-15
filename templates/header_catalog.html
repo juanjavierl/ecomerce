@@ -17,7 +17,11 @@
           <li><a class="nav-link scrollto active" href="#category">Categorias</a></li>
           <li><a class="nav-link scrollto" href="/">Productos</a></li>
           <li><a class="nav-link scrollto" href="#contact">Contacto</a></li>
-          <li><a class="nav-link scrollto" href="admin/" target="__blank">Ingresar</a></li>
+          {% if user.is_authenticated  %}
+          <li><a class="nav-link scrollto" href="/salir/">Salir</a></li>
+          {% else %}
+          <li><a class="nav-link scrollto" href="#" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="login('/login/')">Ingresar</a></li>
+          {% endif %}
           
         </ul>
         <i class="bi bi-list mobile-nav-toggle"></i>
@@ -37,5 +41,14 @@
     }
     function buscar_producto(){
       $('.menus').slideToggle(1000);
+    }
+    function login(urls){
+      $.ajax({
+          type:'GET',
+          url:urls,
+          success:function(resp){
+              $(".modal-content").html(resp);
+          }
+      });
     }
   </script>

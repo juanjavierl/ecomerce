@@ -1,11 +1,14 @@
 #importamos todos lo modulos de propios de django
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from django.http import JsonResponse, request
+from django.shortcuts import redirect
 from django.core.paginator import Paginator
 from django.views.generic import DeleteView, CreateView, UpdateView, TemplateView,DetailView
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 from django.http import Http404
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import authenticate,login, logout
 #importamos modulos de terceros
 
 
@@ -170,8 +173,8 @@ def confirmar_pedido(request):
             return JsonResponse({'error': "El Nro de Nit/CI debe ser numérico."})
         if not request.POST['mobile'].isdigit():
             return JsonResponse({'error': "El Nro de Celular debe ser numérico."})
+        
         forms=ClientFormOrder(request.POST)
-
         try:#si ya existe ese cliente
             print("ya existe ese cliente")
             cliente = Client.objects.get(dni = int(request.POST['dni']))
@@ -184,15 +187,18 @@ def confirmar_pedido(request):
                 pedido.price = float(productos['precio_uni'])
                 pedido.total = float(int(productos['cantidad']) * float(productos['precio_uni']))
                 pedido.save()
+            lista_product = request.session['compra']
             t_pago = calcular_pago(request)
             request.session['compra'] = []#cuando al cliente confirma su pedido se resetea al carrito a 0
             return JsonResponse(
                         {
                             'company':orden.company.name,
                             'cliente':orden.client.names,
+                            'lugar':lugar,
+                            'cel_company':orden.company.mobile,
                             'products':len(request.session['compra']),
                             'success':"Bien, tu pedido a sido registrado. <a href='/'> Ir al Inicio</a>",
-
+                            'lista':lista_product,#envio lasession en la variable lista_product
                             't_pago':t_pago
                         }
                     )
@@ -211,14 +217,17 @@ def confirmar_pedido(request):
                     pedido.total = float(int(productos['cantidad']) * float(productos['precio_uni']))
                     pedido.save()
                 t_pago = calcular_pago(request)
+                lista_product = request.session['compra']
                 request.session['compra'] = []#cuando al cliente confirma su pedido se resetea al carrito a 0
                 return JsonResponse(
                             {
                                 'company':orden.company.name,
                                 'cel_company':orden.company.mobile,
                                 'cliente':orden.client.names,
+                                'lugar':lugar,
                                 'products':len(request.session['compra']),
                                 'success':"En hora buena realizaste tu pedido.<a href='/'> Ir al Inicio</a>",
+                                'lista':lista_product,
                                 't_pago':t_pago
                             }
                         )
@@ -239,3 +248,27 @@ def crear_orden(id_cliente):
     orden.total = float(calcular_pago(request))
     orden.save()
     return orden
+
+def login_user(request):
+    if request.method == "POST":
+        form_user = AuthenticationForm(data=request.POST)
+        if form_user.is_valid():
+            username = request.POST['username']
+            password = request.POST['password']
+            user = authenticate(username=username,password=password)
+            if user is not None:
+                print("TE AUTENTICASTE EN EL SISTEMA")
+                login(request, user)
+                return JsonResponse({'login':"login"})
+            else:
+                return JsonResponse({'error':'Error, Contactese con el administrador para resolver el problema gracias.'})
+        else:
+            return JsonResponse({'error':'Error, datos incorrectos intente nuevamente gracias.'})
+    else:
+        form_user = AuthenticationForm()
+        dic = {'form_user':form_user}
+    return render(request, 'usuarios/login.html', dic)
+
+def salir(request):
+    logout(request)
+    return redirect('/')
