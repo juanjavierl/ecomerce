@@ -15,4 +15,6 @@ urlpatterns = [
 
     path('login/', login_user, name="login"),
     path('salir/', salir, name='salir'),
+
+    path('pdf/', pdf_view, name='pdf'),
 ]

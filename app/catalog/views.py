@@ -272,3 +272,24 @@ def login_user(request):
 def salir(request):
     logout(request)
     return redirect('/')
+
+
+from django.shortcuts import render
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+
+from weasyprint import HTML
+
+def pdf_view(request):
+    
+    productos = Product.objects.all()
+    dic = {'productos':productos}
+    html = render_to_string("reportes/reporte_pdf.html", dic)
+
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = "inline; report.pdf"
+
+    #font_config = FontConfiguration()
+    HTML(string=html).write_pdf(response)
+
+    return response
