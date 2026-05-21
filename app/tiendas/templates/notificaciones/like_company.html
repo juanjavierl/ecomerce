@@ -1,0 +1,78 @@
+
+<style>
+  .card-horizontal {
+    display: flex;
+    flex-direction: row;
+    max-width: 600px;
+  }
+</style>
+  <div class="container productos_por_categorias" data-aos="fade-up" style="text-align: -webkit-center;">
+    <div class="section-title" data-aos="fade-up">
+      <h2>Realizaste tu pedido con exito!!</h2>
+    </div>
+    <div>
+      <div class="card card-horizontal">
+
+        <div class="card-body">
+
+          {% if like %}
+          <div class="alert-success">
+            <h5 class="card-title fst-italic text-primary">{{company.name|title}} te dice</h5>
+            <p class="card-text text-start fst-italic">{{like}}<br>
+              <a href="/{{company.id}}/catalogo">Ir al Catálogo</a>
+            </p>
+          </div>
+          {% else %}
+          <h5 class="card-title fst-italic text-success">{{company.name|title}} te dice ¡Muchas Gracias Por Confiar en Nosotros!</h5>
+          <p class="card-text text-start fst-italic">Elige una opción para evaluar nuestro sistema, asi podremos llegar a
+            más personas, hasta pronto!.</p>
+          <form action="/{{company.id}}/{{id_orden}}/{{id_cliente}}/like" method="post" id="form_like">
+            {% csrf_token %}
+            <div class="input-group">
+              <select class="form-select" id="inputGroupSelect04" name="like"
+                aria-label="Example select with button addon" required>
+                <option value="2">Muy bueno</option>
+                <option value="1">Bueno</option>
+                <option value="1">Malo</option>
+              </select>
+              <button class="btn btn-success" type="submit">Enviar</button>
+            </div>
+          </form>
+          {% endif %}
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+<script>
+  $('#form_like').on('submit', function (e) {
+    e.preventDefault();
+    $.ajax({
+      type: 'POST',
+      url: $(this).attr('action'),
+      data: $(this).serialize(),
+      success: function (resp) {
+        if (resp.error) {
+          $('.toast-body').removeClass('alert-success').addClass('alert-success');
+          $('.toast-body').fadeIn(1000).html('<strong>' + resp.error + '</strong>');
+          mostrar_notificacion();
+        }
+        else {
+          $('.toast-body').removeClass('alert-danger').addClass('alert-success');
+          $('.toast-body').fadeIn(1000).html(resp.success);
+          $('#form_like')[0].reset();
+
+          mostrar_notificacion();
+          setTimeout(function () {
+            window.location.href = "/{{company.id}}/catalogo";
+          }, 3000);
+
+        }
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        alert("Error:" + thrownError);
+      }
+    });
+  });
+</script>

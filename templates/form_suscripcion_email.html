@@ -1,0 +1,39 @@
+<section class="container col-11" id="bot_amceb" data-aos="fade-up">
+    <div class="alert alert-primary container row" role="alert">
+        <div class="container col-12 col-md-6 text-center">
+            <strong><i class="bi bi-award-fill" style="color: gold;"></i> ¡Suscríbete a nuestra tienda y gana un cupón de descuento!</strong>
+        </div>
+        <div class="container col-12 col-md-6" id="form_more_aviso">
+            <form action="/{{company.id}}/suscribirse/" method="post" id="id_suscripcion">
+                {% csrf_token %}
+                <div class="input-group mb-3">
+                    <input type="email" name="email" class="form-control" placeholder="Ingresa tu email"  required>
+                    <button class="btn btn-primary" type="submit" id="button-addon2">Suscribirme</button>
+                </div>
+            </form>
+        </div>
+      </div>
+</section>
+<script>
+    $('#id_suscripcion').on('submit', function (e) {
+    e.preventDefault();
+    $.ajax({
+      type: 'POST',
+      url: $(this).attr('action'),
+      data: $(this).serialize(),
+      success: function (resp) {
+        if (resp.error) {
+          $('.toast-body').removeClass('alert-success').addClass('alert-danger');
+          $('.toast-body').fadeIn(1000).html('<strong>'+resp.error+'</strong>');
+          mostrar_notificacion();
+        } else {
+          $('#form_more_aviso').fadeIn(1000).html(resp.success);
+
+        }
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        alert("Error:" + thrownError);
+      }
+    });
+  });
+</script>

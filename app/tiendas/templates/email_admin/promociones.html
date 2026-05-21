@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Promociones y Novedades</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 650px;
+            margin: auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: #0d6efd;
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+        }
+        .company-block {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .company-block h2 {
+            margin: 0 0 10px;
+            color: #0d6efd;
+        }
+        .products {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .product {
+            flex: 1 1 calc(33% - 10px);
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            overflow: hidden;
+            text-align: center;
+            font-size: 14px;
+        }
+        .product img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        .product p {
+            margin: 10px;
+        }
+        .footer {
+            background: #f1f3f5;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            padding: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Promociones y Novedades</h1>
+        </div>
+
+        {% for item in companies_data %}
+            <div class="company-block">
+                <h2>{{ item.company.name }}</h2>
+                <p>
+                    Visita su catálogo aquí 👉 
+
+                    <a href="{{item.url}}" target="_blank">
+                        {{ item.company.name }}
+                    </a>
+                </p>
+                <div class="products">
+                    {% for p in item.productos %}
+                        <div class="product">
+                            {% if p.image %}
+                                <img src="{{ p.image.url }}" alt="{{ p.name }}">
+                            {% endif %}
+                            <p><strong>{{ p.name }}</strong></p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+
+        <div class="footer">
+            Has tu pedido ahora, productos hasta agotar Stock
+            <br>
+            &copy; {{ now|date:"Y" }} www.amceb.online
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Renueva tu catálogo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+            color: #333;
+            background-color: #f4f6f8;
+            padding: 30px;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .email-header {
+            background-color: #0d6efd;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+        .email-header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .email-body {
+            padding: 25px;
+        }
+        .email-body h2 {
+            color: #0d6efd;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        .email-body p {
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        .btn-whatsapp {
+            display: inline-block;
+            background-color: #25d366;
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 25px;
+        }
+        .company-image {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .company-image img {
+            width: 100%;
+            max-width: 550px;
+            height: auto;
+            border-radius: 8px;
+        }
+        .email-footer {
+            background-color: #f1f3f5;
+            color: #888;
+            text-align: center;
+            font-size: 12px;
+            padding: 15px;
+        }
+        .email-signature {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="email-header">
+            <h1>¡Tu catálogo expiró!</h1>
+        </div>
+
+        <!-- Body -->
+        <div class="email-body">
+            <h2>Hola {{ company.user.get_full_name|default:company.user.username }}</h2>
+
+            <p>Tu catálogo <strong>{{ company.name }}</strong> <br>
+                expiró el <strong>{{ company.expiration_date }}</strong>.</p>
+
+            <p>{{ message }}</p>
+
+            <p>
+                Contacta aquí para renovar tu plan:
+                <a target="_blank" href="https://api.whatsapp.com/send?text=Necesito renovar mi Plan Cod_catalogo {{ company.id }}.&phone=79436914" class="btn-whatsapp">
+                    Renovar vía WhatsApp
+                </a>
+            </p>
+
+            <p class="email-signature">
+                Saludos,<br>
+                <strong>Equipo de Administración de AMCEB</strong>
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="email-footer">
+            Si tienes alguna pregunta o duda contáctanos: 
+            <a target="_blank" href="https://api.whatsapp.com/send?text=Necesito renovar mi Plan Cod_catalogo {{ company.id }}.&phone=79436914">WhatsApp</a> 
+            o ingresa a: <a href="https://www.amceb.online">www.amceb.online</a>
+        </div>
+    </div>
+</body>
+</html>

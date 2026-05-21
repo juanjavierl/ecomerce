@@ -1,0 +1,24 @@
+<a 
+    href="https://api.whatsapp.com/send?phone={{ company.mobile }}&text=😊Vengo de su tienda online%0A" 
+    target="_blank"
+    id="whatsappButton"
+    title="Inicia una conversación"
+    class="back-to-top-w d-flex align-items-center justify-content-center">
+    <i class="bi bi-whatsapp"></i>
+</a>
+<script>
+$(document).ready(function() {
+  const $button = $('#whatsappButton');
+  const tooltip = new bootstrap.Tooltip($button[0]);
+
+  setTimeout(function() {
+    tooltip.show();
+
+    // Ocultar tooltip automáticamente a los 5 segundos
+    setTimeout(function() {
+      tooltip.hide();
+    }, 10000);
+
+  }, 0);
+});
+</script>

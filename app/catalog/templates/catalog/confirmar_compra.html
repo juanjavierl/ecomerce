@@ -1,0 +1,487 @@
+{% extends 'index.html' %}
+
+{% block titulo %}
+{{company.name|title|truncatechars:25}}
+{% endblock titulo %}
+
+{% block company %}
+<a href="/{{company.id}}/catalogo">
+  <marquee behavior="" direction="" style="margin-top: 14px;">{{company.name|title}}</marquee>
+</a>
+{% endblock company %}
+
+{% block code_meta %}
+{% if code.codigo %}
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '{{code.codigo}}');
+  fbq('track', 'PageView');
+</script>
+<noscript>
+    <img height="1" width="1" style="display:none" 
+    src="https://www.facebook.com/tr?id={{code.codigo}}&ev=PageView&noscript=1"/>
+</noscript>
+{% endif %}
+{% endblock code_meta %}
+
+{% block carrito %}
+{% include 'catalog/carrito.html' with total_compra=total_compra %}
+{% endblock carrito %}
+
+
+{% block menus %}
+{% include 'menu_from_user.html' %}
+{% endblock menus %}
+
+{% block hero %} {% endblock hero %}
+
+{% block form_buscador %}
+<div class="form_buscador_product" style="display: none;"> 
+</div>
+{% endblock form_buscador %}
+
+{% block acerca %} {% endblock acerca %}
+
+{% block contenido %}
+<style>
+  @media (max-width: 500px) {
+
+    /*cuando la pantalla es < a 500*/
+    .container .info .table-responsive {
+      margin-top: 10px;
+    }
+  }
+
+  .container .info {
+    margin-bottom: 20px;
+  }
+  .iti {
+    width: 100%;
+  }
+
+  .iti input {
+      width: 100%;
+  }
+</style>
+{% load crispy_forms_tags %}
+<section class="container" id="team_productos" style="margin-top: 80px;">
+  {% if aviso %}
+  {% include 'notificaciones/opciones_avisos.html' %}
+  {% endif %}
+  <div class="row d-flex no-gutters justify-content-center info productos_por_categorias" data-aos="fade-up"
+    id="data_dable">
+    <div class="section-title" data-aos="fade-up">
+      <h2>Ingrese sus datos para confirmar su orden</h2>
+    </div>
+    <div class="col-lg-5 d-flex align-items-stretch form_msj">
+
+      <form action="/{{company.id}}/confirmar_compra/" method="post" class="" id="form_pedido" style="width: 100%;">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <label for="">Tipo de entrega* </label>
+        <select class="form-select" id="tipo_envio" name="tipo_envio" aria-label="Small select example">
+          <option value="tienda">Recogeré en la tienda</option>
+          <option value="domicilio">Enviame a mi domicilio</option>
+          
+          {% if not company.is_service %}
+          <option value="ciudad">Envio a otra Ciudad</option>
+          {% endif %}
+        </select>
+        <small class="text-muted menj_valor_envio"></small>
+        <select class="form-select" id="destino" name="destino" aria-label="Small select example" style="margin-top: 15px;">
+          <option value="">Seleccione su Ciudad</option>
+          <option value="Cochabamaba">Cochabamba</option>
+          <option value="La Paz">La Paz</option>
+          <option value="El Alto">El Alto</option>
+          <option value="Santa Cruz">Santa Cruz</option>
+          <option value="Potosi">Potosi</option>
+          <option value="Oruro">Oruro</option>
+          <option value="Sucre">Sucre</option>
+          <option value="Tarija">Tarija</option>
+          <option value="Beni">Beni</option>
+          <option value="Pando">Pando</option>
+        </select>
+        <div id="div_id_fecha">
+          <label for="">Fecha y Hora a Recoger</label>
+          <input type="datetime-local" id="date_time" name="date_time"
+            value="{{ ahora }}"
+            min="{{ ahora }}"
+            max="{{ limite }}"
+            class="textinput form-control">
+          <span id="passwordHelpBlock" class="form-text">
+            fecha y hora que visitará la tienda, máximo en 15 días.
+          </span>
+        </div>
+
+        <div class="text-center img_pagoQr" style="margin-bottom: 10px;">
+          <div class="text-center" role="alert" style="padding: 0px; margin-top: 10px;">
+            <i class="bi bi-check-lg"></i> <small class="text-success">Escanea el siguiente código QR para completar su pedido:</small><br>
+            <strong id="costos"></strong><br>
+            <small>Una vez realizado el pago, preciona el boton confirmar.</small>
+          </div>
+          <img class="img-fluid rounded img_qr_company" src="" alt="" style="width: 300px; height: 350px;">
+        </div>
+
+        <div class="modal-footer" id="btn_compra">
+          <button type="submit" class="btn btn-success btn-sm btn-block" style="margin-bottom: 20px; margin-right: 10px;"><i
+            class="bi bi-save"></i> Registrar Pedido & Confirmar por Whatsapp</button>
+
+          <a href="/{{company.id}}/catalogo" class="btn btn-secondary btn-sm"
+            style="margin-bottom: 20px;"><i class="bi bi-arrow-left-circle"></i> Ir Atrás</a>
+        </div>
+      </form>
+    </div>
+
+    <div class="col-lg-5 d-flex align-items-stretch table-responsive" id="carritos_items">
+      <table class="table table-striped table-sm" id="data_dable">
+        <thead>
+          
+            <tr>
+              <td colspan="5">
+                <div class="alert alert-success" role="alert" style="padding: 0px 10px; text-align: justify;">
+                   
+                  {% if regla %}
+                   <small><i class="bi bi-star-fill" style="color: gold;"></i> Resumen de su pedido: {{regla.regla}}</small>
+                  {% else %}
+                  <small><i class="bi bi-star-fill" style="color: gold;"></i> En buena hora, ¡ya casi lo tienes! Resumen de su pedido</small>
+                   {% endif %}
+                </div>
+              </td>
+            </tr>
+          <tr class="table-info">
+            <th scope="col">Imagen</th>
+            <th scope="col">Detalle</th>
+            <th scope="col">Precio</th>
+            <th scope="col">Cant</th>
+            <th scope="col">Sub total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in datos %}
+          <tr id="eliminarProducto{{forloop.counter0}}">
+            <td>
+            {% if i.imagen %}
+              <img src="{{ i.imagen }}" alt="Imagen de {{ i.name }}" style="width: 60px; height: 60px;">
+            {% endif %}
+              </td>
+            <td>{{i.name}} {{i.nota}}</td>
+            <td>{{i.precio_uni}}</td>
+            <td>{{i.cantidad}}</td>
+            <td>{{i.total}}</td>
+            <!--  <td><button onclick="eliminarProducto('/eliminarProducto/{{forloop.counter0}}')" data-bs-toggle="tooltip" title="Eliminar" class="btn btn-danger btn-sm"><i class="bi bi-trash3"></i></button></td> -->
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5">
+              <div class="alert alert-warning text-center" role="alert">No hay Productos</div>
+            </td>
+          </tr>
+          {% endfor %}
+          {% if datos %}
+          <tr>
+            <td colspan="5" style="text-align: center;"><strong id="t_p">Importe estimado: {{company.moneda}}. {{t_pago}}</strong></td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+<script>
+  $(function () {
+    $("#div_id_fecha").css("margin-bottom", "20px");
+    $("#div_id_fecha").css("margin-top", "20px");
+
+    $(".menj_valor_envio").html('Una vez confirmado puede pasar a recoger.');
+    $('.img_pagoQr').hide();
+    $("#date_time").value = "{% now 'd-m-Y H:i:s' %}";
+    $('#date_time').attr('required', 'true');
+    $("#div_id_address").hide();
+    $("#destino").hide();
+
+    $("#tipo_envio").change(function () {
+      $.ajax({
+        type: 'GET',
+        url: "/{{company.id}}/getPrecioEnvio",
+        data:{'opcion':$(this).val()},
+        success: function (resp) {
+          //$("#t_p").text(resp.datos.total);
+          if(resp.datos.precio_envio != "0"){
+            $(".menj_valor_envio").text("Costo de envio: {{company.moneda}}. "+ resp.datos.precio_envio).show();
+            $('.img_pagoQr').fadeIn(500).show();
+            
+            if(resp.datos.qr == false){
+              $('.img_pagoQr').hide();
+            }else{
+              $('.img_pagoQr img').attr('src',resp.datos.qr.qr_img);
+              $('#costos').text("Importe: "+ resp.datos.importe + " Precio de envio: "+ resp.datos.precio_envio + " Total a pagar : {{company.moneda}}." + resp.datos.total_pagar);
+            }
+          
+          }else{
+            if(resp.datos.precio_envio == "0" && $("#tipo_envio").val() == "tienda"){
+              $(".menj_valor_envio").text('Una vez confirmado puede pasar a recoger.').show();
+
+            }else{
+              $(".menj_valor_envio").text('Envio Gratis').show();
+              if(resp.datos.qr == false){
+                $('.img_pagoQr').fadeIn(500).hide();
+              }else{
+                $('.img_pagoQr img').attr('src',resp.datos.qr.qr_img);
+                $('#costos').text("Importe: "+ resp.datos.importe + " Precio de envio: "+ resp.datos.precio_envio + " Total a pagar : {{company.moneda}}." + resp.datos.total_pagar);
+                $('.img_pagoQr').fadeIn(500).show();
+              }
+            }
+          }
+        }
+      });
+      if ($(this).val() == "tienda") {
+        $("#div_id_fecha").fadeIn(1000).show().find("input").focus();
+        $("#div_id_address, #destino").hide(500);
+        $("#div_id_fecha").css("margin-bottom", "20px");
+        
+        $('.img_pagoQr').fadeOut(1000).hide();
+        $('#date_time').attr('required', 'true');
+        $('#id_address, #destino').removeAttr('required');
+      }
+      if ($(this).val() == "domicilio") {
+        $("#div_id_fecha, #destino").hide(500);
+        $("#div_id_address").fadeIn(1000).show().find("input").focus();
+   
+        $('#id_address').attr('required', 'true');
+        $('#date_time, #destino').removeAttr('required');
+
+        $("#destino").css("margin-bottom", "20px");
+        $("#btn_compra").css("margin-top", "20px");
+      }
+      if ($(this).val() == "ciudad") {
+        $("#div_id_address, #div_id_fecha").hide(500);
+        $("#destino").fadeIn(1000).show();
+        $("#destino").focus();
+        
+        $('#destino').attr('required', 'true');
+        $('#id_address, #date_time').removeAttr('required');
+        $("#destino").css("margin-bottom", "20px");
+      }
+    });
+
+    if ("{{ total_compra }}" == "0"){
+      $(".form_msj").hide();
+      $(".col-6 h2").fadeIn(1000).html("No hay productos");
+      setTimeout(function () {
+        window.location.href = "/{{company.id}}/catalogo";
+      }, 5000);
+    }
+  });
+
+  function capitalizarTexto(texto) {
+    return texto.toLowerCase().replace(/\b\w/g, letra => letra.toUpperCase());
+  }
+  
+  const input = document.querySelector("#id_mobile");
+  const iti = window.intlTelInput(input, {
+      initialCountry: "bo",
+      separateDialCode: true,
+      utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js",
+  });
+  $('#form_pedido').submit(function (e) {
+  e.preventDefault();
+  let number = iti.getNumber(intlTelInputUtils.numberFormat.E164);
+  input.value = number || input.value;  // garantiza que el valor enviado sea completo
+  if (validateEmail($("#id_email").val())) {
+    $.ajax({
+      type: 'POST',
+      url: $(this).attr("action"),
+      data: $(this).serialize(),
+      success: function (resp) {
+        if (resp.error) {
+            let html = "";
+            for (let campo in resp.error) {
+                let errores = [].concat(resp.error[campo]); // convierte string o lista en array
+                errores.forEach(mensaje => {
+                    html += `<p><strong>${campo}:</strong> ${mensaje}</p>`;
+                });
+            }
+            $('.toast-body')
+                .removeClass('alert-success')
+                .addClass('alert-danger')
+                .fadeIn(300)
+                .html(html);
+
+            mostrar_notificacion();
+            return;
+        }
+
+        // ✅ Mensaje de éxito
+        $('.toast-body')
+          .removeClass('alert-danger')
+          .addClass('alert-success')
+          .fadeIn(1000)
+          .html('<strong>' + resp.success + '</strong>');
+        mostrar_notificacion();
+
+        // Reset form y actualizar carrito
+        $('#form_pedido')[0].reset();
+        $("#cont_compras").html(resp.products);
+
+        // 🛍️ Encabezado del pedido
+        let datos = "🛍️ *CONFIRMACIÓN DE PEDIDO* %0A";
+        datos += "------------------------------------ %0A";
+        datos += "*Nro de Pedido:* " + (resp.orden?.id || "—") + "%0A";
+        datos += "*Cliente:* " + capitalizarTexto(resp.cliente_object?.names || "—") + "%0A";
+        datos += "------------------------------------ %0A";
+
+        // 📦 Detalles del pedido
+        let pedido = "📦 *Detalles del pedido:* %0A";
+        if (resp.lista && resp.lista.length > 0) {
+          for (let item of resp.lista) {
+            const nombre = item['name'] || "Producto sin nombre";
+            const cantidad = item['cantidad'] || 0;
+            const precio = item['price'] ?? item['precio_uni'] ?? 0;
+            const total = item['total'] ?? (cantidad * precio);
+            const nota = item['nota']?.trim() ? " (" + item['nota'] + ")" : "";
+
+            pedido += `• ${nombre}${nota} → ${cantidad} x ${precio} {{company.moneda}}. = *${total} {{company.moneda}}.*%0A`;
+          }
+        } else {
+          pedido += "_(Sin productos registrados)_ %0A";
+        }
+
+        // 💰 Totales
+        let sub_total = "%0A💰 *Sub Total:* {{company.moneda}}. " + parseFloat(resp.t_pago || 0).toFixed(2) + "%0A";
+        let Envio = "";
+        let total = "";
+        let lugar = "";
+
+        // 🏬 Tipo de entrega/envío
+        const tipo = resp.lugar?.tipo || "";
+
+        if (tipo === "tienda") {
+          lugar = "🏬 *Retiro en tienda:* %0A📅 " + (resp.lugar.fecha || "Sin fecha") + "%0A";
+          total = "💵 *Total a pagar:* {{company.moneda}}. " + parseFloat(resp.t_pago || 0).toFixed(2) + "%0A";
+        } 
+        else if (tipo === "domicilio") {
+          let envio = parseFloat(resp.precio_envio || 0);
+          let total_envio = parseFloat(resp.t_pago || 0) + envio;
+          lugar = "🚚 *Envío a domicilio:* %0A📍 " + (resp.lugar.direccion || "Sin dirección") + "%0A";
+          Envio = "📦 *Costo de envío:* {{company.moneda}}. " + envio.toFixed(2) + "%0A";
+          total = "💵 *Total a pagar:* {{company.moneda}}. " + total_envio.toFixed(2) + "%0A";
+        } 
+        else if (tipo === "ciudad") {
+          let envio_c = parseFloat(resp.precio_envio_ciudad || 0);
+          let total_envio_c = parseFloat(resp.t_pago || 0) + envio_c;
+          lugar = "🛫 *Envío a otra ciudad:* %0A🏙️ Destino: " + (resp.lugar.destino || "Sin destino") + "%0A";
+          Envio = "📦 *Costo de envío:* {{company.moneda}}. " + envio_c.toFixed(2) + "%0A";
+          total = "💵 *Total a pagar:* {{company.moneda}}. " + total_envio_c.toFixed(2) + "%0A";
+        } 
+        else {
+          lugar = "📍 *Entrega no especificada* %0A";
+          total = "💵 *Total a pagar:* {{company.moneda}}. " + parseFloat(resp.t_pago || 0).toFixed(2) + "%0A";
+        }
+
+        // 🧾 Mensaje completo
+        let mensaje = datos + pedido + sub_total + Envio + total + "%0A" + lugar;
+        mensaje += "------------------------------------ %0A";
+        mensaje += "🕒 *Fecha de Pedido:* " + (new Date().toLocaleString('es-BO')) + "%0A";
+        mensaje += "📞 *Tienda:* " + (resp.company_object?.name || "Sin nombre") + "%0A";
+        mensaje += "------------------------------------ %0A";
+        mensaje += "✅ ¡Gracias por tu compra! %0A";
+
+        // 🟢 Abrir WhatsApp
+        let telefono = resp.company_object?.mobile || "";
+        if (telefono.trim() !== "") {
+          let ruta = "https://api.whatsapp.com/send?phone=" + telefono + "&text=" + mensaje;
+          window.open(ruta, "_blank");
+        } else {
+          console.warn("⚠️ No se pudo enviar mensaje por WhatsApp: la tienda no tiene número móvil configurado.");
+        }
+
+        // 🔁 Actualizar productos recomendados
+        $.ajax({
+          type: 'GET',
+          url: "/" + resp.company_object.id + "/" + resp.orden.id + "/" + resp.cliente_object.id + "/like",
+          success: function (response) {
+            $("#team_productos").html(response);
+          }
+        });
+      },
+
+      error: function () {
+        $('.toast-body')
+          .removeClass('alert-success')
+          .addClass('alert-danger')
+          .fadeIn(1000)
+          .html("⚠️ Por favor complete sus datos correctamente.");
+        mostrar_notificacion();
+      }
+    });
+  } 
+  else {
+    $('.toast-body')
+      .removeClass('alert-success')
+      .addClass('alert-danger')
+      .fadeIn(1000)
+      .html('<strong>Email Inválido</strong>');
+    mostrar_notificacion();
+    $('#id_email').focus();
+  }
+});
+
+  function eliminarProducto(urls) {
+    $.ajax({
+      type: 'GET',
+      url: urls,
+      success: function (resp) {
+        $("#cont_compras").html(resp);
+        //$(".datos_confirmar").fadeIn(1000).html(resp)
+        window.location.href = "/{{company.id}}/confirmar_compra/";
+        //verCarrito('/ver_carrito/');
+      }
+    });
+    return false;
+  }
+
+  function validateEmail(email) {
+    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{0,9}$/;
+    return regex.test(email);
+  }
+</script>
+{% endblock contenido %}
+
+{% block preg_frecuentes %} {% endblock preg_frecuentes %}
+
+{% block button_whatsap %}
+{% include 'button_whatsap.html' %}
+{% endblock button_whatsap %}
+
+{% block suscipcion_for_email %}
+  {% include 'form_suscripcion_email.html' %}
+{% endblock suscipcion_for_email %}
+  
+{% block productos_mas_vistos %}
+    {% include 'catalog/productos_mas_vistos.html' %}
+{% endblock productos_mas_vistos %}
+
+{% block servicios %} {% endblock servicios %}  
+
+{% block google_adsense %} {% endblock google_adsense %}
+
+{% block contact %}
+<!-- ======= Contact Section ======= -->
+<section id="contact" class="contact">
+  <div class="container">
+    {% include 'contact.html' %}
+  </div>
+</section>
+{% endblock contact %}
+
+{% block footer_catalog %}
+{% include 'footer_tienda.html' %}
+{% endblock footer_catalog %}

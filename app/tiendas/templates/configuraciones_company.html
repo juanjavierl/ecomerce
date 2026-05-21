@@ -1,0 +1,115 @@
+{% extends 'index.html' %}
+
+{% block titulo %}
+{{company.name|title|truncatechars:26}}
+{% endblock titulo %}
+
+{% block company %}
+<a href="/{{company.id}}/catalogo">
+    <marquee behavior="" direction="">{{company.name|title}}</marquee>
+</a>
+{% endblock company %}
+
+{% block carrito %}
+{% include 'catalog/carrito.html' with total_compra=total_compra %}
+{% endblock carrito %}
+
+{% block menus %}
+{% include 'menu_from_user.html' %}
+{% endblock menus %}
+
+{% block hero %} {% endblock hero %}
+
+{% block contenido %}
+
+<section id="team_productos" class="team" style="margin-top: 80px;">
+    <div class="container-fluid productos_por_categorias" data-aos="fade-up">
+
+        <div class="accordion" id="accordionExample">
+            <div class="accordion-item">
+                {% include 'configuraciones/reportePedidos.html' %}
+            </div>
+        
+            <div class="accordion-item">
+                {% include 'configuraciones/precioEnvios.html' %}
+            </div>
+                
+            <div class="accordion-item">
+                {% include 'configuraciones/registroBanco.html' %}
+            </div>
+
+            <div class="accordion-item">
+                {% include 'configuraciones/avisoCatalogo.html' %}
+            </div>
+            <div class="accordion-item">
+                {% include 'configuraciones/inventarioProductos.html' %}
+            </div>
+            <div class="accordion-item">
+                {% include 'configuraciones/listaClientes.html' %}
+            </div>
+
+            <div class="accordion-item">
+                {% include 'configuraciones/add_mapa.html' %}
+            </div>
+
+            <div class="accordion-item">
+                {% include 'configuraciones/add_condicion.html' %}
+            </div>
+            <!-- <div class="accordion-item">
+                {% include 'configuraciones/add_cupon.html' %}
+            </div> -->
+
+        </div>
+    </div>
+</section>
+<script>
+    $('#add_hivicacion_forms').on('submit', function (e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: $(this).serialize(),
+            success: function (resp) {
+                if (resp.error) {
+                    $(".invalid_ct").html(resp.error);
+                } else {
+
+                    $(".btn-close").click();
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Error:" + thrownError);
+            }
+        });
+    });
+    
+</script>
+{% endblock contenido %}
+
+{% block preg_frecuentes %} {% endblock preg_frecuentes %}
+{% block suscipcion_for_email %} {% endblock suscipcion_for_email %}
+{% block productos_mas_vistos %}    {% endblock productos_mas_vistos %}
+
+{% block acerca %} {% endblock acerca %}
+
+{% block button_whatsap %}
+{% include 'button_whatsap.html' %}
+{% endblock button_whatsap %}
+
+{% block servicios %} {% endblock servicios %}
+
+{% block google_adsense %}{% endblock google_adsense %}
+    
+{% block contact %}
+<!-- ======= Contact Section ======= -->
+<section id="contact" class="contact">
+    <div class="container">
+        {% include 'contact.html' with company=company %}
+    </div>
+</section>
+<!-- End Contact Section -->
+{% endblock contact %}
+
+{% block footer_catalog %}
+  {% include 'footer_tienda.html' %}
+{% endblock footer_catalog %}

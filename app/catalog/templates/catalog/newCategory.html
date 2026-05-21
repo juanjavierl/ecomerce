@@ -1,0 +1,50 @@
+{% load crispy_forms_tags %}
+<div class="modal-header  thead-light" style="background-color: #58bba9;">
+  <h5 class="modal-title text-white" id="exampleModalLabel">Agregar Nueva Categoria</h5>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body table-responsive">
+  <form action="/new_category/" method="POST" id="category_forms">
+    {% csrf_token %}
+    {{form|crispy}}
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i
+          class="bi bi-arrow-left-circle"></i> Cancelar</button>
+      <button type="submit" class="btn btn-success btn-sm">Registrar</button>
+    </div>
+  </form>
+</div>
+<script>
+  $('#category_forms').on('submit', function (e) {
+    e.preventDefault();
+    $.ajax({
+      type: 'POST',
+      url: $(this).attr('action'),
+      data: $(this).serialize(),
+      success: function (resp) {
+        if (resp.error) {
+          $('.toast-body').removeClass('alert-success').addClass('alert-danger');
+          $('.toast-body').fadeIn(1000).html('<strong>'+resp.error+'</strong>');
+          mostrar_notificacion();
+        } else {
+          var newOption = new Option(resp.category_name.toUpperCase(), resp.category_id, false, true);
+          $('#form_producto #id_category').append(newOption).trigger('change');
+
+          $('.toast-body').removeClass('alert-danger').addClass('alert-success');
+          $('.toast-body').fadeIn(1000).html('<strong>Categoria Registrado.</strong>');
+          $('#category_forms')[0].reset();
+
+          mostrar_notificacion();
+
+          setTimeout(function () {
+            $(".btn-close").click();
+          }, 1000);
+
+        }
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        alert("Error:" + thrownError);
+      }
+    });
+  });
+</script>

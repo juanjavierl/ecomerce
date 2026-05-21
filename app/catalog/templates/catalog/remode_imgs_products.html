@@ -1,0 +1,49 @@
+<div class="modal-header  thead-light" style="background-color: #58bba9;">
+    <h5 class="modal-title text-white" id="exampleModalLabel">Eliminar Imágenes</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body table-responsive">
+    <table id="deleteImgP">
+
+        {% for img in imagenes %}
+        <tr id="{{img.id}}deleteImgProduct">
+            <td>
+                    <img src="/media/{{img.img}}" alt="" style="width:120px; height: 90px;">
+                    <apan style="text-align: center;">Eliminar
+                        <a href="#" type="submit"
+                            onclick="deleteImgProduct('/{{img.id}}/deleteImgProduct/')"
+                            title="Eliminar la Imagen">
+                            <i class="bi bi-trash3"></i>
+                        </a>
+                    </apan>
+                
+            </td>
+        </tr>
+        {% empty %}
+            <tr>
+              <td colspan="6"><div class="alert alert-warning" style="text-align: center;" role="alert">No hay Imagenes, puede volver a ingresar</div></td>
+            </tr>
+        {% endfor %}
+
+    </table>
+</div>
+<script>
+     function deleteImgProduct(urls){
+        var id_pro = urls;
+        id_pro = id_pro.split("/").join("");
+        $.ajax({
+            type: 'get',
+            url: urls,
+            success: function (resp) {
+                $('.toast-body').addClass('alert alert-danger');
+                $('.toast-body').fadeIn(1000).html('<strong>'+resp.success+'</strong>');
+                mostrar_notificacion();
+                $(".modal-body #deleteImgP tbody #"+id_pro).remove();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Error:" + thrownError);
+            }
+        });
+        
+    }
+</script>

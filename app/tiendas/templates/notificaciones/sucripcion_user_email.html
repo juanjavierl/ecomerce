@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bienvenido a {{company.name|title}}</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background-color: #f3f4f6;
+      margin: 0;
+      padding: 0;
+      color: #1f2937;
+      text-align: justify;
+    }
+    .email-container {
+      max-width: 600px;
+      margin: 40px auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+    .email-header {
+      background-color: #1d4ed8;
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .email-header h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 600;
+    }
+    .email-body {
+      padding: 30px;
+    }
+    .email-body h2 {
+      margin-top: 0;
+      font-size: 22px;
+      font-weight: 500;
+    }
+    .email-body p {
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 12px 28px;
+      background-color: #1d4ed8;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      margin-top: 20px;
+    }
+    .email-footer {
+      background-color: #f9fafb;
+      padding: 20px 30px;
+      font-size: 14px;
+      text-align: center;
+      color: #6b7280;
+    }
+    a {
+      color: #1d4ed8;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <div class="email-header">
+      <h1>¡Bienvenido a {{company.name|title}}!</h1>
+    </div>
+    <div class="email-body">
+      <strong>Hola {{email_user}}, Por ser tu primera compra automáticamente ya tienes un descuento especial de hasta el 30% al total de tu compra, no esperes más realiza tu pedido ahora</strong>
+      <p>En los siguientes días te enviaremos un cupón de oferta para tu próxima compra</p>
+      <p>Ingresa ese código para realizar tu respectiva compra, válido solo para una compra</p>
+      <p>Gracias por unirte a nuestra comunidad. Nos emociona tenerte con nosotros y queremos ofrecerte una experiencia de compra inigualable.</p>
+      <p>Recibirás acceso anticipado a nuestras ofertas especiales, productos exclusivos y las últimas novedades directamente en tu bandeja de entrada.</p>
+      <!-- CENTRADO DEL BOTÓN -->
+      <div style="text-align: center;">
+        <a href="{{url_tienda}}" class="btn"> Ir a la tienda </a>
+      </div>
+      
+      <p>Si tienes alguna pregunta ó duda contactarnos. 
+        <a target="_blank" href="https://api.whatsapp.com/send?text=Más información acerca de su tienda online {{url_tienda}} &phone={{company.mobile}}">{{company.mobile}}</a> 
+        ó Ingresa a: 
+        <a href="{{url_tienda}}">{{url_tienda}}</a>
+      </p>
+    </div>
+    <div class="email-footer">
+      Tienda online: {{company.name|title}}. Todos los derechos reservados.
+    </div>
+  </div>
+</body>
+</html>

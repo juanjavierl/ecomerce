@@ -1,0 +1,44 @@
+{% load crispy_forms_tags %}
+<div class="modal-header  thead-light" style="background-color: #58bba9;">
+    <h5 class="modal-title text-white" id="exampleModalLabel">Eliminar: Sucursal </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+  <div class="modal-body table-responsive">
+    <form action="/{{address.id}}/del_address_comp" method="POST" id="eliminar_address">
+     {% csrf_token %}
+     <div class="alert alert-danger" role="alert">
+        Esta seguro de Eliminar la direcion y ubicación {{address.address|title}}?.
+      </div>
+       <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="bi bi-arrow-left-circle"></i> Cancelar</button>
+        <button type="submit" class="btn btn-danger btn-sm">Confirmar</button>
+      </div>
+    </form>
+ </div>
+
+ <script>
+    $("#eliminar_address").on('submit',function(e){
+      e.preventDefault();
+      $.ajax({
+              type:'POST',
+              url:$(this).attr('action'),
+              data:$(this).serialize(),
+              success:function(resp){
+                if(resp.error){
+                  $(".invalid").text(resp.error);
+                }
+                else{
+                  $('.info_map_registro').html(resp.success);
+                  setTimeout(function () {
+                    $(".btn-close").click();
+                  }, 800);
+
+                  setTimeout(function () {
+                    window.location.href='/'+resp.id_company+'/configuraciones';
+                  }, 1000);
+                }
+              }
+          });
+    });
+        
+   </script>

@@ -1,0 +1,230 @@
+{% load tz %}
+{% load extras %}
+<div class="row">
+  <div class="col-12">
+    <div class="section-title">
+      {% if productos %}
+        {% if company.is_service %}
+        <h2>Nuestras especialidades</h2>
+        {% else %}
+        <h2>Agrega tus pedidos al carrito</h2>
+        {% endif %}
+      {% else %}
+      <h2>lo siento aún no hay contenido disponible</h2>
+      {% endif %}
+
+      {% if company.is_service %}
+      <p>Los mejores servicios & especialidades los  encuentras en: <strong>{{company.name|title}}</strong></p>
+      {% else %}
+      <p>Los mejores productos & servicios los encuentras en: <strong>{{company.name|title}}</strong></p>
+      {% endif %}
+
+      {% if user.is_authenticated and date_expiration %}
+      <div class="alert alert-warning" role="alert">
+        Up.! su contrato expiro hace: {{company.expiration_date|timesince}}<strong>
+          <a href="https://api.whatsapp.com/send?text=ID cliente: {{company.id}}%0A Hola, fecha de expiración caducado, renovare mi contrato muchas gracias. &phone={{dashboard.mobile}}"
+            target="_blank">Contactese con el administrador aqui</a></strong><br>
+        <small class="text-muted ">Aviso: Debe renovar su contrato en los siguientes 15 dias, caso contrario su página
+          estara inactivo, muchas gracias por su comprención.</small>
+      </div>
+      {% endif %}
+
+      {% if user.is_authenticated and company.status == False %}
+      <div class="alert alert-danger" role="alert">
+        Up.! su catálogo está inactivo: <strong>
+          <a href="https://api.whatsapp.com/send?text=ID cliente: {{company.id}}%0A Hola, mi catálogo está inactivo renovare mi contrato muchas gracias. &phone={{dashboard.mobile}}"
+            target="_blank">Contactese con el administrador aqui</a></strong><br>
+        <small class="text-muted ">Aviso: Cuando un cátalogo esta inactivo, quiere decir que las personas no podran ver
+          su página en los buscadores, además en los proximos 15 dias se eliminaran todos los registros de su
+          cátalogo</small>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<div class="row col-12 justify-content-center" style="margin-left: 1px;">
+
+  {% for p in productos %}
+  <div class="card dark card_p single-product" data-aos="fade-up">
+
+    {% if p.image %}
+    <div class="col-5 col-lg-4 col-md-5 portfolio-item">
+      <div class="portfolio-wrap">
+        <img src="/media/{{p.image}}" style="max-height: 150px; width: 100%;" class="img-fluid object-fit-cover" alt="">
+        <div class="portfolio-info">
+          <div class="portfolio-links">
+            <a href="/media/{{p.image}}" data-gallery="portfolioGallery" class="portfolio-lightbox"
+              title="{{p.name|capfirst}}"><i class="bx bx-plus"></i></a>
+
+            <a href="/{{p.id}}/{{company.id}}/detail_product" title="Mas detalles"><i class="bx bx-link"></i></a>
+              
+          </div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+     <i class="bi bi-image card-img-top icon" alt="..." onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')"></i>
+    {% endif %}
+    {% if p.is_new %}
+    <span class="badge rounded-pill bg-primary sale-tag d-flex">Nuevo</span>
+    {% endif %}
+    <div class="card-body" style="padding: 0px;">
+      <div class="text-section" onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')" style="cursor: pointer;">
+        <h5 class="card-title text-wrap text-primary fw-bolder">{{p.name|capfirst}}</h5>
+        <p class="card-text text-break text-wrap fst-italic">{{p.description|urlize_mode:"ocultar,nobr"|default:" - - - "|capfirst|truncatewords:5}}
+          <a href="/{{p.id}}/{{company.id}}/detail_product" style="font-size: 14px;"><i class="bx bx-link"></i></a>
+        </p>
+        <p class="card-text">Categoria: <small class="text-muted">{{p.category|title}}</small></p>
+      </div>
+      <div class="cta-section">
+        <div>
+          <p style="margin-bottom: 0px;">{{company.moneda}}. {{p.price|default:" 0 "}}</p>
+          {% if p.price_before %}
+          <p class="text-decoration-line-through text-danger" style="font-size: 14px; margin-bottom: 0px;">Antes:
+            {{p.price_before}}</p>
+          <p><span class="badge text-bg-warning text-white desc">Desc. {{p.porcentage}}%</span></p>
+          {% endif %}
+
+          <div class="dropdown">
+            
+            {% if p.stock_actual > 0 %}
+            <button type="submit" id="id_{{p.id}}"
+              onclick="add_item('/{{p.id}}/{{company.id}}/detail_product','{{p.id}}')"
+              class="btn btn-primary btn-sm">Agregar</button>
+            {% else %}
+              <button type="button" class="btn btn-primary btn-sm" disabled>Agotado</button>
+            {% endif %}
+              
+            {% if user.is_authenticated and company.user == request.user %}
+            <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="dropdown" aria-expanded="false"
+              aria-haspopup="true">
+              <span class="bi bi-three-dots-vertical"></span>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item" href="#actualizar" onclick="updateProduct('/{{p.id}}/updateProduct/')"
+                data-bs-toggle="modal" data-bs-target="#exampleModal">Actualizar datos</a>
+              <a class="dropdown-item" href="#" onclick="add_imagen('/{{p.id}}/imgs_products/')"
+                data-bs-toggle="modal" data-bs-target="#exampleModal">Agregar más imagenes</a>
+
+              <a class="dropdown-item" href="#inventario" onclick="updateStock('/{{p.id}}/updateStock/')"
+                data-bs-toggle="modal" data-bs-target="#exampleModal">Stock </a>
+              <hr class="dropdown-divider">
+              <a class="dropdown-item text-danger" href="#eliminar" onclick="deleteProduct('/{{p.id}}/deleteProduct/')"
+                data-bs-toggle="modal" data-bs-target="#exampleModal">Eliminar producto</a>
+              
+              <a class="dropdown-item text-danger" href="#" onclick="remove_imagen('/{{p.id}}/remode_imgs_products/')" 
+                data-bs-toggle="modal" data-bs-target="#exampleModal">Eliminar imágenes</a>
+              
+            </div>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  
+  {% if user.is_authenticated %}
+  <div class="alert alert-warning" role="alert" style="text-align: center;">
+    <p>Gracias por unirte al sistema AMCEB, miles de usuarios ya venden con nosotros, tienes 30 dias de gracia para que puedas completar de llenar tus productos.</p>
+    Agrega tu primer producto para mostrar y comenzar a vender.
+    <a href="#team_productos" onclick="newProducto('/{{company.id}}/new_producto/')"> Registrar</a>
+  </div>
+  {% else %}
+  <div class="alert alert-warning" role="alert" style="text-align: center;">
+    No se encontraron resultados. <a
+    href="/">Ir al Inicio</a></div>
+  {% endif %}
+  
+  {% endfor %}
+</div>
+
+<script>
+  function datos(urls) {//optener producto
+    $.ajax({
+      type: 'GET',
+      url: urls,
+      success: function (resp) {
+        // $("#exampleModalLabel").html(name_prod);
+        $("#optenerProducto").fadeIn(1000).html(resp);
+      }
+    });
+  }
+  function add_item(urls, id_producto) {
+    let b = $(this).attr("id_" + id_producto);
+    b.innerHTML = "Agregar +";
+    $.ajax({
+      type: 'POST',
+      url: urls,
+      data: { csrfmiddlewaretoken: '{{ csrf_token }}', 'cantidad': 1, 'id_producto': id_producto },
+      success: function (resp) {
+        if (resp.error) {
+          $('.toast-body').removeClass('alert-success').addClass('alert-danger');
+          $('.toast-body').fadeIn(1000).html(resp.error);
+          mostrar_notificacion();
+        }
+        else {
+          $('.toast-body').removeClass('alert-danger').addClass('alert-success');
+          $('.toast-body').fadeIn(1000).html('<strong>'+ resp.success +'</strong>');
+          mostrar_notificacion();
+          $("#cont_compras").html(resp.total_compra);
+          actualizarBadge(resp.total_compra || 0);
+        }
+        setTimeout(function () {
+          $(".tamanio").fadeIn().html(resp.success).hide();
+        }, 4000);
+      }
+    });
+  }
+  function updateProduct(urls) {
+    $.ajax({
+      type: 'GET',
+      url: urls,
+      success: function (resp) {
+        // $("#exampleModalLabel").html(name_prod);
+        $(".modal-content").fadeIn(1000).html(resp);
+      }
+    });
+  }
+  function deleteProduct(urls) {
+    $.ajax({
+      type: 'GET',
+      url: urls,
+      success: function (resp) {
+        // $("#exampleModalLabel").html(name_prod);
+        $(".modal-content").fadeIn(1000).html(resp);
+      }
+    });
+  }
+  function updateStock(urls) {
+    $.ajax({
+      type: 'GET',
+      url: urls,
+      success: function (resp) {
+        // $("#exampleModalLabel").html(name_prod);
+        $(".modal-content").fadeIn(1000).html(resp);
+      }
+    });
+  }
+  function add_imagen(urls) {
+    $.ajax({
+      type: 'GET',
+      url: urls,
+      success: function (resp) {
+        // $("#exampleModalLabel").html(name_prod);
+        $(".modal-content").fadeIn(1000).html(resp);
+      }
+    });
+  }
+  function remove_imagen(urls) {
+    $.ajax({
+      type: 'GET',
+      url: urls,
+      success: function (resp) {
+        // $("#exampleModalLabel").html(name_prod);
+        $(".modal-content").fadeIn(1000).html(resp);
+      }
+    });
+  }
+</script>

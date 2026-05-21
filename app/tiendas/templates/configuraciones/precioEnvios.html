@@ -1,0 +1,84 @@
+{% load crispy_forms_tags %}
+<h2 class="accordion-header">
+    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+        data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+        <strong>Registrar Precio de Envio (Opcional)</strong>
+    </button>
+</h2>
+<div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+    <div class="accordion-body row d-flex justify-content-center">
+        <div class="forn-envio col-lg-5 align-items-stretch">
+            <div class="input-group">
+                <form action="/{{company.id}}/precio_envio" method="post" id="form_precio_envio">
+                    {% csrf_token %}
+                    {{form_precio|crispy}}
+                    <button type="submit" class="btn btn-primary btn-sm">Registrar</button>
+                </form>
+            </div>
+        </div>
+        <div class="precios_env col-lg-5 align-items-stretch" id="delete_precio"> 
+            {% if precio %}
+            <li>
+                Precio de envio a ciudad local: <strong>{{precio.precio}} Bs.</strong>
+            </li>
+            <br>
+            <li>
+                Precio de envio a otro departamento: <strong>{{precio.precio_ciudad}} Bs.</strong>  
+                <a href="#" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                    onclick="del_precio('/{{precio.id}}/del_precio')">Eliminar</a>
+            </li>
+            {% else %}
+                <p class="text-center text-danger">No hay registros</p>
+            {% endif %}
+                
+        </div>
+    </div>
+</div>
+<script>
+    $('#form_precio_envio').on('submit', function (e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: $(this).serialize(),
+            success: function (resp) {
+                if (resp.error) {
+                    $('.toast-body').addClass('alert alert-danger');
+                    $('.toast-body').fadeIn(1000).html(resp.error);
+                    mostrar_notificacion();
+                } else {
+                    $(".precios_env").html("");
+                    $('.toast-body').addClass('alert alert-success');
+                    $('.toast-body').fadeIn(1000).html(resp.success);
+                    mostrar_notificacion();
+                    $('.precios_env').html('<li>Precio de envio a ciudad local: <strong>' + resp.precio + ' Bs </strong></li> <li>Precio de envio a otro departamento: <strong>' + resp.precio_ciudad + ' Bs </strong></li> ');
+                    $('#form_precio_envio')[0].reset();
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $('.toast-body').addClass('alert alert-danger');
+                $('.toast-body').fadeIn(1000).html("Ya existe un precio");
+                mostrar_notificacion();
+            }
+        });
+    });
+
+    function del_precio(urls) {
+        $.ajax({
+            type: 'get',
+            url: urls,
+            success: function (resp) {
+                if (resp.error) {
+                    $(".invalid_ct").html(resp.error);
+                } else {
+
+                    $(".modal-content").html(resp);
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Error:" + thrownError);
+            }
+        });
+        return false;
+    }
+</script>

@@ -1,0 +1,18 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+<h1>Enviar correo a compañías seleccionadas</h1>
+
+<p><strong>Destinatarios:</strong>
+{% for c in companies %}
+    {{ c.name }} ({{ c.user.email }}){% if not forloop.last %}, {% endif %}
+{% endfor %}
+</p>
+
+<form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="button default">Enviar correos</button>
+    <a href=".." class="button cancel">Cancelar</a>
+</form>
+{% endblock %}

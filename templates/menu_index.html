@@ -1,0 +1,41 @@
+{% block menus %}
+<ul>
+  <li><a class="nav-link scrollto active" href="#" onclick="form_company('/registro_company/')" data-bs-toggle="modal"
+      data-bs-target="#exampleModal">Prueba Gratis</a></li>
+  <li><a class="nav-link scrollto" href="#" onclick="verPlanes('/ver_planes')" data-bs-toggle="modal"
+        data-bs-target="#exampleModal">Ver Planes</a></li>
+
+  <li class="dropdown">
+    <a href="#team"><span>Categorías</span> <i class="bi bi-chevron-down"></i></a>
+    <ul>
+      {% for n in type_company %}
+        {% for c, v in count_comp.items %}
+          {% if c == n.name and v > 0 %}
+          <li style="cursor: pointer;" class="nav-link scrollto"><a href="/{{n.id}}/type">{{n.name|title}}</a></li>
+          {% endif %}
+        {% endfor %}
+      {% empty %}
+          <li class="nav-link scrollto"><a href="">No hay Categorías</a></li>
+      {% endfor %}
+    </ul>
+  </li>
+  <li class="dropdown">
+    <a href="#team"><span>Ciudades</span> <i class="bi bi-chevron-down"></i></a>
+    <ul>
+      {% for c in ciudades %}
+      <li style="cursor: pointer;" class="nav-link scrollto"><a href="/{{c.id}}/city">{{c.ciudad|title}}</a></li>
+      {% empty %}
+      <li class="nav-link scrollto"><a href="">No hay Ciudades</a></li>
+      {% endfor %}
+    </ul>
+  </li>
+  <li><a class="nav-link scrollto" href="#services">Servicios</a></li>
+  <li><a class="nav-link scrollto" href="#footer">Nosotros</a></li>
+  {% if user.is_authenticated %}
+  <li><a class="nav-link scrollto" href="/salir/">Salir</a></li>
+  {% else %}
+  <li><a class="nav-link scrollto" href="#login" data-bs-toggle="modal" data-bs-target="#exampleModal"
+      onclick="login('/login_user/')">Ingresar</a></li>
+  {% endif %}
+</ul>
+{% endblock menus %}

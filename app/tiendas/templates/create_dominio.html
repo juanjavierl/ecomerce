@@ -1,0 +1,83 @@
+{% load crispy_forms_tags %}
+<div class="modal-header  thead-light" style="background-color: #58bba9;">
+  <h5 class="modal-title text-white" id="exampleModalLabel">
+    Crear un dominio
+  </h5>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body table-responsive">
+  <form action="/{{company.id}}/createDonimio/" method="post" id="conpany_createDonimio" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{form|crispy}}
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i
+          class="bi bi-arrow-left-circle"></i> Cancelar</button>
+      <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-shop-window"></i> Confirmar</button>
+    </div>
+  </form>
+  <div id="text_mensaje">
+    <label class="form-label">El dominio registrado es:</label>
+    <div class="input-group">
+      <input type="text" class="form-control" id="registered-url" value="{{ initial_url }}" readonly>
+      <button class="btn btn-outline-primary copy-url" type="button" data-url="{{ initial_url }}">
+        📋 Copiar
+      </button>
+    </div>
+  </div>
+</div>
+<script>
+  $(document).on('click', '.copy-url', function () {
+    let button = $(this);
+    let url = button.data('url');
+
+    navigator.clipboard.writeText(url).then(function () {
+      button.html("✅ Copiado").removeClass("btn-outline-primary").addClass("btn-success");
+      setTimeout(function () {
+        button.html("📋 Copiar").removeClass("btn-success").addClass("btn-outline-primary");
+      }, 2000);
+    }).catch(function (err) {
+      alert('No se pudo copiar la URL: ' + err);
+    });
+  });
+
+  $('#conpany_createDonimio').on('submit', function (e) {
+    e.preventDefault();
+    $.ajax({
+      type: 'POST',
+      url: $(this).attr('action'),
+      data: $(this).serialize(),
+      success: function (resp) {
+        if (resp.error) {
+          $('.toast-body').removeClass('alert-success').addClass('alert-danger');
+
+          // Creamos un array de mensajes legibles
+          let mensajes = [];
+          for (let field in resp.error) {
+            // resp.error[field] es un array de strings
+            mensajes.push(resp.error[field].join(', '));
+          }
+          // Mostramos los mensajes concatenados con saltos de línea
+          $('.toast-body').fadeIn(1000).html('<strong>Error: ' + mensajes.join('<br>') + '</strong>');
+
+          mostrar_notificacion();
+        } else {
+          $('.toast-body').removeClass('alert-danger').addClass('alert-success');
+          $('.toast-body').fadeIn(1000).html('<strong>Registro Exitoso</strong>');
+          mostrar_notificacion();
+
+          // Actualizamos el bloque #text_mensaje con la URL final
+          $('#text_mensaje').fadeIn(1000).html(`
+                    <label class="form-label">El dominio registrado es:</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="registered-url" value="${resp.url}" readonly>
+                        <button class="btn btn-outline-primary copy-url" type="button" data-url="${resp.url}">
+                            📋 Copiar
+                        </button>
+                    </div>
+                `);
+        }
+      }
+    });
+  });
+
+</script>

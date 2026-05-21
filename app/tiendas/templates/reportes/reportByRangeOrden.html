@@ -1,0 +1,36 @@
+
+{% if ordenes %}
+<h2 class="text-center">Reporte Pedidos</h2>
+<table class="table table-bordered table-striped table-responsive table-sm">
+    <thead class="thead-dark">
+        <tr>
+            <th>Nro.</th>
+            <th>Cliente</th>
+            <th>Celular</th>
+            <th>Fecha & hora de pedido</th>
+            <th>Total</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+       {% for o in ordenes %}
+        <tr>
+            <td>{{o.id}}</td>
+            <td>{{o.client|title}}</td>
+            <td>{{o.client.mobile}}</td>
+            <td>{{o.creation_date}}</td>
+            <td>{{o.total}}</td>
+            <td>{% if o.status %}
+                <span class="badge rounded-pill bg-success sale-tag d-flex">Autorizada</span>
+                {% else %}
+                <span class="badge rounded-pill bg-warning sale-tag d-flex">Pendiente</span>
+                {% endif %}
+            </td>
+        </tr>
+       {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-warning text-center text-danger" role="alert">No hay Registros</div>
+{% endif %}
+

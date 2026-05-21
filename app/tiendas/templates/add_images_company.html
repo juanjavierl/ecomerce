@@ -1,0 +1,216 @@
+{% load crispy_forms_tags %}
+
+<div class="modal-header thead-light" style="background-color: #58bba9;">
+    <h5 class="modal-title text-white">
+        Logo & Portada de {{company.name|title}}
+    </h5>
+
+    <button type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close">
+    </button>
+</div>
+
+<div class="modal-body table-responsive">
+
+    <form action="/{{company.id}}/add_images_company/" id="company_forms_update_images" method="post" enctype="multipart/form-data">
+
+        {% csrf_token %}
+
+        {{ form|crispy }}
+
+        <!-- 🔥 Vista previa -->
+        <div class="row mt-4">
+
+            <!-- Portada -->
+            <div class="col-md-6 text-center mb-3">
+
+                <label class="fw-bold mb-2 d-block">
+                    Vista previa portada
+                </label>
+
+                <img id="preview-image"
+                     src="{{ company.get_image }}"
+                     class="img-fluid rounded shadow-sm border"
+                     style="
+                        width:100%;
+                        max-height:220px;
+                        object-fit:cover;
+                     ">
+
+            </div>
+
+            <!-- Logo -->
+            <div class="col-md-6 text-center mb-3">
+
+                <label class="fw-bold mb-2 d-block">
+                    Vista previa logo
+                </label>
+
+                <img id="preview-logo"
+                     src="{{ company.get_logo }}"
+                     class="img-fluid rounded shadow-sm border bg-light p-2"
+                     style="
+                        width:160px;
+                        height:160px;
+                        object-fit:contain;
+                     ">
+
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button type="button"
+                    class="btn btn-secondary btn-sm"
+                    data-bs-dismiss="modal">
+
+                <i class="bi bi-arrow-left-circle"></i>
+                Cancelar
+
+            </button>
+
+            <button type="submit"
+                    class="btn btn-success btn-sm">
+
+                <i class="bi bi-shop-window"></i>
+                Confirmar
+
+            </button>
+
+        </div>
+
+    </form>
+
+    <p class="invalid text-danger"></p>
+
+</div>
+
+<script>
+
+// 🔥 Vista previa dinámica
+function mostrarPreview(inputName, previewId){
+
+    const input = document.querySelector(`input[name="${inputName}"]`);
+
+    if(!input) return;
+
+    input.addEventListener('change', function(e){
+
+        const archivo = e.target.files[0];
+
+        if(!archivo) return;
+
+        const reader = new FileReader();
+
+        reader.onload = function(event){
+            document.getElementById(previewId).src = event.target.result;
+        }
+
+        reader.readAsDataURL(archivo);
+
+    });
+}
+
+// 🔥 Activar previews
+mostrarPreview('image', 'preview-image');
+mostrarPreview('logo', 'preview-logo');
+
+
+// 🔥 Submit AJAX
+$("#company_forms_update_images").on('submit', async function (e) {
+
+    e.preventDefault();
+
+    const form = this;
+
+    const botonSubmit = $(form).find('button[type="submit"]');
+
+    botonSubmit.prop('disabled', true).text('Enviando...');
+
+    const datos = new FormData(form);
+
+    // 🔥 Función reutilizable
+    async function procesarArchivo(inputName){
+
+        const input = form.querySelector(`input[name="${inputName}"]`);
+
+        const archivo = input ? input.files[0] : null;
+
+        if(!archivo) return;
+
+        const tiposPermitidos = [
+            'image/jpeg',
+            'image/png',
+            'image/jpg',
+            'image/webp'
+        ];
+
+        const maxTamanoMB = 15;
+
+        // 🔥 Validar tipo
+        if(!tiposPermitidos.includes(archivo.type)){
+            throw new Error(`El archivo ${inputName} no es válido.`);
+        }
+
+        // 🔥 Validar peso
+        if(archivo.size > maxTamanoMB * 1024 * 1024){
+            throw new Error(`El archivo ${inputName} supera los ${maxTamanoMB} MB.`);
+        }
+
+        // 🔥 Comprimir imagen
+        const imagenComprimida = await comprimirImagen(archivo);
+
+        datos.set(inputName, imagenComprimida, archivo.name);
+    }
+
+    try {
+
+        // 🔥 Procesar portada y logo
+        await procesarArchivo('image');
+        await procesarArchivo('logo');
+
+    } catch(error){
+
+        alert(error.message);
+
+        botonSubmit
+            .prop('disabled', false)
+            .html('<i class="bi bi-shop-window"></i> Confirmar');
+
+        return;
+    }
+
+    $.ajax({
+
+        type: 'POST',
+
+        url: $(form).attr('action'),
+
+        data: datos,
+
+        contentType: false,
+
+        processData: false,
+
+        success: function(resp){
+            if (resp.error) {
+                $(".invalid").text(resp.error);
+            } else {
+                window.location.href = '/' + resp.companys_from_user + '/companys';
+            }
+        },
+
+        error: function(xhr, ajaxOptions, thrownError){
+
+            alert("Ocurrió un error: " + thrownError);
+
+        }
+
+    });
+
+});
+
+</script>

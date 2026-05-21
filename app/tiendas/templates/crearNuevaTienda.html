@@ -1,0 +1,261 @@
+{% load crispy_forms_tags %}
+
+<style>
+  .plan-card {
+    border: 1px solid #dee2e6;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+  }
+
+  .plan-card:hover {
+    border-color: #0d6efd;
+  }
+
+  .plan-card.selected {
+    border: 2px solid #0d6efd;
+    background-color: #e7f1ff;
+  }
+  .iti {
+    width: 100%;
+  }
+
+  .iti input {
+      width: 100%;
+  }
+</style>
+<div class="modal-header  thead-light" style="background-color: #58bba9;">
+  <h5 class="modal-title text-white" id="exampleModalLabel">Registrar Nueva Tienda</h5>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<div class="company fade-left">
+  <div class="modal-body table-responsive">
+    <form action="" method="post" class="row" id="form_Company" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      {{form_company|crispy}}
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm anterior1"><i class="bi bi-arrow-left-circle"></i>
+          Anterior</button>
+        <button type="submit" class="btn btn-success btn-sm" id="formCompany"><i class="bi bi-shop-window"></i>
+          Siguiente</button>
+      </div>
+    </form>
+    <p class="text-danger validate_company"></p>
+  </div>
+</div>
+
+
+<div class="planes fade-left">
+  <div class="modal-body table-responsive">
+    <form action="" method="post">
+  {% csrf_token %}
+
+  <div class="d-flex flex-column gap-3" id="planContainer">
+    {% for p in planes %}
+      <label for="id_plan_{{ p.id }}" class="card p-3 mb-0 plan-card {% if p.name|upper == 'PROFESIONAL' %}selected{% endif %}">
+        <div class="d-flex align-items-center gap-3">
+          
+          <!-- Ícono del plan -->
+          <div class="text-primary fs-2">
+            <i class="{{ p.icono }}"></i>
+          </div>
+
+          <!-- Contenido textual del plan -->
+          <div class="flex-grow-1">
+            <span class="badge bg-primary mb-1">{{ p.name|title }}</span>
+            <p class="mb-1 text-muted fst-italic">{{ p.description|default:" - - - "|capfirst }}</p>
+            <ul class="list-unstyled small mb-2">
+              <li><i class="bi bi-check2-circle text-success"></i> Tiempo mínimo: {{ p.contracts_min }} — {{ p.price_min }} Bs.</li>
+              <li><i class="bi bi-check2-circle text-success"></i> Oferta: {{ p.contracts_max }} — {{ p.price_max }} Bs.</li>
+              <li><i class="bi bi-box text-muted"></i> {{ p.cantidad }} productos</li>
+            </ul>
+          </div>
+          <!-- Radio button -->
+          <div class="form-check">
+            <input class="form-check-input plan-radio" type="radio" name="plan" id="id_plan_{{ p.id }}" value="{{ p.id }}"
+              {% if p.name|upper == 'PROFESIONAL' %}checked required{% endif %}>
+          </div>
+        </div>
+      </label>
+    {% endfor %}
+  </div>
+</form>
+<div class="bg-light border rounded py-2 px-3 text-center text-muted small mb-0">
+        <i class="bi bi-info-circle-fill text-primary me-2"></i>
+        Todos nuestros planes incluyen 30 dias de gracia, soporte, actualizaciones y acceso a nuevas funciones.
+</div> 
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary btn-sm anterior2"><i class="bi bi-arrow-left-circle"></i>
+      Anterior</button>
+    <a href="#next" type="button" class="btn btn-success btn-sm" id="formPlanes"><i class="bi bi-shop-window"></i>
+      Siguiente</a>
+  </div>
+</div>
+
+
+<div class="img_qr fade-left">
+  <div class="modal-body table-responsive">
+    <form action="" method="post" class="row" id="form_img">
+      {% csrf_token %}
+      <img src="" class="img-fluid rounded mx-auto d-block" alt="">
+    </form>
+    <p class="validate_img_qr"></p>
+  </div>
+  <div class="alert alert-light" role="alert">
+    <small class="text-muted text-success"><i class="bi bi-check-lg"></i>
+      ¡Promocione y venda libremente en su tienda online conectándola con sus redes sociales! 
+    </small><br>
+    <small class="text-muted text-success"><i class="bi bi-check-lg"></i>
+      Personalice su tienda online con una imagen de portada
+    </small><br>
+    <small class="text-muted text-success"><i class="bi bi-check-lg"></i>
+      Ud. es libre de registrar o actualizar sus productos.
+    </small><br>
+    <small class="text-muted text-success"><i class="bi bi-check-lg"></i>
+      Seleccione su tienda virtual > perfil > Administrador y disfrute las opciones que tenemos.
+    </small><br>
+    <small class="text-muted text-success"><i class="bi bi-check-lg"></i>
+      Una vez concluido el plan demo, puede solicitar un nuevo plan que se adapte a sus necesidades
+    </small>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary btn-sm anterior3"><i class="bi bi-arrow-left-circle"></i>
+      Anterior</button>
+    <a href="#next" type="button" class="btn btn-success btn-sm" id="form_Qrr" disabled="false">
+      <i class="bi bi-shop-window"></i> Aceptar & Registrar </a>
+  </div>
+</div>
+
+<script>
+  $(function(){
+    $(".planes").hide();
+    $(".img_qr").hide();
+
+    $(".anterior2").on("click", function () {
+      $('.company').fadeIn('slow').show();
+      $(".planes").hide();
+      $(".img_qr").hide();
+    });
+    $(".anterior3").on("click", function () {
+      $('.company').hide();
+      $(".planes").fadeIn('slow').show();
+      $(".img_qr").hide();
+    });
+
+  const input = document.querySelector("#id_mobile");
+  const iti = window.intlTelInput(input, {
+      initialCountry: "bo",
+      separateDialCode: true,
+      utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js",
+  });
+    var datos_registro = {};
+    $("#form_Company").on("submit", function (e) {
+      e.preventDefault();
+      let number = iti.getNumber(intlTelInputUtils.numberFormat.E164);
+      input.value = number || input.value;  // garantiza que el valor enviado sea completo
+      $("#exampleModalLabel").text("Paso (3/4) Seleccione un plan ");
+    var datos = new FormData(document.getElementById("form_Company"));
+    $.ajax({
+      type: 'POST',
+      url: '/validar_form/',
+      headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+      data: datos,
+      contentType: false,
+      processData: false,
+      success: function (resp) {
+        if (resp.error) {
+          let html = "";
+          for (let campo in resp.error) {
+              resp.error[campo].forEach(mensaje => {
+                  html += `<p><strong>${campo}:</strong> ${mensaje}</p>`;
+              });
+          }
+          $(".validate_company").html(html);
+          $("#exampleModalLabel").text("Paso(2/4) Registrar mi tienda virtual");
+        } else {
+          $(".planes").fadeIn('slow').show();
+          $(".img_qr").hide();
+          $('.company').hide();
+          //datos_registro['company_data']=datos;
+          console.log(datos.get('is_service'));
+          let service = "False"
+          if(datos.get('is_service') == "on"){
+            service = "True";
+          }
+          let company_data = {
+            name: datos.get('name'),
+            description: datos.get('description'),
+            ruc: datos.get('ruc'),
+            mobile: datos.get('mobile'),
+            category: datos.get('category'),
+            cuidad: datos.get('cuidad'),
+            //image:datos.get('image')
+            is_service:service
+          };
+          datos_registro['company_data'] = company_data;
+
+        }
+      }
+    });
+
+    $("#formPlanes").on("click", function () {
+      $("#exampleModalLabel").text("Paso(3/4) Bien, estas a punto de terminar");
+      $(".img_qr").fadeIn('slow').show();
+      $('.company').hide();
+      $(".planes").hide();
+    $.ajax({
+      type: 'get',
+      url: '/' + $('input:radio[name=plan]:checked').val() + '/get_img',
+      data: { 'id_plan': $('input:radio[name=plan]:checked').val() },
+      success: function (resp) {
+        img = '/media/' + resp.split('"').join("");
+        $("#form_img img").attr('src', img);
+        let plan_data = {
+          plan_name: $('input:radio[name=plan]:checked').val()
+        };
+        datos_registro['plan_data'] = plan_data;
+        //datos_registro['csrfmiddlewaretoken']='{{ csrf_token }}';
+        //console.log(datos_registro);
+      }
+    });
+    return false;
+    });
+
+    $("#form_Qrr").on("click", function () {
+
+      $("#form_Qrr").html("Iniciando Sesión...!");
+    $.ajax({
+      type: 'POST',
+      url: '/new_store/',
+      headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+      dataType: 'json',
+      data: { valores: JSON.stringify(datos_registro) },//JSON.stringify(objteto) {company_data: {…}, plan_data: {…}}
+
+      success: function (resp) {
+        //console.log(resp.user_id);
+        if(resp.error){
+          $(".validate_img_qr").html(resp.error)
+        }
+        else{
+          window.location.href = "/" + resp.user_id + "/companys/";
+        }
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        $(".validate_img_qr").html(thrownError)
+      }
+    });
+    return false;
+    });
+
+  });
+
+});
+  document.querySelectorAll('.plan-radio').forEach(radio => {
+    radio.addEventListener('change', function () {
+      document.querySelectorAll('.plan-card').forEach(card => card.classList.remove('selected'));
+      this.closest('.plan-card').classList.add('selected');
+    });
+  });
+  </script>

@@ -1,0 +1,377 @@
+{% extends "index.html" %}
+{% load static %}
+{% load extras %}
+{% block titulo %}
+{{p.name|title|truncatechars:26}}
+{% endblock titulo %}
+
+{% block tecnica_seo %}
+<meta name="description" content="{{ p.get_meta_description }}">
+<meta property="og:title" content="{{ p.get_meta_title }}">
+<meta property="og:description" content="{{ p.get_meta_description }}">
+<meta property="og:image" content="{{ p.get_meta_image }}">
+<meta property="og:url" content="https://{{ request.get_host }}{{ p.get_meta_url }}">
+<link rel="canonical" href="https://{{ request.get_host }}{{ p.get_meta_url }}">
+{% endblock tecnica_seo %}
+
+{% block company %}
+<a href="/{{company.id}}/catalogo">
+  <marquee behavior="" direction="" style="margin-top: 14px;">{{ company.name|title }}</marquee>
+</a>
+{% endblock company %}
+
+{% block code_meta %}
+{% if code.codigo %}
+<script>
+  !function (f, b, e, v, n, t, s) {
+    if (f.fbq) return; n = f.fbq = function () {
+      n.callMethod ?
+      n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+    };
+    if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+    n.queue = []; t = b.createElement(e); t.async = !0;
+    t.src = v; s = b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t, s)
+  }(window, document, 'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '{{code.codigo}}');
+  fbq('track', 'PageView');
+</script>
+<noscript>
+  <img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id={{code.codigo}}&ev=PageView&noscript=1" />
+</noscript>
+{% endif %}
+{% endblock code_meta %}
+
+{% block carrito %}
+{% include 'catalog/carrito.html' with total_compra=total_compra %}
+{% endblock carrito %}
+
+{% block menus %}
+{% include 'menu_from_user.html' with categorias=categorias %}
+{% endblock menus %}
+
+{% block hero %} {% endblock hero %}
+
+{% block form_buscador %}
+<div class="form_buscador_product" style="display: none;">
+</div>
+{% endblock form_buscador %}
+
+{% block acerca %} {% endblock acerca %}
+
+{% block contenido %}
+<!-- ======= Portfolio Details Section ======= -->
+<section id="portfolio-details" class="portfolio-details" data-aos="fade-up">
+  {% if aviso %}
+  {% include 'notificaciones/opciones_avisos.html' %}
+  {% endif %}
+  <style>
+    .cantidades {
+      display: flex;
+    }
+
+    .cantidades input {
+      width: 60px;
+      text-align: center;
+    }
+    .sale-tag {
+      border-radius: 2px;
+      font-size: 12px;
+      color: #fff;
+      font-weight: bold;
+      position: absolute;
+      top: 0;
+      padding: 5px 10px;
+      z-index: 5;
+      margin-top: 8px;
+    }
+
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+  </style>
+  <div class="portfolio container" id="team_productos">
+
+    <div class="row gy-4 productos_por_categorias">
+
+      <div class="col-lg-8">
+        <div class="portfolio-details-slider swiper">
+          <div class="swiper-wrapper align-items-center detail">
+
+            {% if images_product %}
+              <div class="swiper-slide">
+                <img src="/media/{{p.image}}" class="img-fluid rounded object-fit-cover mx-auto d-block" alt="">
+              </div>
+            {% for img_pro in images_product %}
+              <div class="swiper-slide">
+                <img src="/media/{{img_pro.img}}" class="img-fluid rounded object-fit-cover mx-auto d-block" alt="">
+              </div>
+            {% endfor %}
+            {% else %}
+              {% if p.image %}
+                <div class="swiper-slide" style="text-align: center;">
+                  <img src="/media/{{p.image}}" alt="" class="img-fluid rounded object-fit-cover mx-auto d-block">
+                </div>
+              {% else %}
+                <i class="bi bi-image icon" style="margin-top: 20px;" alt="..."></i>
+              {% endif %}
+
+            {% endif %}
+          </div>
+          {% if p.is_new %}
+          <span class="badge rounded-pill bg-primary sale-tag d-flex">Nuevo</span>
+          {% endif %}
+          <div class="swiper-pagination"></div>
+        </div>
+      </div>
+
+      <div class="col-lg-4" style="margin-top: 5px;">
+        <div class="portfolio-info">
+          <h3 class="text-primary text-wrap fw-bold">{{p.name|capfirst}}</h3>
+          <ul>
+            <li><strong>Categoria</strong>: {{p.category|capfirst}}</li>
+            {% if p.code %}
+              <li><strong>Código</strong>: {{p.code|default:" - - -"}}</li>
+            {% endif %}      
+            <li><strong>Precio</strong>: {{p.price|default:" 0 "}} {{company.moneda}}.
+              {% if p.price_before %}
+              <span class="text-decoration-line-through text-danger" style="font-size: 14px; padding-left: 30px;">Antes:
+                {{p.price_before}} {{company.moneda}}..</span>
+              {% endif %}
+            </li>
+            <li>
+              <strong class="mb-1">
+                {% if p.price_before %}
+                <span style="font-size: 14px;" class="badge bg-warning text-dark">Descuento {{p.porcentage}}%</span>
+                {% endif %}
+              </strong>
+              {% if p.is_service %}
+              <span class="badge text-bg-info text-white" style="font-size: 14px;">Servicio</span>
+              {% endif %}
+            </li>
+            <li><strong>Producto</strong>:
+              {% if p.stock_actual > 0 %}
+              <span id="passwordHelpBlock" class="form-text text-success fw-bold">
+                Disponible {{p.stock_actual}} uds. <i class="bi bi-check-lg"></i>
+                <i class="bi bi-star-fill" style="color: gold;"></i>
+                <i class="bi bi-star-fill" style="color: gold;"></i>
+                <i class="bi bi-star-fill" style="color: gold;"></i>
+              </span>
+              {% else %}
+              <span id="passwordHelpBlock" class="form-text text-danger">
+                Agotado
+              </span>
+              {% endif %}
+            </li>
+            <br>
+            <div class="align-items-start">
+              <form action="/{{p.id}}/{{company.id}}/detail_product" id="form_pedido" method="post"
+                class="form-row row">
+                {% csrf_token %}
+                <div class="col cantidades form-group">
+                  <label for="inputPassword6" class="col-form-label text-dark" style="width: 165px;"><strong> Cantidad:
+                    </strong>
+                  </label>
+                  <div class="input-group mb-1" style="width: 100px;">
+                    <button class="btn btn-sm btn-outline-primary menos" type="button" onclick="cambiarValor(-1, '{{forloop.counter0}}')">-</button>
+                    <input type="number" name="cantidad" placeholder="ejem. 1" value="1" min="1" max="{{p.stock_actual}}" id="cantidad_id" class="form-control form-control-sm valor_numerico" required>
+                    <button class="btn btn-sm btn-outline-primary mas" type="button" onclick="cambiarValor(1, '{{forloop.counter0}}')">+</button>
+                </div>
+                </div>
+                <div class="form-check" style="margin-bottom: 10px;">
+                  <input class="form-check-input" type="checkbox" name="is_nota" id="defaultCheck1">
+                  <label class="form-check-label" for="defaultCheck1">
+                    Ingrese una Nota (si corresponde)
+                  </label>
+                </div>
+                <div class="mb-3 caracteristica_producto">
+                  <textarea name="nota" class="form-control" id="exampleFormControlTextarea1" rows="3"
+                    placeholder="Ejem: Color Negro Talla 36 etc."></textarea>
+                </div>
+                <div class="row btn_add align-items-center" style="height: 30px;">
+                  <button type="col submit" class="btn btn-success btn-sm tb_text efecto_button">
+                    <i class="bi bi-cart-fill"></i>
+                    Agregar al Carrito
+                  </button><br><br>
+
+                  <div class="btn-group" role="group" aria-label="Basic example">
+                    <a href="/{{company.id}}/catalogo" class="col btn btn-secondary btn-sm tb_text"
+                    style="padding-top: 5px;">
+                    <i class="bi bi-arrow-left-circle"> Ir Atrás</i>
+                  </a>
+                    <a class="col btn btn-success btn-sm" style="background-color: rgb(8, 196, 118);"
+                    href="https://api.whatsapp.com/send?phone={{ company.mobile }}&text=¿Está%20disponible%20el%20producto:%20*{{ p.name|title|default:' ' }}*%20(cod:%20{{ p.id }})%3F%0A🔗%20{{ request.build_absolute_uri }}%0A"
+                    target="_blank"> comprar por <i class="bi bi-whatsapp"></i></a>
+                    <a class="col btn btn-primary btn-sm" id="compartir" href="#"><i class="bi bi-share-fill"></i></a>
+                  </div>
+
+                </div>
+              </form><br>
+            </div>
+          </ul>
+        </div>
+        <div class="portfolio-description">
+          <h2>Información</h2>
+          <p class="text-break">
+            {{p.description|urlize_mode:"ver_mas,br"|default:" - - -"|capfirst}}
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section><!-- End Portfolio Details Section -->
+<script>
+
+  if (navigator.share) {
+
+    // Código si la Web Share API es soportada
+    document.getElementById("compartir").value = "En más lugares"
+    const shareData = {
+      title: "Catalogo",
+      text: "Visita mi Catálogo!",
+      url: window.location.href,
+    };
+    let btn = document.getElementById("compartir");
+    const resultPara = document.getElementsByClassName("alert-success");
+
+    btn.addEventListener("click", async () => {
+      try {
+        await navigator.share(shareData);
+        resultPara.textContent = "Recurso compartido";
+
+      } catch (err) {
+        $("#status").hide()
+        document.getElementById("status").hidden();
+        alert("Up! parase que tu navegador no esta lista para compartir este recurso.");
+      }
+    });
+  } else {
+    // Fallback
+    $("#status").hide();
+  }
+
+  $('#form_pedido').submit(function (e) {
+    e.preventDefault();
+    //if(Number.isInteger($('#cantidad_id').val()) || parseInt($('#cantidad_id').val())){
+    $.ajax({
+      type: 'POST',
+      url: $(this).attr("action"),
+      data: $(this).serialize(),
+      success: function (resp) {
+        if (resp.error) {
+          $('.toast-body').removeClass('alert-success').addClass('alert-danger');
+          $('.toast-body').fadeIn(1000).html(resp.error);
+          mostrar_notificacion();
+        }
+        else {
+          $('.toast-body').removeClass('alert-danger').addClass('alert-success');
+          $('.toast-body').fadeIn(1000).html('<strong>' + resp.success + '</strong>');
+          mostrar_notificacion();
+          $("#cont_compras").html(resp.total_compra);
+          $('#exampleFormControlTextarea1').val("");
+          $('.caracteristica_producto').hide();
+          actualizarBadge(resp.total_compra || resp.products || 0);
+        }
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        $('.toast-body').removeClass('alert-success').addClass('alert-danger');
+        $('.toast-body').fadeIn(1000).html(thrownError);
+        mostrar_notificacion();
+      }
+    });
+  });
+  $(function () {
+    $('.caracteristica_producto').hide();
+
+    $('#defaultCheck1').change(function () {
+      if (this.checked) {
+        $('.caracteristica_producto').fadeIn(1000).show();
+        $('#exampleFormControlTextarea1').focus();
+      } else {
+        $('.caracteristica_producto').hide(500);
+      }
+    });
+    //validaciones del input cantidad
+    //$('#cantidad_id').focus();
+
+    input = $(".valor_numerico");
+    min = $(".valor_numerico").attr('min'),
+      max = $(".valor_numerico").attr('max');
+    $(".menos").on('click', function () {
+      var oldValue = parseFloat(input.val());
+      if (oldValue <= min) {
+        var newVal = oldValue;
+      } else {
+        var newVal = oldValue - 1;
+      }
+      $(".valor_numerico").val(newVal);
+      $(".valor_numerico").trigger("change");
+    });
+    //cuando se preciona el boton mas
+    $(".mas").on('click', function () {
+      var oldValue = parseFloat(input.val());
+      if (oldValue >= max) {
+        var newVal = oldValue;
+      } else {
+        var newVal = oldValue + 1;
+      }
+      $(".valor_numerico").val(newVal);
+      $(".valor_numerico").trigger("change");
+    });
+  });
+
+/* $('.dropdown').hover(function(){
+        $('.dropdown-menu').trigger('click')
+        console.log('hover');
+      }); */
+</script>
+{% endblock contenido %}
+
+{% block button_whatsap %}
+{% include 'button_whatsap.html' %}
+{% endblock button_whatsap %}
+
+{% block productos_mas_vistos %}
+    {% include 'catalog/productos_mas_vistos.html' %}
+{% endblock productos_mas_vistos %}
+
+{% block suscipcion_for_email %}
+{% include 'form_suscripcion_email.html' %}
+{% endblock suscipcion_for_email %}
+
+{% block servicios %} {% endblock servicios %}  
+
+{% block google_adsense %}
+
+{% endblock google_adsense %}
+
+{% block contact %}
+<!-- ======= Contact Section ======= -->
+<section id="contact" class="contact">
+  <div class="container">
+    {% include 'contact.html' %}
+  </div>
+</section>
+<!-- End Contact Section -->
+{% endblock contact %}
+
+{% block preg_frecuentes %}
+{% include 'preg_frecuentes_tienda.html' %}
+{% endblock preg_frecuentes %}
+
+{% block footer_catalog %}
+{% include 'footer_tienda.html' %}
+{% endblock footer_catalog %}
+{% block js %}
+<script src="{% static 'js/funcionesFromUser.js' %}"></script>
+{% endblock js %}

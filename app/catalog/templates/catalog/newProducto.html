@@ -1,0 +1,219 @@
+{% load crispy_forms_tags %}
+<style>
+  #form_producto #id_category {
+    height: 33px;
+    width: auto;
+  }
+</style>
+<div class="container">
+  <div class="section-title" data-aos="fade-up">
+    <h2>Registrar nuevo items</h2>
+  </div>
+  <div class="row mt-5 justify-content-center" data-aos="fade-up">
+    <div class="col-lg-10">
+      <form action="/{{company.id}}/new_producto/" method="post" role="form" enctype="multipart/form-data"
+        id="form_producto" class="php-email-form">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-md-6 form-group">
+
+            {% if company.is_service %}
+            <label for="{{ form.name.id_for_label }}">Nombre del servicio:*</label>
+            {% else %}
+            <label for="{{ form.name.id_for_label }}">Nombre del producto:*</label>
+            {% endif %}
+            {{form.name}}
+          </div>
+          <div class="col-md-6 form-group mt-3 mt-md-0">
+            <label for="{{ form.code.id_for_label }}">Código: (Opcional)</label>
+            {{form.code}}
+          </div>
+        </div>
+        <div class="form-group mt-3">
+          <label for="{{ form.description.id_for_label }}">Descripción: (Opcional)</label>
+          {{form.description}}
+        </div>
+        <div class="row">
+          <div class="col-md-6 form-group"><br>
+            <label for="{{ form.name.id_for_label }}">Categoria:*</label>
+            <div class="input-group" id="select_categorys">
+              <select name="category" class="select form-select select-control" required="" id="id_category"
+                tabindex="-1" aria-hidden="true">
+                <option value="" selected="">---------</option>
+                {% for c in categorys %}
+                <option value="{{c.id}}">{{c.name|capfirst}}</option>
+                {% empty %}
+                <option value="">No hay Registros</option>
+                {% endfor %}
+              </select>
+              <button class="btn btn-success btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                onclick="addCategory('/new_category/')"><i class="bi bi-plus"></i></button>
+            </div>
+          </div>
+
+          <div class="col-md-6 form-group mt-3 mt-md-0"><br>
+            <label for="{{ form.image.id_for_label }}">Imagen: (Opcional)</label><br>
+            {{form.image}}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 form-group"><br>
+            {% if company.is_service %}
+            <label for="{{ form.price.id_for_label }}">Precio del servicio:*</label>
+            {% else %}
+            <label for="{{ form.price.id_for_label }}">Precio de Venta:*</label>
+            {% endif %}
+
+            {{form.price}}
+          </div>
+          <div class="col-md-6 form-group mt-3 mt-md-0"><br>
+            <label for="{{ form.price_before.id_for_label }}">Precio de Antes:(Opcional)</label>
+            {{form.price_before}}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <label for="{{ form.stock.id_for_label }}">Stock:
+              <span id="passwordHelpBlock" class="form-text">
+                Si es de tipo servicio dejar por defecto en 1
+              </span>
+            </label>
+            {{form.stock}}
+
+          </div>
+          <div class="col-md-6 form-group mt-3 mt-md-0"><br>
+            <input type="checkbox" name="is_new" class="checkboxinput form-check-input" id="id_is_new">
+
+            <label for="{{ form.is_new.id_for_label }}">¿Es Nuevo producto?:</label>
+          </div>
+          <div class="col-md-6 form-group mt-md-0">
+            <input type="checkbox" name="is_service" class="checkboxinput form-check-input" id="id_is_service">
+            <label for="{{ form.is_service.id_for_label }}">¿Es Servicio?:</label>
+            <span id="passwordHelpBlock" class="form-text">
+              Solo aplica a los items que se comercializa en aqui y no en otras ciudades
+            </span>
+          </div>
+          <div class="col-md-6 form-group mt-3 mt-md-0">
+            <input type="checkbox" name="is_promotion" class="checkboxinput form-check-input" id="id_is_promotion">
+            <label for="{{ form.is_promotion.id_for_label }}">¿Esta en Promoción?:</label>
+          </div>
+        </div>
+        <hr>
+        <div class="modal-footer">
+          <a class="btn btn-secondary btn-sm" type="button" href="/{{company.id}}/catalogo"
+            style="margin-right: 5px;"><i class="bi bi-arrow-left-circle"></i> Ir Catálogo</a>
+
+
+          {% if aviso or date_expiration %}
+          <button type="submit" class="btn btn-success btn-sm" disabled><i class="bi bi-save"></i> Registrar
+            Producto</button>
+          {% else %}
+          <button type="submit" class="btn btn-success btn-sm btn_product"><i class="bi bi-save"></i> Registrar
+            Producto</button>
+          {% endif %}
+        </div>
+      </form>
+
+      {% if aviso %}
+      <div class="alert alert-warning aviso_plan text-center" style="margin-top: 5px;" role="alert">
+        Alcansaste el limite de registros para este plan {{company.plan|title}}
+        <a href="#" onclick="verPlanes('/ver_planes', '{{company.id}}')" data-bs-toggle="modal"
+          data-bs-target="#exampleModal"><strong>Solicitar Nuevo Plan</strong></a>
+      </div>
+      {% endif %}
+
+
+      {% if date_expiration %}
+      <div class="alert alert-warning aviso_plan text-center" style="margin-top: 5px;" role="alert">
+        Up.! su contrato expiro hace: {{company.expiration_date|timesince}}<strong>
+          <a href="https://api.whatsapp.com/send?text=Id página: {{company.id}}:%0A Hola, solicito renovar mi contrato muchas gracias. &phone={{dashboard.mobile}}"
+            target="_blank">Contactese con el administrador aqui</a></strong><br>
+        <small class="text-muted ">Aviso: Debe renovar su contrato en los siguientes 15 dias, caso contrario su página
+          estara inactivo, muchas gracias por su comprención.</small>
+      </div>
+      {% endif %}
+
+
+    </div>
+  </div>
+</div>
+<br>
+<script>
+  $(document).ready(function () {
+    $('#form_producto #id_category').select2({
+      placeholder: 'Seleccione una categoria',
+      allowClear: true
+    });
+  });
+
+  $('#form_producto').on('submit', async function (e) {
+    e.preventDefault();
+    const form = this;
+    const botonSubmit = $(form).find('button[type="submit"]');
+    botonSubmit.prop('disabled', true).text('Enviando...');
+
+    const datos = new FormData(form);
+    const inputArchivo = form.querySelector('input[type="file"]');
+    const archivo = inputArchivo ? inputArchivo.files[0] : null;
+
+    if (archivo) {
+      const tiposPermitidos = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+      const maxTamanoMB = 15;
+      if (!tiposPermitidos.includes(archivo.type)) {
+        alert("Solo se permiten imágenes JPG, PNG o WEBP.");
+        botonSubmit.prop('disabled', false).html('<i class="bi bi-save"></i> Registrar Producto');
+        return;
+      }
+      if (archivo.size > maxTamanoMB * 1024 * 1024) {
+        alert(`La imagen no debe superar los ${maxTamanoMB} MB.`);
+        botonSubmit.prop('disabled', false).html('<i class="bi bi-save"></i> Registrar Producto');
+        return;
+      }
+      try {
+        const imagenComprimida = await comprimirImagen(archivo);
+        datos.set('image', imagenComprimida, archivo.name);
+      } catch (error) {
+        alert("Error al comprimir la imagen: " + error.message);
+        botonSubmit.prop('disabled', false).html('<i class="bi bi-save"></i> Registrar Producto');
+        return;
+      }
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: $(form).attr('action'),
+      data: datos,
+      contentType: false,
+      processData: false,
+      success: function (resp) {
+        $('.toast-body').removeClass('alert-danger').addClass('alert-success').fadeIn(1000).html('<strong>' + resp.success + '</strong>');
+        form.reset();
+        $("#form_producto #id_category").select2("val", " ");
+        mostrar_notificacion();
+
+        if (resp.aviso) {
+          $('.toast-body').removeClass('alert-success').addClass('alert-warning').fadeIn(1000).html('<strong>' + resp.error + '</strong>');
+          mostrar_notificacion();
+        }
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        alert("Error al enviar el formulario. Por favor, intente de nuevo.\nDetalles: " + thrownError);
+      },
+      complete: function () {
+        botonSubmit.prop('disabled', false).html('<i class="bi bi-save"></i> Registrar Producto');
+      }
+    });
+  });
+  function addCategory(urls) {
+    $.ajax({
+      type: 'get',
+      url: urls,
+      success: function (resp) {
+        $(".modal-content").html('<strong>' + resp + '</strong>');
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        alert("Error:" + thrownError);
+      }
+    });
+  }
+</script>

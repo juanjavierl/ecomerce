@@ -1,0 +1,93 @@
+
+{% if orden != None %}
+<table class="table table-borderless mt-4 invoice-summary">
+    <tbody>
+        <tr>
+            <td class="label">Número de Orden:</td>
+            <td>{{orden.id}}</td>
+        </tr>
+        <tr>
+            <td class="label">Fecha de Pedido:</td>
+            <td>{{orden.creation_date|date:"l d/M/Y H:i a"}}</td>
+        </tr>
+        <tr>
+            <td class="label">Cliente:</td>
+            <td>{{orden.client.names|title}}</td>
+        </tr>
+    </tbody>
+</table>
+<table class="table table-striped table-bordered table-responsive table-sm">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <td>Imagen</td>
+            <th>Detalle</th>
+            <th>Cantidad</th>
+            <th>Precio Uni.</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        
+        {% for p in pedidos %}
+        <tr>
+            <td>{{forloop.counter}}</td>
+            <td><img src="/media/{{p.product.image}}" alt="{{p.product.name}}" style="width: 60px; height: 60px;"></td>
+            <td>{{p.product.name}} {{p.nota|default:""|title}}</td>
+            <td>{{p.cant}}</td>
+            <td>{{p.price}}</td>
+            <td>{{p.total}}</td>
+        </tr>
+        {% endfor %}
+            
+        
+        <tr>
+            <td colspan="5" class="text-end fw-bold">Subtotal</td>
+            <td>{{orden.subtotal}}</td>
+        </tr>
+        <tr>
+            <td colspan="5" class="text-end fw-bold">Precio de Envio</td>
+            <td>{{precio_envio}}</td>
+        </tr>
+        <tr>
+            <td colspan="5" class="text-end fw-bold">Total</td>
+            <td>{{orden.total}}</td>
+        </tr>
+        <tr>
+
+        <td colspan="6" class="fw-bold">
+            {% if orden.status == False %}
+            <a href="#" onclick="form_company('/autorizar/{{orden.id}}/')" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">Desea confirmar esta orden?</a>
+            {% else %}
+            <div class="d-flex align-items-center">
+                <small class="text-success text-muted">La orden esta autorizada </small>
+                <i class="bi bi-check-lg text-success"></i>
+                <select class="form-select form-select-sm w-auto" id="tipo-print-{{ orden.id }}">
+                    <option value="ticket" selected>Ticket</option>
+                    <option value="factura">Factura</option>
+                </select>
+
+                <button class="btn btn-primary btn-sm"
+                        onclick="imprimirOrden({{ orden.company_id }}, {{ orden.id }})">
+                    <i class="bi bi-print"></i> Imprimir
+                </button>
+                
+</div>
+            {% endif %}
+        </td>
+    </tr>
+
+    </tbody>
+</table>
+{% else %}
+    <div class="alert alert-warning text-center text-danger" role="alert">EL REGISTRO NO EXISTE</div>
+{% endif %}
+<script>
+    function imprimirOrden(companyId, ordenId) {
+    const tipo = document.getElementById(`tipo-print-${ordenId}`).value;
+
+    const url = `/orden/${companyId}/${ordenId}/print/?tipo=${tipo}`;
+    window.open(url, '_blank');
+}
+</script>
+    

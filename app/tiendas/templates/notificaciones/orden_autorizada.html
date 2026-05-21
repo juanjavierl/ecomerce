@@ -1,0 +1,29 @@
+<div class="modal-header  thead-light" style="background-color: #58bba9;">
+  <h5 class="modal-title text-white" id="exampleModalLabel">
+    Orden autorizada correctamente
+  </h5>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body text-center">
+  <p>Seleccione formato de impresión</p>
+
+  <div class="d-flex justify-content-center gap-2">
+      <select class="form-select form-select-sm w-auto" id="tipo-print-{{ orden.id }}">
+          <option value="ticket">Ticket</option>
+          <option value="factura">Factura</option>
+      </select>
+
+      <button class="btn btn-primary btn-sm"
+              onclick="imprimirOrden({{ orden.company_id }}, {{ orden.id }})">
+          <i class="bi bi-print"></i> Imprimir
+      </button>
+  </div>
+</div>
+<script>
+    function imprimirOrden(companyId, ordenId) {
+    const tipo = document.getElementById(`tipo-print-${ordenId}`).value;
+
+    const url = `/orden/${companyId}/${ordenId}/print/?tipo=${tipo}`;
+    window.open(url, '_blank');
+}
+</script>

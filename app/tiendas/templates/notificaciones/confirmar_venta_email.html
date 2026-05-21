@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tienes una nueva venta</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #f6f6f6;
+      color: #333;
+      padding: 20px;
+    }
+    .container {
+      max-width: 650px;
+      margin: auto;
+      background: #ffffff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .header {
+      background-color: #007bff;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+    .header h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+    .content {
+      padding: 20px;
+    }
+    .info {
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+    th {
+      background-color: #f1f1f1;
+      text-align: left;
+    }
+    .product-img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+      display: block;
+      margin-right: 10px;
+    }
+    .total {
+      font-weight: bold;
+      text-align: left;
+      font-size: 16px;
+      color: #007bff;
+    }
+    .footer {
+      text-align: center;
+      padding: 15px;
+      font-size: 13px;
+      color: #666;
+      border-top: 1px solid #eee;
+    }
+    .button {
+      display: inline-block;
+      background-color: #007bff;
+      color: #fff !important;
+      padding: 10px 20px;
+      border-radius: 6px;
+      text-decoration: none;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>¡Tienes una nueva venta en tu tienda online! 🎉</h2>
+    </div>
+
+    <div class="content">
+      <p>Hola <strong>{{ company.name|title }}</strong>,</p>
+      <p>Has recibido una nueva venta en tu tienda online. Aquí tienes los detalles:</p>
+
+      <div class="info">
+        <p><strong>Número de orden:</strong> {{ orden.id }}</p>
+        <p><strong>Fecha:</strong> {{ orden.creation_date|date:"l d/M/Y H:i a" }}</p>
+
+        {% if orden.client %}
+          <p><strong>Cliente:</strong> {{ orden.client.names|title }}</p>
+          <p><strong>Correo:</strong> {{ orden.client.email }}</p>
+          {% if orden.client.mobile %}
+            <p><strong>Teléfono:</strong> {{ orden.client.mobile }}</p>
+          {% endif %}
+        {% else %}
+          <p><strong>Cliente:</strong> No registrado</p>
+        {% endif %}
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pedido in orden.pedido_set.all %}
+          <tr>
+            <td>{{ pedido.product.name }}</td>
+            <td>{{ pedido.cant }}</td>
+            <td>Bs {{ pedido.product.price|floatformat:2 }}</td>
+            <td>Bs {{ pedido.total|floatformat:2 }}</td>
+          </tr>
+          {% endfor %}
+          <tr>
+            <td colspan="3" class="total">Total:</td>
+            <td class="total">Bs {{ orden.total|floatformat:2 }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="margin-top:20px;">
+        Puedes revisar esta venta en el panel de administración desde tu sistema (debes iniciar sesión).
+      </p>
+        <a href="https://amceb.online/{{ company.id }}/catalogo" class="button" target="_blank">Ir a mi tienda</a>
+    </div>
+
+    <div class="footer">
+      <p>Este mensaje fue enviado automáticamente cuando se confirmó una nueva venta( No responder a este correo )</p>
+      <p>&copy; {{ company.name }}</p>
+    </div>
+  </div>
+</body>
+</html>

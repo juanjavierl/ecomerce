@@ -1,0 +1,47 @@
+
+<div class="modal-header  thead-light" style="background-color: #58bba9;">
+  <h5 class="modal-title text-white" id="exampleModalLabel">
+    Confirmar Autorización de Orden
+  </h5>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body table-responsive">
+  <form action="/autorizar/{{ orden.id }}/" method="post" id="autorizar_orden_form"
+      class="text-center p-3">
+
+    {% csrf_token %}
+
+    <p class="fw-semibold text-muted mb-3">
+        ⚠️ Esta acción actualizará el stock de los productos.
+    </p>
+
+    <div class="d-flex justify-content-center gap-4">
+        <button type="submit" name="accion" value="True"
+                class="btn btn-success btn-sm">
+            <i class="bi bi-check-circle me-2"></i> Confirmar
+        </button>
+    </div>
+</form>
+</div>
+<script>
+$("#autorizar_orden_form").on('submit', function(e) {
+    e.preventDefault();
+
+    let form = $(this);
+
+    $.ajax({
+        type: 'POST',
+        url: form.attr('action'),
+        data: form.serialize(),
+        success: function(html) {
+            // reemplaza el contenido del modal por el template retornado
+            $('.modal-content').html(html);
+        },
+        error: function() {
+            $('.modal-body').html(
+                '<div class="alert alert-danger text-center">Error al procesar la orden</div>'
+            );
+        }
+    });
+});
+</script>

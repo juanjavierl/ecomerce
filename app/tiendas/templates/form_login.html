@@ -1,0 +1,77 @@
+{% load crispy_forms_tags %}
+
+<div class="modal-header  thead-light" style="background-color: #58bba9;">
+    <h5 class="modal-title text-white" id="exampleModalLabel">Iniciar Sesión</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+  <div class="modal-body table-responsive">
+    <form action="/login_user/" method="post" id="login_forms" class="form-horizontal">
+     {% csrf_token %}
+     
+       {{form|crispy}}
+       <input type="checkbox" name="show_pass" id="id_show_pass">
+       <label for="id_show_pass">Ver contraseña</label>
+       <div class="modal-footer">
+          <button type="submit" class="btn btn-success btn-sm" id="btn_sesion">
+            <i class="bi bi-person"></i> Iniciar Sesión
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+            <i class="bi bi-arrow-left-circle"></i> Cancelar
+          </button>
+        
+        <!-- Enlaces separados a izquierda y derecha -->
+        <div class="w-100 d-flex justify-content-between mt-3 mb-0">
+          <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-outline-primary btn-sm d-flex align-items-center px-3">
+            <i class="bx bxl-google me-2" style="font-size: 1rem;"></i> Iniciar con Google
+          </a>
+          <a href="#" class="btn btn-outline-secondary btn-sm d-flex align-items-center px-3" onclick="reset_password('/reset_password')">
+            <i class="bi bi-unlock me-2" style="font-size: 1rem;"></i> Olvide mi contraseña
+          </a>
+        </div>        
+      </div>
+      
+    </form>
+    <p class="invalid text-danger"></p>
+ </div>
+  <script>
+    $('#id_show_pass').change(function () {
+      if (this.checked) {
+            $('.modal-body #login_forms #id_password').attr("type", 'text');
+        }else{
+             $('.modal-body #login_forms #id_password').attr("type", 'password');
+        }
+    });
+    $('.modal-body #login_forms').on('submit', function(e){
+      e.preventDefault();
+      $("#btn_sesion").html("Iniciando...!");
+      $.ajax({
+            type:'POST',
+            url:$("#login_forms").attr('action'),
+            data:$("#login_forms").serialize(),//{user_data: {…}, company_data: {…}, plan_data: {…}}
+
+            success:function(resp){
+              if(resp.error){
+                $(".invalid").text(resp.error);
+                $("#btn_sesion").html("<i class='bi bi-person'></i> Iniciar Sesión");
+              }
+              else{
+                window.location.href='/'+resp.user_id+'/companys';
+              }
+            }
+        });
+    });
+    function reset_password(urls){
+      $.ajax({
+            type:'GET',
+            url:urls,
+            success:function(resp){
+              if(resp.error){
+                $(".invalid").text(resp.error);
+              }
+              else{
+                $(".modal-content").html(resp);
+              }
+            }
+        });
+    }
+  </script>

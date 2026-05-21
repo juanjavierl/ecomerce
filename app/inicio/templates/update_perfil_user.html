@@ -1,0 +1,69 @@
+{% load crispy_forms_tags %}
+<div class="row">
+  <div class="col-12">
+      <div class="section-title">
+          <h2>Actualizar mis datos</h2>
+      </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row mt-5 justify-content-center" data-aos="fade-up">
+      <div class="col-lg-10">
+        <form action="/{{request.user.id}}/update_perfil_user/" method="post" id="update_forms_user" class="form-horizontal">
+          {% csrf_token %}
+            {{form|crispy}}
+
+            <div class="modal-footer">
+              <button class="btn btn-info btn-sm" type="button" data-bs-toggle="modal" style="margin-right: 10px;"
+                data-bs-target="#exampleModal" onclick="changePassword('/{{request.user.id}}/change_password')">Cambiar Contraseña</button>
+
+              <a href="/{{request.user.id}}/companys" class="btn btn-secondary btn-sm" style="margin-right: 10px;"><i class="bi bi-arrow-left-circle"></i> Atras</a>
+              <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-user"></i> Confirmar</button>
+            </div>
+         </form>
+         <p class="succces text-success center"></p>
+      </div>
+  </div>
+</div>
+
+<script>
+function changePassword(urls){
+  $.ajax({
+        type:'GET',
+        url:urls,
+        success:function(resp){
+            $(".modal-content").html(resp);
+        }
+    });
+
+}
+$("#update_forms_user").on('submit',function(e){
+    e.preventDefault();
+    $.ajax({
+            type:'POST',
+            url:$(this).attr('action'),
+            data:$(this).serialize(),
+            success:function(resp){
+              if(resp.error){
+                $('.toast-body').addClass('alert alert-danger');
+                    $('.toast-body').fadeIn(1000).html(resp.error);
+                    mostrar_notificacion();
+              }
+              else{
+                  $('.toast-body').addClass('alert alert-success');
+                  $('.toast-body').fadeIn(1000).html(resp.success);
+                  mostrar_notificacion();
+
+                setTimeout(function(){
+                  window.location.href = "/{{request.user.id}}/companys";
+              },3000);
+              }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+             alert("Error:"+ thrownError);
+           }
+        });
+  });
+</script>
+    

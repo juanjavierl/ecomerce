@@ -1,0 +1,179 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ticket</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="{% static 'lib/bootstrap-5.0.2/css/bootstrap.min.css' %}" rel="stylesheet">
+    <style>
+        @page {
+            width: 58mm;
+            height: {{ height }}px;
+            margin: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 7px;
+            padding: 0;
+            margin: 0;
+            color: black !important;
+            min-height: 100%;
+        }
+
+        .content {
+            width: 58mm;
+            padding: 10px;
+        }
+
+        .img-logo {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            margin: 0 auto;
+        }
+
+        .head-name {
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .head-details,
+        .head-data {
+            font-size: 9px;
+            margin-bottom: 5px;
+        }
+
+        .head-data b {
+            display: inline-block;
+            width: 20%;
+        }
+
+        .ticket-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+        }
+
+        .ticket-table th,
+        .ticket-table td {
+            border-bottom: 1px dashed #000;
+            padding: 2px 0;
+            font-size: 8px;
+        }
+
+        .ticket-table th {
+            text-align: left;
+        }
+
+        .totals {
+            margin-top: 5px;
+            font-size: 9px;
+        }
+
+        .totals td {
+            padding: 2px 0;
+        }
+
+        .totals .text-right {
+            text-align: right;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 7px;
+            margin-top: 5px;
+        }
+
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+        .img-logo{
+            display: block;
+            margin: 0 auto;
+            max-width: 120px;
+            max-height: 120px;
+            object-fit: contain;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="content">
+        {% if company.logo %}
+            <img src="https://amceb.online{{ company.get_logo }}" class="img-logo d-block mx-auto" alt="{{ company.name }}">
+        {% endif %}
+        <h2 class="head-name">{{ company.name|upper }}</h2>
+        <div class="head-details text-center">
+            Dirección:{{ sucursal.address|default:"Tienda online" }}<br>
+            {% if company.ruc %}NIT: {{ company.ruc }}<br>{% endif %}
+            Teléfono/Celular: {{ company.phone }} / Cel: {{ company.mobile }}<br>
+            Emitido por: {{ user.username }}<br>
+            Ciudad:{{ company.cuidad|title }}
+        </div>
+
+        <div class="head-data">
+            <b>Ticket N°</b> {{ orden.id }}<br>
+            <b>Fecha:</b> {{ orden.creation_date|date:"d/m/Y H:i A" }}<br>
+            <b>Cliente:</b> {{ orden.client|title }}<br>
+            {% if orden.client.dni %}
+            <b>Nit/C.I:</b> {{ orden.client.dni }}<br>
+            {% endif %}
+        </div>
+
+        <table class="ticket-table">
+            <thead>
+                <tr>
+                    <th>Cant</th>
+                    <th>Detalle</th>
+                    <th>Precio</th>
+                    <th class="text-right">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in pedidos %}
+                <tr>
+                    <td>{{ p.cant }}</td>
+                    <td>{{ p.product.name }} {{ p.nota|default:""|title }}</td>
+                    <td>{{ p.price|floatformat:2 }}</td>
+                    <td class="text-right">{{ p.total|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <table class="totals w-100">
+            <tr>
+                <td>Subtotal</td>
+                <td class="text-right">{{ orden.subtotal|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <td>Envio</td>
+                <td class="text-right">{{ precio_envio|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <td><strong>Total</strong></td>
+                <td class="text-right"><strong>{{ orden.total|floatformat:2 }}</strong></td>
+            </tr>
+        </table>
+
+        <div class="footer">
+            Gracias por su compra, ¡lo esperamos pronto!<br>
+            Sitio web: {{ request.scheme }}://{{ request.get_host }}{{ company.get_meta_url }}<br>
+            fecha de impresión: {% now "d/m/Y H:i A" %}
+
+        </div>
+    </div>
+</body>
+
+</html>

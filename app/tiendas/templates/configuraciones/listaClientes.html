@@ -1,0 +1,51 @@
+<h2 class="accordion-header">
+    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix"
+        aria-expanded="false" aria-controls="collapseSix">
+        <strong>Lista de Clientes</strong>
+    </button>
+</h2>
+<div id="collapseSix" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+    <div class="accordion-body row d-flex no-gutters justify-content-center">
+
+        <div class="col-lg-12 d-flex align-items-stretch table-responsive">
+            {% if ordens %}
+            <table class="table table-bordered table-striped table-sm">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Nombre completo</th>
+                        <th>CI</th>
+                        <th>Celular</th>
+                        <th>Email</th>
+                        <th>Direccion</th>
+                        <th>Fecha de Registro</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    {% for o in ordens %}
+                        {% for c in clientes %}
+                            {% if o.client_id == c.id %}
+                            <tr>
+                                <td>{{c.names|title}}</td>
+                                <td>{{c.dni|default:" - - -"}}</td>
+                                <td>{{c.mobile}}</td>
+                                <td>{{c.email|default:" - - -"}}</td>
+                                <td>{{c.address|default:" - - -"}}</td>
+                                <td>{{c.date_joined}}</td>
+                                <td><a href="https://wa.me/{{c.mobile}}" target="_blank" title="Enviar mensaje"><i class="bi bi-whatsapp"></i></a></td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                        
+                    
+                </tbody>
+            </table>
+            {% else %}
+            <div class="alert alert-warning text-center text-danger" role="alert">No hay clientes</div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>

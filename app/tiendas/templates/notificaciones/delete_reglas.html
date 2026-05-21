@@ -1,0 +1,41 @@
+{% load crispy_forms_tags %}
+<div class="modal-header  thead-light" style="background-color: #58bba9;">
+    <h5 class="modal-title text-white" id="exampleModalLabel">Eliminar: Informacion</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+  <div class="modal-body table-responsive">
+    <form action="/{{regla.id}}/delete_regla" method="POST" id="eliminar_regla">
+     {% csrf_token %}
+     <div class="alert alert-danger" role="alert">
+        Esta seguro de Eliminar los terminos y condiciones para sus ventas?: <br>{{regla.regla}}.
+      </div>
+       <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="bi bi-arrow-left-circle"></i> Cancelar</button>
+        <button type="submit" class="btn btn-danger btn-sm">Confirmar</button>
+      </div>
+    </form>
+ </div>
+
+ <script>
+    $("#eliminar_regla").on('submit',function(e){
+      e.preventDefault();
+      $.ajax({
+              type:'POST',
+              url:$(this).attr('action'),
+              data: $(this).serialize(),
+              success:function(resp){
+                if(resp.error){
+                  $(".invalid").text(resp.error);
+                }
+                else{
+                  //window.location.href='/'+{{precio.company.id}}+'/configuraciones';
+                  $('.info_rule').html(" ");
+                  setTimeout(function () {
+                    $(".btn-close").click();
+                  }, 1000);
+                }
+              }
+          });
+    });
+        
+   </script>

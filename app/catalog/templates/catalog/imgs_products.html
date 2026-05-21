@@ -1,0 +1,112 @@
+{% load crispy_forms_tags %}
+<div class="modal-header  thead-light" style="background-color: #58bba9;">
+  <h5 class="modal-title text-white" id="exampleModalLabel">Agregar nueva Imagen</h5>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body table-responsive">
+  <div>
+    <img id="imgPreview" class="object-fit-fill rounded mx-auto d-block"
+      style="width: 400px; height: 300px; text-align: center; border: 0;">
+
+  </div>
+  <form action="/{{product.id}}/imgs_products/" method="post" enctype="multipart/form-data" id="FormImgProduct">
+    {% csrf_token %}
+
+    <div id="div_id_img" class="mb-3">
+      <label for="id_img" class="form-label requiredField">
+        Imagen<span class="asteriskField">*</span>
+      </label>
+      <div>
+        <input type="file" name="img" class="form-control" accept="image/*" id="id_img" required
+          onchange="previewImage(event, '#imgPreview')">
+        <div id="id_img_helptext" class="form-text">Puede registrar hasta 2 imagenes como máximo</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i
+          class="bi bi-arrow-left-circle"></i> Cancelar</button>
+      <button type="submit" class="btn btn-success btn-sm">Confirmar</button>
+    </div>
+  </form>
+  <p class="invalid text-danger"></p>
+</div>
+
+<script>
+  $('#FormImgProduct').on('submit', async function (e) {
+    e.preventDefault();
+    const form = this;
+    const botonSubmit = $(form).find('button[type="submit"]');
+    botonSubmit.prop('disabled', true).text('Enviando...');
+
+    const datos = new FormData(form);
+    const inputArchivo = form.querySelector('input[type="file"]');
+    const archivo = inputArchivo ? inputArchivo.files[0] : null;
+
+    if (archivo) {
+      const tiposPermitidos = ['image/jpeg', 'image/png', 'image/webp'];
+      const maxTamanoMB = 15;
+      if (!tiposPermitidos.includes(archivo.type)) {
+        alert("Solo se permiten imágenes JPG, PNG o WEBP.");
+        botonSubmit.prop('disabled', false).text('Confirmar');
+        return;
+      }
+      if (archivo.size > maxTamanoMB * 1024 * 1024) {
+        alert(`La imagen no debe superar los ${maxTamanoMB} MB.`);
+        botonSubmit.prop('disabled', false).text('Confirmar');
+        return;
+      }
+      try {
+        const imagenComprimida = await comprimirImagen(archivo);
+        datos.set('img', imagenComprimida, archivo.name);
+      } catch (error) {
+        alert("Error al comprimir la imagen: " + error.message);
+        botonSubmit.prop('disabled', false).text('Confirmar');
+        return;
+      }
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: $(form).attr('action'),
+      data: datos,
+      contentType: false,
+      processData: false,
+      success: function (resp) {
+        if (resp.error) {
+          $('.toast-body').removeClass('alert-success').addClass('alert-danger');
+          $('.toast-body').fadeIn(1000).html('<strong>' + resp.error + '</strong>');
+          mostrar_notificacion();
+        } else {
+          $('.toast-body').removeClass('alert-danger').addClass('alert-success');
+          $('.toast-body').fadeIn(1000).html('<strong>' + resp.success + '</strong>');
+          form.reset();
+          mostrar_notificacion();
+        }
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        alert("Ocurrió un error al enviar el formulario. Error: " + thrownError);
+      },
+      complete: function () {
+        botonSubmit.prop('disabled', false).html('Confirmar');
+      }
+    });
+  });
+
+
+
+
+  function previewImage(event, querySelector) {
+    //Recuperamos el input que desencadeno la acción
+    const input = event.target;
+    //Recuperamos la etiqueta img donde cargaremos la imagen
+    $imgPreview = document.querySelector(querySelector);
+    // Verificamos si existe una imagen seleccionada
+    if (!input.files.length) return
+    //Recuperamos el archivo subido
+    file = input.files[0];
+    //Creamos la url
+    objectURL = URL.createObjectURL(file);
+    //Modificamos el atributo src de la etiqueta img
+    $imgPreview.src = objectURL;
+  }
+</script>

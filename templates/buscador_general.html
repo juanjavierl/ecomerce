@@ -1,0 +1,23 @@
+<hr>
+<section class="container col-11 bot_amceb" id="bot_amceb" data-aos="fade-up">
+    <div class="alert alert-primary container col justify-content-center" role="alert">
+        <div class="container col-12 text-center">
+            <strong>¿Buscas algun producto?</strong>
+            <p>Te puedo ayudar a encontrar productos en ofertas, promociones, lugares mucho más.</p>
+        </div>
+        <div class="container col-12" id="form_more_aviso">
+            <form action="/chat_bot/" method="post" id="id_suscripcion">
+                {% csrf_token %}
+                <div class="input-group mb-3">
+                    <input type="text" name="text_boot" class="form-control"
+                        placeholder="Escribe un producto, descripción o categoria" required>
+                    <button class="btn btn-primary" type="submit" id="button-addon2">Consultar</button>
+                </div>
+            </form>
+        </div>
+        <div id="chat_respuesta" class="my-3"></div>
+        <section id="team_productos" class="portfolio">
+            <div id="productos_resultado" class="row col-12 justify-content-center"></div>
+        </section>
+    </div>
+</section>

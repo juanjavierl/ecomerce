@@ -1,0 +1,72 @@
+<div class="modal-header  thead-light" style="background-color: #58bba9;">
+    <h5 class="modal-title text-white" id="exampleModalLabel">Inventario del producto: {{p.name|title}}</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <label for="staticEmail" class="col-9 col-form-label">Stock Inicial con lo que se registro</label>
+        <div class="col-3">
+            <input type="text" readonly class="form-control-plaintext" id="staticEmail" value="{{p.stock}}">
+        </div>
+        <label for="staticEmail" class="col-9 col-form-label">Total Salidas en ventas</label>
+        <div class="col-3">
+            <input type="text" readonly class="form-control-plaintext" id="staticEmail" value="{{p.salida}}">
+        </div>
+        <label for="staticEmail" class="col-9 col-form-label text-primary">Stock Actual (stock_inicial - salidas)</label>
+        <div class="col-3">
+            <input type="text" readonly class="form-control-plaintext text-primary" id="staticEmail"
+                value="{{p.stock_actual}}">
+        </div>
+    </div>
+    <small class="text-muted text-center">solo ingrese una casilla para aumentar o restar al stock actual</small>
+    <form action="/{{p.id}}/updateStock/" method="POST" id="form_incrementar">
+        {% csrf_token %}
+        <div class="row">
+            <label for="inputPassword" class="col-9 col-form-label">Incrementar stock Inicial</label>
+            <div class="col-3">
+                <input type="number" name="incremento" value="0" min="0" class="form-control" id="inputPassword" required>
+            </div>
+        </div>
+        <div class="row">
+            <label for="inputPassword" class="col-9 col-form-label">Restar al stock Actual</label>
+            <div class="col-3">
+                <input type="number" name="decremento" value="0" min="0" class="form-control" id="inputPassword" required>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i
+                    class="bi bi-arrow-left-circle"></i> Cancelar</button>
+            <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-like"></i> Confirmar Inventario</button>
+        </div>
+
+    </form>
+</div>
+<script>
+    $("#form_incrementar").on('submit', function (e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: $(this).serialize(),
+            success: function (resp) {
+                if (resp.success) {
+                    $('.toast-body').removeClass('alert-danger').addClass('alert-success');
+                    $('.toast-body').fadeIn(1000).html(resp.success);
+                    $('#form_incrementar')[0].reset();
+                    mostrar_notificacion();
+                    setTimeout(function () {
+                        $(".btn-close").click();
+                    }, 1000);
+                }
+                else {
+                    $('.toast-body').removeClass('alert-success').addClass('alert-danger');
+                    $('.toast-body').fadeIn(1000).html(resp.error);
+                    mostrar_notificacion();
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Error:" + thrownError);
+            }
+        });
+    });
+</script>

@@ -1,0 +1,420 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>
+    {% block titulo %}
+    {{dashboard.name|upper|truncatechars:17|cut:" "}}
+    {% endblock titulo %}
+  </title>
+
+  {% block tecnica_seo %}
+  <meta name="description" content="{{ dashboard.get_meta_description }}">
+  <meta property="og:title" content="{{ dashboard.get_meta_title }}">
+  <meta property="og:description" content="{{ dashboard.get_meta_description }}">
+  <meta property="og:image" content="{{ dashboard.get_meta_image }}">
+  <meta property="og:url" content="https://{{ request.get_host }}{{ dashboard.get_meta_url }}">
+  <link rel="canonical" href="https://{{ request.get_host }}{{ dashboard.get_meta_url }}">
+  {% endblock tecnica_seo %}
+
+  <!-- Favicons -->
+  <link href="{% static 'assets/img/favicon.png' %}" rel="icon">
+  <link href="{% static 'assets/img/apple-touch-icon.png' %}" rel="apple-touch-icon">
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+    rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{% static 'assets/vendor/aos/aos.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+
+
+
+  <!-- Template Main CSS File -->
+  <link href="{% static 'assets/css/style.css' %}" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/card_products.css' %}">
+
+
+  <script src="{% static 'js/jquery-2.2.4.min.js' %}"></script>
+  <link href="{% static 'select2/css/select2.css' %}" rel="stylesheet" />
+  <script src="{% static 'select2/js/select2.js' %}"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
+  <!-- files by reload date range piker  -->
+  <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/daterangepicker.min.js' %}"></script>
+  <link rel="stylesheet" type="text/css" href="{% static 'css/daterangepicker.css' %}" />
+  {% block code_meta %}
+  {% if dashboard.codigo %}
+  <script>
+    !function (f, b, e, v, n, t, s) {
+      if (f.fbq) return; n = f.fbq = function () {
+        n.callMethod ?
+          n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+      };
+      if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+      n.queue = []; t = b.createElement(e); t.async = !0;
+      t.src = v; s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s)
+    }(window, document, 'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '{{dashboard.codigo}}');
+    fbq('track', 'PageView');
+  </script>
+  <noscript>
+    <img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id={{dashboard.codigo}}&ev=PageView&noscript=1" />
+  </noscript>
+  {% endif %}
+  {% endblock code_meta %}
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758294951145066"
+    crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <!-- ======= Header ======= -->
+  <header id="header" class="fixed-top d-flex align-items-center">
+    <div class="container d-flex justify-content-between">
+
+      <div class="logo" style="display: flex;width: 400px;justify-content: space-around;">
+        <h1>
+          {% block company %}
+          <a href="/">
+            {{dashboard.name|upper|cut:" "}}
+          </a>
+          {% endblock company %}
+        </h1>
+
+        {% block carrito %}
+        {% include 'sheart_companys.html' %}
+        {% endblock carrito %}
+
+      </div>
+
+      <nav id="navbar" class="navbar">
+
+        {% block menus %}
+        {% include 'menu_index.html' with type_company=type_company count_comp=count_comp %}
+        {% endblock menus %}
+
+        <i class="bi bi-list mobile-nav-toggle"></i>
+      </nav><!-- .navbar -->
+    </div>
+  </header>
+  <!-- End Header -->
+  <!-- ======= Hero Section ======= -->
+  {% block hero %}
+  <section id="hero" class="d-flex flex-column justify-content-center align-items-center">
+    <div class="container text-center text-md-left" data-aos="fade-up">
+      <h1>Crea tu tienda online ahora</h1>
+      <h2>Convierte tu idea en un negocio digital que venda solo fácil, rápido y seguro con IA + SEO, 24/7.</h2>
+      <a href="#team" class="btn-get-started scrollto"> Ver Ultimas Novedades</a>
+      <a href="#" onclick="form_company('/registro_company/')" data-bs-toggle="modal" data-bs-target="#exampleModal"
+        class="btn-get-started scrollto"> crear mi tienda online</a>
+    </div>
+  </section>
+  {% endblock hero %}
+  <!-- End Hero -->
+  <main id="main">
+    <!-- ======= Services Section ======= -->
+    {% block form_buscador %} {% endblock form_buscador %}
+    <!-- End Services Section -->
+     <!-- ======= About Section ======= -->
+    
+    {% block acerca %}
+      <section id="about" class="about"><br>
+        {% include 'acerca.html' %}
+      </section>
+    {% endblock acerca %}
+      
+    <!-- End About Section -->
+    <!-- ======= Team Section ======= -->
+    {% block contenido %}
+    <section id="team" class="team" style="margin-top: 10px;">
+      <div class="container-fluid productos_por_categorias">
+        {% include 'card_type_companys.html' with type_company=type_company count_comp=count_comp %}
+
+        {% include 'pag_productos.html' %}
+      </div>
+    </section>
+    {% endblock contenido %}
+    {% block suscipcion_for_email %}
+    {% include 'buscador_general.html' %}
+    {% endblock suscipcion_for_email %}
+
+    <section id="product_mas_vistos" class="product_view">
+      <div class="container">
+        {% block productos_mas_vistos %}
+        {% include 'tiendas_mas_vistos.html' %}
+        {% endblock productos_mas_vistos %}
+      </div>
+    </section>
+
+    {% block preg_frecuentes %}
+    {% include 'preguntas_frecuentes.html' %}
+    {% endblock preg_frecuentes %}
+
+    <!-- ======= Services Section ======= -->
+    <section id="services" class="services section-bg">
+      <div class="container">
+        {% block servicios %}
+          {% include 'servicios.html' %}
+        {% endblock servicios %}
+      </div>
+    </section><!-- End Services Section -->
+    <div class="modal fade" id="exampleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+      aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content" id="optenerProducto">
+
+        </div>
+      </div>
+    </div>
+
+    {% block google_adsense %}
+
+    {% endblock google_adsense %}
+    {% block contact %} {% endblock contact %}
+
+  </main><!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+
+  {% block footer_catalog %}
+  {% include 'footer_catalog.html' %}
+  {% endblock footer_catalog %}
+  <!-- End Footer -->
+
+  {% block button_whatsap %}
+  <a href="#bot_amceb" id="whatsappButton" title="¿Buscas algun producto?"
+    class="back-to-top-w d-flex align-items-center justify-content-center">
+    <i class="bi bi-robot"></i>
+  </a>
+  <script>
+    $(document).ready(function () {
+      const $button = $('#whatsappButton');
+      const tooltip = new bootstrap.Tooltip($button[0]);
+
+      setTimeout(function () {
+        tooltip.show();
+
+        // Ocultar tooltip automáticamente a los 5 segundos
+        setTimeout(function () {
+          tooltip.hide();
+        }, 10000);
+
+      }, 0);
+    });
+  </script>
+  {% endblock button_whatsap %}
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto">Aviso</strong>
+        <small>hace 1 segundo</small>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body alert alert-success">
+
+      </div>
+    </div>
+  </div>
+  <div class="container align-items-center justify-content-center">
+    <!--  <div class="alert alert-danger tamanio error_pedido" style="display: none;" role="alert"></div>
+  <div class="alert alert-success tamanio confir_pedido" style="display: none;" role="alert"></div>
+ -->
+  </div>
+  <!-- Button de llava hacia arriba -->
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
+  <!-- Vendor JS Files -->
+  <script src="{% static 'assets/vendor/aos/aos.js' %}"></script>
+  <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/glightbox/js/glightbox.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/swiper/swiper-bundle.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/php-email-form/validate.js' %}"></script>
+
+  <!-- Template Main JS File -->
+  <script src="{% static 'assets/js/main.js' %}"></script>
+  <script src="{% static 'js/funcionesFromUser.js' %}"></script>
+  {% block js %}
+
+  {% endblock js %}
+
+</body>
+<script>
+  const toastLiveExample = document.getElementById('liveToast');
+  function mostrar_notificacion(menj) {
+    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+    toastBootstrap.show();
+  }
+  
+  function form_company(urls) {
+    $.ajax({
+      type: 'GET',
+      url: urls,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },// Marca como AJAX
+      success: function (resp) {
+        $(".modal-content").html(resp);
+        $(".navbar-mobile i").click();
+      }
+    });
+  }
+  function login(urls) {
+    $.ajax({
+      type: 'GET',
+      url: urls,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },// Marca como AJAX
+      success: function (resp) {
+        $(".modal-content").html(resp);
+        $(".navbar-mobile i").click();
+      }
+    });
+  }
+  function verPlanes(urls, id_company) {
+    $.ajax({
+      type: 'GET',
+      url: urls,
+      data: { 'id_company': id_company },
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },// Marca como AJAX
+      success: function (resp) {
+        $(".modal-content").html(resp);
+        $(".navbar-mobile i").click();
+      }
+    });
+  }
+
+  function actualizarBadge(count) {
+        const badge = document.getElementById("cont_compras");
+
+        if (!badge) return;
+
+        if (count > 0) {
+            badge.style.display = "flex";
+            badge.textContent = count > 99 ? "99+" : count;
+        } else {
+            badge.style.display = "none";
+        }
+    }
+
+  $(document).ready(function () {
+    $("#id_suscripcion").submit(function (e) {
+      e.preventDefault();
+
+      var formData = new FormData(this);
+      var productosDiv = $("#productos_resultado");
+
+      // Mostrar spinner mientras carga
+      productosDiv.html(`
+            <div class="text-center w-100 my-3">
+                <i class="bi bi-robot" style="font-size: 2rem;"></i>
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Buscando...</span>
+                </div>
+                <p>Buscando productos...</p>
+            </div>
+        `);
+
+      $.ajax({
+        url: "{% url 'chat_bot' %}",
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (data) {
+          /* $("#chat_respuesta").html("<i class='bi bi-robot'></i> " + data.reply); */
+          $("#chat_respuesta").html("<i class='bi bi-robot'></i> " + "Productos encontrados");
+          productosDiv.empty();
+
+          if (data.productos.length === 0) {
+            productosDiv.html("<p class='text-center text-muted'>No se encontraron productos.</p>");
+            return;
+          }
+          $.each(data.productos, function (i, p) {
+            var card = `
+                  <div class="card dark card_p single-product shadow-sm" data-aos="fade-up" style="margin: 6px 4px; padding: 6px; border-radius: 12px;">
+                    <div class="d-flex flex-row gap-2 align-items-stretch">
+
+                      <!-- 🖼 Imagen (40%) -->
+                      <div class="col-5 p-0 d-flex align-items-center justify-content-center">
+                        ${p.image_url ? `
+                          <div class="portfolio-wrap position-relative w-100 h-100 d-flex align-items-center justify-content-center bg-light rounded" style="height: 150px; overflow: hidden;">
+                            <img src="${p.image_url}" class="img-fluid rounded" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="${p.name}">
+                            <div class="portfolio-info position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" 
+                                style="opacity: 0; transition: opacity 0.3s; background: rgba(0,0,0,0.4); border-radius: 8px;">
+                              <div class="portfolio-links text-center">
+                                <a href="${p.image_url}" data-gallery="portfolioGallery" class="portfolio-lightbox text-white mx-2" title="${p.name}">
+                                  <i class="bx bx-plus fs-4"></i>
+                                </a>
+                                <a href="${p.url}" class="text-white mx-2" title="Más detalles">
+                                  <i class="bx bx-link fs-4"></i>
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        ` : `
+                          <div class="d-flex align-items-center justify-content-center bg-light rounded" style="width: 100%; height: 150px;">
+                            <i class="bi bi-box-seam icon fs-3 text-secondary" onclick="detailView('${p.url}')"></i>
+                          </div>
+                        `}
+                      </div>
+
+                      <!-- 📄 Texto + botón (60%) -->
+                      <div class="col-7 d-flex flex-column p-0">
+                        <div class="text-section" onclick="detailView('${p.url}')" style="cursor: pointer; max-width:90%;">
+                          ${p.is_new ? `<span class="badge rounded-pill bg-primary sale-tag mb-1" style="font-size: 11px;">Nuevo</span>` : ``}
+                          <h6 class="card-title text-primary fw-bold mb-1" style="font-size: 18px;">${p.name}</h6>
+                          <p class="card-text text-break text-muted fst-italic mb-1" style="font-size: 14px; line-height: 1.3;">
+                            ${p.description ? p.description : "- - -"}
+                            <a href="${p.url}" class="text-decoration-none"><i class="bx bx-link"></i></a>
+                          </p>
+                          <small class="text-muted" style="font-size: 14px;">Ciudad: ${p.ciudad}</small>
+                        </div>
+
+                        <div class="d-flex justify-content-center align-items-center mt-auto bg-light rounded py-1 px-2" style="gap: 10px;">
+                          <span class="fw-semibold text-dark" style="font-size: 14px;">${p.moneda}. ${p.price}</span>
+                          <a class="btn btn-outline-primary fw-semibold" 
+                            style="font-size: 13px; border-radius: 20px; padding: 1px 8px;" 
+                            href="${p.url}">
+                            <i class="bi bi-cart-plus me-1"></i> comprar
+                          </a>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  <style>
+                    .portfolio-wrap:hover .portfolio-info { opacity: 1 !important; }
+                    .btn-outline-primary:hover { background-color: #0d6efd; color: #fff !important; }
+                    .card_p:hover { transform: translateY(-2px); }
+                  </style>
+
+                  `;
+            productosDiv.append(card);
+          });
+
+        },
+        error: function (err) {
+          productosDiv.html("<p class='text-center text-danger'>Error al consultar productos.</p>");
+          console.error("Error:", err);
+        }
+      });
+    });
+  });
+  function detailView(urls) {
+    window.location.href = urls;
+  }
+</script>
+
+</html>

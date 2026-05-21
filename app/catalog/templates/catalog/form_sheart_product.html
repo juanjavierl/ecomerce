@@ -1,0 +1,56 @@
+<nav class="navbar navbar-light bg-light" data-mdb-input-init>
+    <form action="/{{company.id}}/shear_product/" class="form-outline" id="shear_pro" method="POST">
+      {% csrf_token %}
+      <div class="input-group">
+        <input type="search" name="search" id="shear_text" autocomplete="off" class="form-control" placeholder="Buscar producto" aria-label="buscar" aria-describedby="basic-addon1" required>
+            <button type="submit" class="btn btn-primary" id="button-addon1">
+              <i class="bi bi-search"></i>
+              Buscar
+            </button>
+      </div>
+    </form>
+</nav>
+<script>
+    $(function(){
+      $("#shear_pro").on('keypress', function(){
+          $.ajax({
+                type:'GET',
+                url:$(this).attr("action"),
+                data:$("#shear_text").serialize(),
+                success:resultado,
+                error:errores
+            });
+        });
+      $("#shear_pro").submit(function(e){
+        e.preventDefault();
+        $.ajax({
+          type:"POST",
+          url:$(this).attr("action"),
+          data:$(this).serialize(),
+          success:resultado,
+          error:errores
+        });
+  
+      });
+  
+        function resultado(data){
+              $(".productos_por_categorias").fadeOut(200, function () {
+              $(".productos_por_categorias").html(data).fadeIn(400, function () {
+                // Destruir instancia anterior si existe
+                if (lightbox && typeof lightbox.destroy === 'function') {
+                  lightbox.destroy();
+                }
+                // Inicializar nuevamente el lightbox
+                lightbox = GLightbox({
+                  selector: '.portfolio-lightbox'
+                });
+  
+              });
+            });
+            }
+            function errores(){
+              $(".productos_por_categorias").fadeIn(1000).html("Ocurio un error al intentar buscar.");
+              //console.log("Error: revise si esta conectado a internet.");
+            }
+    });
+  </script>

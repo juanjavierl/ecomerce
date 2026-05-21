@@ -1,0 +1,137 @@
+{% load crispy_forms_tags %}
+<h2 class="accordion-header">
+    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+        data-bs-target="#collapseNine" aria-expanded="false" aria-controls="collapseNine">
+        <strong>Registrar Código de Cupon para las ventas(Opcional)</strong>
+    </button>
+</h2>
+<div id="collapseNine" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+    <div class="accordion-body row d-flex justify-content-center">
+        <div class="forn-envio col-lg-5 align-items-stretch">
+            <div class="input-group">
+                <form action="/{{company.id}}/add_cupon" method="post" id="add_cupon_forms">
+                    {% csrf_token %}
+                    {{form_cupom|crispy}}
+                    <button type="submit" class="btn btn-primary btn-sm"
+                            id="button-addon2">Registrar</button>
+                </form>
+            </div>
+        </div>
+        <div class="info_cupom col-lg-5 d-flex align-items-stretch" id="delete_cupon">
+            {% for c in cupom %}
+            <li>
+                Cupones: <strong>{{c.codigo}}.</strong>
+                <a href="#" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                    onclick="del_cupom('/{{c.id}}/delete_cupom')">Eliminar</a>
+                    <form action="" method="post">
+                        {% csrf_token %}
+                        <div class="form-check form-switch">
+                            <label class="form-check-label" for="estadoSwitch">Estado:</label><br>
+                    
+                            <input class="form-check-input" type="checkbox" role="switch" id="estadoSwitch" name="estado"
+                                   {% if c.estado %}checked{% endif %}>
+                    
+                            <span id="estadoTexto">
+                                {% if c.estado %}Los cupones estan activos para todas las compras{% else %}No se enviara ningun cupon hasta que este activada{% endif %}
+                            </span>
+                        </div>
+                    </form>
+                
+            </li>
+            {% empty %}
+            <li>Aun No hay registros</li>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<script>
+    $('#add_cupon_forms').on('submit', function (e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: $(this).serialize(),
+            success: function (resp) {
+                if (resp.error) {
+                    $('.toast-body').addClass('alert alert-danger');
+                    $('.toast-body').fadeIn(1000).html(resp.error);
+                    mostrar_notificacion();
+                } else {
+                    $(".precios_env").html("");
+                    $('.toast-body').addClass('alert alert-success');
+                    $('.toast-body').fadeIn(1000).html(resp.success);
+                    mostrar_notificacion();
+                    $('#add_cupon_forms')[0].reset();
+                    $.ajax({
+                        type: 'get',
+                        url: '/{{company.id}}/get_cupom',
+                        success: function (resp) {
+                            $('.info_cupom').html(resp);
+                        }
+
+                    });
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $('.toast-body').addClass('alert alert-danger');
+                $('.toast-body').fadeIn(1000).html(thrownError);
+                mostrar_notificacion();
+            }
+        });
+    });
+
+    function del_cupom(urls) {
+        $.ajax({
+            type: 'get',
+            url: urls,
+            success: function (resp) {
+                if (resp.error) {
+                    $(".invalid_ct").html(resp.error);
+                } else {
+
+                    $(".modal-content").html(resp);
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Error:" + thrownError);
+            }
+        });
+        return false;
+    }
+    
+    $(document).ready(function() {
+        // Insertar el <span> justo después del input de rango
+        let $slider = $('#id_descuento');
+        let valorInicial = $slider.val();
+        let $span = $('<span>', {
+            id: 'valorNivel',
+            text: valorInicial,
+            style: 'margin-left: 10px; font-weight: bold;'
+        });
+        
+
+        // Crear un contenedor inline y meter el slider y el span juntos
+        let $wrapper = $('<div>', {
+            style: 'display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;'
+        });
+
+        $slider.parent().append($wrapper);
+        $wrapper.append($slider.detach());
+        $wrapper.append($span);
+
+        // Actualizar valor en tiempo real
+        $slider.on('input', function () {
+            $span.text($(this).val());
+        });
+    });
+    const checkbox = document.getElementById('estadoSwitch');
+    const textoEstado = document.getElementById('estadoTexto');
+
+    checkbox.addEventListener('change', function () {
+    if (this.checked) {
+        textoEstado.textContent = 'Activo';
+    } else {
+        textoEstado.textContent = 'Desactivado';
+    }
+});
+</script>

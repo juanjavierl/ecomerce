@@ -1,0 +1,46 @@
+{% load crispy_forms_tags %}
+<div class="modal-header  thead-light" style="background-color: #58bba9;">
+    <h5 class="modal-title text-white" id="exampleModalLabel">Eliminar: el Precio</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+  <div class="modal-body table-responsive">
+    <form action="/{{precio.id}}/del_precio" method="post" id="eliminar_precio_envio" enctype="multipart/form-data">
+     {% csrf_token %}
+     <div class="alert alert-danger" role="alert">
+        Esta seguro de Eliminar los precios de envio? {{precio.precio}} y {{precio.precio_ciudad}}
+      </div>
+       <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="bi bi-arrow-left-circle"></i> Cancelar</button>
+        <button type="submit" class="btn btn-danger btn-sm">Confirmar</button>
+      </div>
+    </form>
+ </div>
+
+
+ <script>
+    $("#eliminar_precio_envio").on('submit',function(e){
+      e.preventDefault();
+      let datos = new FormData(this);
+      $.ajax({
+              type:'POST',
+              url:$(this).attr('action'),
+              data: datos,
+              contentType: false,
+              processData: false,
+              success:function(resp){
+                if(resp.error){
+                  $(".invalid").text(resp.error);
+                }
+                else{
+                  //window.location.href='/'+{{precio.company.id}}+'/configuraciones';
+                  $('#delete_precio').html(" ");
+                  
+                  setTimeout(function () {
+                    $(".btn-close").click();
+                  }, 1000);
+                }
+              }
+          });
+    });
+        
+   </script>
