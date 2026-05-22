@@ -29,8 +29,6 @@ sitemaps = {
     'inicio': IndexSitemap,
     'companies': CompanySitemap,
     'products': ProductSitemap,
-    'categorias': TipoCompanySitemap,
-    'ciudades':CiudadSitemap,
 }
 
 urlpatterns = [

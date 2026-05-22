@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-f*5x^8-9#li5-vj4d4#zy51%h%7hh#1&9)@8@6a#-+ye1@d-!7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ["www.amceb.online", "amceb.online"]
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -126,7 +126,7 @@ WSGI_APPLICATION = 'ventas.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-"""
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -144,7 +144,7 @@ DATABASES = {
         'PORT': config('DB_PORT', default='5432'),
     }
 }
-
+"""
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

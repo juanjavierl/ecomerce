@@ -17,13 +17,12 @@ from app.inicio.views import get_Dashboard
 from django.db.models import F, ExpressionWrapper, IntegerField
 from django.db.models.functions import Coalesce
 # Create your views here.
-def CatalogView(request, id_company):
+def CatalogView(request, url_referido=None):
     template_name = "sitio.html"
     if request.method == 'GET':
-        #productos = Product.objects.filter(company_id=int(id_company)).order_by('-id')
-        productos = Product.objects.filter(company_id=int(id_company)) \
-            .select_related('category') \
-            .order_by('category__name', '-id')
+        productos = Product.objects.select_related(
+            'category'
+        ).order_by('category__name', '-id')
         page = request.GET.get('page',1)
         try:
             categorys = categorys_from_productos(productos)
@@ -38,7 +37,7 @@ def CatalogView(request, id_company):
 
         date_expiration = False
         try:
-            if(get_company(id_company).expiration_date < datetime.now().date()):
+            if(get_company().expiration_date < datetime.now().date()):
                 date_expiration = True
         except:
             return redirect("/")
@@ -48,46 +47,46 @@ def CatalogView(request, id_company):
             'paginator':paginator,
             'total_compra':sum(item['cantidad'] for item in request.session['compra']),
             't_pago':calcular_pago(request),
-            'company':get_company(id_company),
-            'aviso':optener_avisos_by_company(id_company),
+            'company':get_company(),
+            'aviso':optener_avisos_by_company(),
             'dashboard':get_Dashboard(),
             'date_expiration':date_expiration,
-            'address':get_address(id_company),
-            'code':get_code_meta(id_company)
+            'address':get_address(),
+            'code':get_code_meta()
         }
         return render(request,template_name, dic)
 
-def get_address(id_company):
+def get_address():
     try:
-        address = Sucursal.objects.get(company_id=int(id_company))
+        address = Sucursal.objects.first()
     except:
         address = False
     return address
 
-def get_code_meta(id_company):
+def get_code_meta():
     try:
-        address = PixelMeta.objects.get(company_id=int(id_company))
+        address = PixelMeta.objects.first()
     except:
         address = False
     return address
 
-def get_rule_condicion(id_company):
+def get_rule_condicion():
     try:
-        reglas = Condicion.objects.get(company_id=int(id_company))
+        reglas = Condicion.objects.first()
     except:
         reglas = False
     return reglas
 
-def getBanco(id_company):
+def getBanco():
     try:
-        banco = Banco.objects.get(company_id=int(id_company))
+        banco = Banco.objects.first()
     except:
         banco = False
     return banco
 
-def optener_avisos_by_company(id_company):
+def optener_avisos_by_company():
     try:
-        aviso = Aviso.objects.get(company_id=int(id_company))
+        aviso = Aviso.objects.first()
     except:
         aviso = False
     return aviso
@@ -99,8 +98,8 @@ def categorys_from_productos(productos):
             ct.append({'id':p.category.id, 'name':p.category.name})
     return ct
 
-def get_company(id_company, user=None):
-    company = get_object_or_404(Company, id=int(id_company))
+def get_company(user=None):
+    company = get_object_or_404(Company)
 
     # Verificar que el usuario logueado sea el dueño
     if user is not None and company.user != user:
@@ -108,8 +107,8 @@ def get_company(id_company, user=None):
 
     return company
 
-def optenerProducto(request, id_producto, id_company):
-    productos = Product.objects.filter(company_id = int(id_company))
+def optenerProducto(request, id_producto, url_referido=None):
+    productos = Product.objects.all()
     p = get_object_or_404(Product,id = id_producto)
     datos = {}
     dic = {}
@@ -168,16 +167,16 @@ def optenerProducto(request, id_producto, id_company):
     else:
         context = { 'p':p,
                     'total_compra':sum(item['cantidad'] for item in data_cli),
-                    'company':get_company(id_company),
+                    'company':get_company(),
                     'categorias':categorys_from_productos(productos),
-                    'aviso':optener_avisos_by_company(id_company),
-                    'productos':productosMasVistos(id_company),
-                    'address':get_address(id_company),
-                    'code':get_code_meta(id_company)
+                    'aviso':optener_avisos_by_company(),
+                    'productos':productosMasVistos(),
+                    'address':get_address(),
+                    'code':get_code_meta()
                 }
     return render(request,'catalog/OptenerProducto.html',context)
 
-def add_iten(request, id_producto):
+def add_iten(request, id_producto, url_referido=None):
     
     if request.method == 'POST':
         print(id_producto)
@@ -185,21 +184,21 @@ def add_iten(request, id_producto):
 
         return JsonResponse({'p':id_producto})
 
-def ver_carrito(request, id_company):
-    company = get_object_or_404(Company, id=id_company)
+def ver_carrito(request, url_referido=None):
+    company = get_object_or_404(Company)
     datos = request.session['compra']
     t_pago = calcular_pago(request)
     return render(request, 'catalog/ver_carrito.html',{'datos':datos,'t_pago':t_pago, 'company':company})
 
-def show_productos_carrito(request, id_company):
-    company = get_object_or_404(Company, id=id_company)
+def show_productos_carrito(request, url_referido=None):
+    company = get_object_or_404(Company)
     datos = request.session['compra']
     t_pago = calcular_pago(request)
-    regla = get_rule_condicion(id_company)
+    regla = get_rule_condicion()
     return render(request, 'catalog/show_productos_carrito.html',{'datos':datos,'t_pago':t_pago, 'company':company, 'regla':regla})
 
 
-def calcular_pago(request):
+def calcular_pago(request, url_referido=None):
     total_pago = 0
     try:
         productos = request.session['compra']
@@ -215,7 +214,7 @@ def vaciar_carrito(request):
     request.session['compra'] = []
     return HttpResponse(len(request.session['compra']))
 
-def eliminarProducto(request, id_producto):#el id_producto es el indicen 
+def eliminarProducto(request, id_producto, url_referido=None):#el id_producto es el indicen 
     productos = request.session['compra']
     productos.pop(int(id_producto))
     request.session['compra'] = productos
@@ -226,7 +225,7 @@ def eliminarProducto(request, id_producto):#el id_producto es el indicen
     }
     return JsonResponse(data)
 
-def actualizarCantidad(request):
+def actualizarCantidad(request, url_referido=None):
     cantidad = request.GET['cantidad']
     indice = request.GET['indice']
     productos = request.session['compra']
@@ -240,7 +239,7 @@ def actualizarCantidad(request):
     }
     return JsonResponse(data)
 
-def shear_product(request, id_company):
+def shear_product(request, url_referido=None):
     if request.method=="POST":
         texto=request.POST["search"]
         busqueda=(
@@ -248,8 +247,8 @@ def shear_product(request, id_company):
             Q(description__icontains=texto) |
             Q(category__name__icontains=texto)
         )
-        productos=Product.objects.filter(busqueda,stock__gt=0, company_id=int(id_company)).distinct()
-        return render(request,'catalog/card_productos.html',{'productos':productos,'company':get_company(id_company)})
+        productos=Product.objects.filter(busqueda,stock__gt=0).distinct()
+        return render(request,'catalog/card_productos.html',{'productos':productos,'company':get_company()})
     else:
         texto=request.GET["search"]
         busqueda=(
@@ -257,14 +256,14 @@ def shear_product(request, id_company):
             Q(description__icontains=texto) |
             Q(category__name__icontains=texto)
         )
-        productos=Product.objects.filter(busqueda,stock__gt=0, company_id=int(id_company)).distinct()
-        return render(request,'catalog/card_productos.html',{'productos':productos,'company':get_company(id_company)})
+        productos=Product.objects.filter(busqueda,stock__gt=0).distinct()
+        return render(request,'catalog/card_productos.html',{'productos':productos,'company':get_company()})
 
-def mostrar_por_categoria(request, id_company, id_categoria):
+def mostrar_por_categoria(request, id_categoria, url_referido=None):
     if request.headers.get('x-requested-with') != 'XMLHttpRequest':
-        return redirect(f'/{id_company}/catalogo')
-    productos = Product.objects.filter(stock__gt=0, category_id = id_categoria, company_id= id_company).order_by('-id')
-    return render(request, 'catalog/card_productos.html', {'productos':productos,'company':get_company(id_company)})
+        return redirect(f'/')
+    productos = Product.objects.filter(stock__gt=0, category_id = id_categoria).order_by('-id')
+    return render(request, 'catalog/card_productos.html', {'productos':productos,'company':get_company()})
 
 def create_mail_confirmar_venta(email_propietario, subject, template_name, context):
     template = get_template(template_name)
@@ -291,8 +290,8 @@ def send_confirmar_venta_mail(email_propietario, orden, company):
     )
     mail.send(fail_silently=False)
 
-def confirmar_compra(request, id_company):
-    company = get_object_or_404(Company, id=id_company)
+def confirmar_compra(request, url_referido=None):
+    company = get_object_or_404(Company)
     t_pago = calcular_pago(request)
     compra = request.session.get('compra', [])
     total_compra = sum(item['cantidad'] for item in compra)
@@ -332,12 +331,12 @@ def confirmar_compra(request, id_company):
         elif tipo_envio == 'domicilio':
             ref = 'domicilio'
             lugar = {'direccion': request.POST.get('address', ''), 'tipo': 'domicilio'}
-            precio_envio = determinarPrecioEnvio(id_company)
+            precio_envio = determinarPrecioEnvio()
 
         elif tipo_envio == 'ciudad':
             ref = 'ciudad'
             lugar = {'destino': request.POST.get('destino', ''), 'tipo': 'ciudad'}
-            precio_envio = determinarPrecioEnvioCiudad(id_company)
+            precio_envio = determinarPrecioEnvioCiudad()
 
         else:
             return JsonResponse({'error': "Por favor complete sus datos correctamente."})
@@ -354,7 +353,7 @@ def confirmar_compra(request, id_company):
         # ✅ Si YA existe → NO validamos, NO registramos, solo seguimos con la orden
 
         # --- Crear orden ---
-        orden = crear_orden(request, cliente.id, id_company, ref)
+        orden = crear_orden(request, cliente.id, ref)
 
         # --- Registrar pedidos ---
         for item in compra:
@@ -397,8 +396,8 @@ def confirmar_compra(request, id_company):
             'lugar': lugar,
             'lista': lista_product,
             't_pago': t_pago,
-            'precio_envio': determinarPrecioEnvio(id_company),
-            'precio_envio_ciudad': determinarPrecioEnvioCiudad(id_company),
+            'precio_envio': determinarPrecioEnvio(),
+            'precio_envio_ciudad': determinarPrecioEnvioCiudad(),
             'products': sum(item['cantidad'] for item in compra)
         })
 
@@ -408,23 +407,23 @@ def confirmar_compra(request, id_company):
     dic = {
         'form': ClientFormOrder(),
         'total_compra': total_compra,
-        'company': get_company(id_company),
-        'categorias': categorys_from_productos(productosMasVistos(id_company)),
+        'company': get_company(),
+        'categorias': categorys_from_productos(productosMasVistos()),
         'datos': compra,
         't_pago': t_pago,
-        'productos': productosMasVistos(id_company),
-        'aviso': optener_avisos_by_company(id_company),
-        'address': get_address(id_company),
-        'regla': get_rule_condicion(id_company),
-        'code': get_code_meta(id_company),
+        'productos': productosMasVistos(),
+        'aviso': optener_avisos_by_company(),
+        'address': get_address(),
+        'regla': get_rule_condicion(),
+        'code': get_code_meta(),
         'ahora': ahora.strftime("%Y-%m-%dT%H:%M"),
         'limite': limite.strftime("%Y-%m-%dT%H:%M")
     }
     return render(request, 'catalog/confirmar_compra.html', dic)
 
-def confirmarCita(request, id_company, id_producto):
+def confirmarCita(request, id_producto, url_referido=None):
     p = get_object_or_404(Product,id = id_producto)
-    company = get_object_or_404(Company, id = id_company)
+    company = get_object_or_404(Company)
     datos={}
     data_cli = []
     datos['id_producto'] = int(p.id)
@@ -451,7 +450,7 @@ def confirmarCita(request, id_company, id_producto):
         forms=ClientFormOrder(request.POST)
         if Client.objects.filter(dni = int(request.POST['dni'])).exists():
             cliente = Client.objects.get(dni = int(request.POST['dni']))
-            orden = crear_orden(request, cliente.id, id_company)
+            orden = crear_orden(request, cliente.id, company.id)
 
             pedido = Pedido.objects.create(orden_id = int(orden.id),product_id=int(datos['id_producto']),cant=int(datos['cantidad']),price=float(datos['precio_uni']),total=float(int(datos['cantidad']) * float(datos['precio_uni'])))
             pedido.save()
@@ -459,11 +458,11 @@ def confirmarCita(request, id_company, id_producto):
             if forms.is_valid():
                 cliente = forms.save(commit=False)
                 cliente.save()
-                orden = crear_orden(request, cliente.id, id_company)
+                orden = crear_orden(request, cliente.id, company.id)
                 pedido = Pedido.objects.create(orden_id = int(orden.id),product_id=int(datos['id_producto']),cant=int(datos['cantidad']),price=float(datos['precio_uni']),total=float(int(datos['cantidad']) * float(datos['precio_uni'])))
                 pedido.save()
         try:
-            lugar = get_address(id_company).toJSON()
+            lugar = get_address().toJSON()
         except:
             lugar = False
         return JsonResponse(
@@ -480,13 +479,13 @@ def confirmarCita(request, id_company, id_producto):
                         )
     dic = {
         'form':ClientFormOrder(),
-        'company':get_company(id_company),
-        'categorias':categorys_from_productos(productosMasVistos(id_company)),
+        'company':get_company(),
+        'categorias':categorys_from_productos(productosMasVistos()),
         'datos':data_cli,
-        'productos':productosMasVistos(id_company),
-        'precio_envio':determinarPrecioEnvio(id_company),
-        'aviso':optener_avisos_by_company(id_company),
-        'address':get_address(id_company),
+        'productos':productosMasVistos(),
+        'precio_envio':determinarPrecioEnvio(),
+        'aviso':optener_avisos_by_company(),
+        'address':get_address(),
         'producto':p
     }
     return render(request,'catalog/confirmar_cita.html',dic)
@@ -495,7 +494,7 @@ def getProducto(id_producto):
     producto = Product.objects.get(id = id_producto)
     return producto
 
-def productosMasVistos(id_company):
+def productosMasVistos():
     #productos = Product.objects.filter(stock__gt=0, company_id=id_company, is_promotion=True)
     productos = Product.objects.annotate(
         stock_real=ExpressionWrapper(
@@ -504,22 +503,21 @@ def productosMasVistos(id_company):
         )
     ).filter(
         stock_real__gt=0,
-        company_id=id_company,
         is_promotion=True
     )
     return productos
 
-def determinarPrecioEnvio(id_company):
+def determinarPrecioEnvio():
     try:
-        p_envio = Precio_envio.objects.get(company_id=int(id_company))
+        p_envio = Precio_envio.objects.first()
         return p_envio.precio
     except:
         p_envio = 0
         return p_envio#QUIERO ENVIAR SOLO EL PRECIO AL TEMPLATE
 
-def determinarPrecioEnvioCiudad(id_company):
+def determinarPrecioEnvioCiudad():
     try:
-        p_envio = Precio_envio.objects.get(company_id=int(id_company))
+        p_envio = Precio_envio.objects.first()
         return p_envio.precio_ciudad
     except:
         p_envio = 0

@@ -11,96 +11,13 @@ from .choices import MONEY
 from meta.models import ModelMeta
 from ventas import settings
 
-class Tipo_company(models.Model):
-    """Model definition for Categoria  ."""
-    name = models.CharField('Categoria', max_length=50)
-    description = models.CharField('Descripción',max_length=255, blank=True, null=True)
-    icono = models.CharField('Icono de Bootstrap', default="bi bi-shop-window",max_length=50)
-    is_new = models.BooleanField(default=False)
-    fecha_creacion = models.DateTimeField(auto_now_add=True)
-    fecha_mod = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        """Meta definition for Categoria   ."""
-        ordering = ['name']
-        verbose_name = 'Tipo_company'
-        verbose_name_plural = 'Tipo_companys'
-    
-    def __str__(self):
-        """Unicode representation of Categoria ."""
-        return self.name
-
-    # Métodos para django-meta (SEO)
-    def get_meta_title(self):
-        return f"{self.name}"
-
-    def get_meta_description(self):
-        return (self.description or "")[:160]
-
-    def get_meta_url(self):
-        return f"/{self.id}/type"
-
-    def num_vistos(self):
-        num = randint(1500,5000)
-        return num
-
-class Ciudad(models.Model):
-    """Model definition for Cuidad."""
-    ciudad = models.CharField('Lugar/Ciudad', max_length=50)
-
-    class Meta:
-        """Meta definition for Cuidad."""
-
-        verbose_name = 'Ciudad'
-        verbose_name_plural = 'Ciudads'
-
-    def __str__(self):
-        """Unicode representation of Cuidad."""
-        return self.ciudad
-
-    # Métodos para django-meta (SEO)
-    def get_meta_title(self):
-        return f"{self.ciudad}"
-    
-    def get_meta_description(self):
-        return f"Explora empresas, productos y servicios disponibles en {self.ciudad.title()}, Bolivia."
-
-    def get_meta_url(self):
-        return f"/{self.id}/city"
-
-class Plataforma(models.Model):
-    name = models.CharField(max_length=50, verbose_name="Nombre")
-    description = models.CharField(max_length=150, verbose_name="Descripción")
-    
-    contracts_min = models.CharField(verbose_name="Tiempo de minimo", max_length=50)
-    price_min = models.IntegerField(verbose_name="Precio")
-
-    contracts_max = models.CharField(verbose_name="Tiempo de maximo", max_length=50)
-    price_max = models.IntegerField(verbose_name="Precio")
-
-    icono = models.CharField(max_length=100, verbose_name="Icono de Bootstrap", default="bi bi-clipboard2-check")
-    qr_img = models.ImageField(upload_to='img_qr', null=True, blank=True, verbose_name='Img QR de pago', help_text="Imagen que tenga validacion de un año")
-
-    cantidad = models.IntegerField(null=True, blank=True, verbose_name="Cantidad de registros permitidos")
-    ilimitado = models.BooleanField(default=False, verbose_name="Es ilimitado")
-    class Meta:
-        """Meta definition for Cuidad."""
-
-        verbose_name = 'Plataforma'
-        verbose_name_plural = 'Plataformas'
-    
-    def __str__(self):
-        """Unicode representation of Cuidad."""
-        return self.name
-
 class Company(models.Model, ModelMeta):
     name = models.CharField(max_length=50, verbose_name='Nombre/Razón social')
     description = models.TextField(verbose_name='Descripción de su catalogo (Opcional)', null=True, blank=True, help_text='Escriba una descripción sobre su negocio')
     ruc = models.CharField(max_length=15, blank=True, null=True, verbose_name='Número de NIT (Opcional)')
     #address = models.CharField(max_length=200, verbose_name='Dirección (Zona, Calle, #)')
     mobile = models.CharField(max_length=15, verbose_name='Celular (WhatsApp)')
-    category = models.ForeignKey(Tipo_company, on_delete=models.CASCADE, verbose_name='Tipo de Negocio')
-    cuidad = models.ForeignKey(Ciudad, on_delete=models.CASCADE, verbose_name='Seleccione su Ciudad')
+    cuidad = models.CharField(max_length=100, verbose_name='Ciudad')
     #phone = models.CharField(max_length=9, verbose_name='Teléfono convencional')
     #email = models.CharField(max_length=50, verbose_name='Email')
     user = models.ForeignKey(User,on_delete=models.CASCADE)
@@ -110,7 +27,6 @@ class Company(models.Model, ModelMeta):
     image = models.ImageField(null=True, blank=True, upload_to='company/portada/%Y/', verbose_name='Imagen de Portada (Opcional)')
     logo = models.ImageField(null=True, blank=True, upload_to='company/logo/%Y/', verbose_name='Logo (Opcional)')
     date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')
-    plan = models.ForeignKey(Plataforma, on_delete=models.CASCADE, verbose_name="Seleccione un plan")
     expiration_date = models.DateField(verbose_name='Fecha de expiracion (dd/mm/AAAA)')
     status = models.BooleanField(default=True, verbose_name="Estado")
     is_service = models.BooleanField(default=False, verbose_name='Marque esta opción, solo si su negocio es de tipo servicio.', help_text="Ej. restauranes o productos consumibles que dificultan el envío a lugares alejados")
@@ -122,18 +38,6 @@ class Company(models.Model, ModelMeta):
             procesar_imagen_logo(self, 'logo')
 
         super().save(*args, **kwargs)  # Guardar ya procesada
-        # si no existe dominio asociado, lo creamos
-        # Crear dominio si no existe
-        if not hasattr(self, "dominio"):
-            base_slug = slugify(self.name)
-            slug = base_slug
-            contador = 1
-            # Evitar duplicados
-            while Dominio.objects.filter(slug=slug).exists():
-                slug = f"{base_slug}-{contador}"
-                contador += 1
-            # Crear Dominio con slug único
-            Dominio.objects.create(company=self, slug=slug)
 
     def __str__(self):
         return self.name
@@ -368,26 +272,3 @@ class Suscripcion(models.Model):
         item['email'] = self.email
         return item
 
-class Dominio(models.Model):
-    company = models.OneToOneField(Company, on_delete=models.CASCADE, related_name='dominio')
-    slug = models.SlugField(max_length=255, unique=True, verbose_name="El dominio por defecto es", help_text="Puede editarlo el dominio solo una vez (recomendado)")
-
-    def save(self, *args, **kwargs):
-        # Genera automáticamente el slug a partir del nombre de la empresa si no existe
-        if not self.slug:
-            self.slug = slugify(self.company.name)
-        super().save(*args, **kwargs)
-
-    def get_absolute_url(self, request=None):
-        """
-        Devuelve la URL completa del dominio.
-        Si se pasa request, construye URL dinámica.
-        """
-        if request:
-            return request.build_absolute_uri(f'/{self.slug}/')
-        else:
-            # URL por defecto si no se pasa request
-            return f'/{self.slug}/'
-
-    def __str__(self):
-        return f"{self.company.name} - {self.slug}"

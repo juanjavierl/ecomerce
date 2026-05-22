@@ -4,7 +4,7 @@ from app.catalog import views
 
 
 urlpatterns = [
-    path('<int:id_company>/catalogo', views.CatalogView, name='CatalogView'),
+    path('', views.CatalogView, name='CatalogView'),
     path('<int:id_producto>/<int:id_company>/detail_product', views.optenerProducto, name='detail_product'),
     path('<int:id_company>/ver_carrito/', views.ver_carrito, name='ver_carrito'),
     path('<int:id_company>/show_productos_carrito/', views.show_productos_carrito, name='show_productos'),

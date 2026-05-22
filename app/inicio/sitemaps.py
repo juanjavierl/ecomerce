@@ -1,7 +1,6 @@
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 from app.catalog.models import Company, Product
-from app.tiendas.models import Tipo_company, Ciudad
 
 class IndexSitemap(Sitemap):
     changefreq = "daily"
@@ -45,23 +44,3 @@ class ProductSitemap(Sitemap):
 
     def location(self, obj):
         return f'/{obj.id}/{obj.company.id}/detail_product'
-
-class TipoCompanySitemap(Sitemap):
-    changefreq = "monthly"
-    priority = 0.6
-
-    def items(self):
-        return Tipo_company.objects.all()
-
-    def location(self, obj):
-        return f'/{obj.id}/type/'
-
-class CiudadSitemap(Sitemap):
-    changefreq = "monthly"
-    priority = 0.6
-
-    def items(self):
-        return Ciudad.objects.all()
-
-    def location(self, obj):
-        return f'/{obj.id}/city/'
