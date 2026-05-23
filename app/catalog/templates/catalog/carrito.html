@@ -1,18 +1,12 @@
 <h1 style="margin-top: 10px;">
-    <a href="#" style="font-size: 25px;" onclick="mostrar_buscador('{{company.id}}')">
+    <a href="#" style="font-size: 25px;" onclick="mostrar_buscador()">
         <i class="bi bi-search"></i>
     </a>
 </h1>
     
 <h1 style="margin-top: 10px;">
-    {% if company.dominio %}
-        <a href="https://api.whatsapp.com/send?text=Catálogo: {% now 'M-Y' %} %0A *{{ company.name|upper|default:' ' }}* %0A Una tienda online diseñada especialmente para nuestros clientes, donde pueden descubrir productos exclusivos y realizar sus pedidos de forma fácil, rápida y segura. %0Ahttps://amceb.online/{{ company.dominio.slug }}" 
-           target="_blank" style="font-size: 25px;">
-            <i class="bi bi-share-fill"></i>
-    {% else %}
         <a href="https://api.whatsapp.com/send?text=Catalogo:{% now 'M-Y' %} %0A *{{company.name|upper|default:' '}}* %0A Una tienda online diseñada especialmente para nuestros clientes, donde pueden descubrir productos exclusivos y realizar sus pedidos de forma fácil, rápida y segura. %0A{{request.build_absolute_uri}}" target="_blank" style="font-size: 25px;">
         <i class="bi bi-share-fill"></i></a>
-    {% endif %}
 </h1>
 <style>
     .cantidades-card {
@@ -51,7 +45,7 @@
 <h1 style="margin-top: 10px;">
     <a href="#"
         class="nav-link position-relative cantidades-card d-inline-flex align-items-center"
-        onclick="verCarrito('/{{company.id}}/ver_carrito')"
+        onclick="verCarrito('/ver_carrito')"
         data-bs-toggle="modal" data-bs-target="#exampleModal"
         aria-label="Carrito">
 

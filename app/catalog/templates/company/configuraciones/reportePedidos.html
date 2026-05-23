@@ -1,0 +1,99 @@
+<h2 class="accordion-header">
+    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+        data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+        <strong>Reporte de Pedidos</strong>
+    </button>
+</h2>
+<div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+    <div class="accordion-body row d-flex">
+        <div class="forn-envio col-lg-4 col-md-6 col-sm-12">
+            <div>
+                <form action="/buscar_orden/" method="post" id="form_buscar_orden">
+                    {% csrf_token %}
+                    <div class="input-group mb-3">
+                        <input type="number" name="codigo_orden" class="form-control"
+                            placeholder="Ingrese número de orden" aria-label="Ingrese codigo de orden"
+                            aria-describedby="button-addon2" required>
+                        <button class="btn btn-primary" type="submit" id="button-addon2">Buscar</button>
+                    </div>
+                </form>
+                <form action="/report_by_date/" method="post" id="form_by_date">
+                    {% csrf_token %}
+                    <div class="">
+                        <input type="text" name="daterange" class="form-control" placeholder="Ingrese un rango de fecha" aria-label="Ingrese un rango de fecha" aria-describedby="button-addon2" required style="width: 240px;">
+                        <small class="text-muted">Reporte de pedidos por fecha</small>
+                        
+                    </div>
+                </form>
+            </div>
+
+        </div>
+        <div class="pedidos col-lg-8 col-md-6 col-sm-12 align-items-center">
+        </div>
+    </div>
+</div>
+<script>
+     $(function () {
+        $('.pedidos').hide();//escondo solo para que muestre con decenio
+        var date_now = new moment().format('DD-MM-YYYY');//optengo la fecha actual
+        $('input[name="daterange"]').daterangepicker({
+            //opens: 'left'
+            locale : {
+                format: 'DD/MM/YYYY',
+                applyLabel: 'Aplicar',
+                canvelLabel: 'Cancelar'
+            },
+            minYear: 2024,
+            "startDate": date_now,
+            "endDate": date_now
+        }, function (start, end, label) {
+            
+            reportBydate(start.format('DD-MM-YYYY'), end.format('DD-MM-YYYY'))
+        });
+    });
+
+    function reportBydate(startDate, endDate){
+        console.log("A new date selection was made: " + startDate + ' to ' + endDate);
+        let datos = {
+            'startDate':startDate,
+            'endDate':endDate,
+            'id_company':'{{id_company}}',
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        }
+        $.ajax({
+            type: 'POST',
+            url: $('#form_by_date').attr('action'),
+            data: datos,
+            success: function (resp) {
+                if (resp) {
+                    $('.pedidos').fadeIn('slow').html(resp);
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $('.toast-body').addClass('alert alert-danger');
+                $('.toast-body').fadeIn(1000).html(thrownError);
+                mostrar_notificacion();
+            }
+        });
+        return false;
+    }
+
+    $('#form_buscar_orden').on('submit', function (e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: $(this).serialize(),
+            success: function (resp) {
+                if (resp) {
+                    $('.pedidos').fadeIn('slow').html(resp);
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $('.toast-body').addClass('alert alert-danger');
+                $('.toast-body').fadeIn(1000).html(thrownError);
+                mostrar_notificacion();
+            }
+        });
+    });
+</script>

@@ -35,7 +35,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('app.inicio.urls')),
     path('', include('app.catalog.urls')),
-    path('', include('app.tiendas.urls')),
     path("robots.txt", robots_txt, name="robots_txt"),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
     path('auth/', include('social_django.urls', namespace='social')),

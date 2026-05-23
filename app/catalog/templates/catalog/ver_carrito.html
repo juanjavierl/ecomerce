@@ -63,7 +63,7 @@
 {% if datos %}
 <div class="modal-footer">
   <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="bi bi-arrow-left-circle"></i> Cerrar</button>
-  <a href="/{{company.id}}/confirmar_compra" type="button" class="btn btn-success btn-sm"><i class="bi bi-cart-fill"></i> Finalizar Pedido</a>
+  <a href="/confirmar_compra" type="button" class="btn btn-success btn-sm"><i class="bi bi-cart-fill"></i> Finalizar Pedido</a>
   </div>
 {% endif %}
 <script>
@@ -83,11 +83,11 @@
             const path = window.location.pathname;
             const esConfirmarCompra = /^\/\d+\/confirmar_compra\/?$/.test(path);
             if(esConfirmarCompra){
-              verCarrito('/{{company.id}}/ver_carrito/');
-              updateProductosEnConfirmar("/{{company.id}}/show_productos_carrito/");
-              updateTotalPago("/{{company.id}}/getPrecioEnvio/",$('#tipo_envio').val());
+              verCarrito('/ver_carrito/');
+              updateProductosEnConfirmar("/show_productos_carrito/");
+              updateTotalPago("/getPrecioEnvio/",$('#tipo_envio').val());
             }else{
-              verCarrito('/{{company.id}}/ver_carrito/');
+              verCarrito('/ver_carrito/');
             }
           }
       });
@@ -115,11 +115,11 @@
             const path = window.location.pathname;
             const esConfirmarCompra = /^\/\d+\/confirmar_compra\/?$/.test(path);
             if(esConfirmarCompra){
-              verCarrito('/{{company.id}}/ver_carrito/');
-              updateProductosEnConfirmar("/{{company.id}}/show_productos_carrito/");
-              updateTotalPago("/{{company.id}}/getPrecioEnvio/",$('#tipo_envio').val());
+              verCarrito('/ver_carrito/');
+              updateProductosEnConfirmar("/show_productos_carrito/");
+              updateTotalPago("/getPrecioEnvio/",$('#tipo_envio').val());
             }else{
-              verCarrito('/{{company.id}}/ver_carrito/');
+              verCarrito('/ver_carrito/');
             }
           }
       });

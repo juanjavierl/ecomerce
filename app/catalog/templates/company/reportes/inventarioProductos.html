@@ -1,0 +1,71 @@
+
+{% if productos %}
+    <h2 class="text-center">Reporte Stock de Productos</h2>
+
+    <table class="table table-bordered table-striped table-sm">
+        <thead class="thead-dark">
+            <tr>
+                <th>Código</th>
+                <th>Detalle</th>
+                <th>Categoría</th>
+                <th>Stock Inicial</th>
+                <th>Salida</th>
+                <th>Stock</th>
+                <th>Fecha Reg.</th>
+                <th>Últ. Movimiento</th>
+            </tr>
+        </thead>
+        <tbody>
+           {% for p in productos %}
+            <tr class="{% if p.stock_actual <= 5 %}table-danger{% endif %}">
+                <td>{{ p.code|default:" - - -" }}</td>
+                <td>{{ p.name|title }}</td>
+                <td>{{ p.category.name|title }}</td>
+                <td>{{ p.stock }}</td>
+                <td>{{ p.salida }}</td>
+                <td>{{ p.stock_actual }}</td>
+                <td>{{ p.date_joined|date:"d/m/Y" }}</td>
+                <td>{{ p.date_update|date:"d/m/Y" }}</td>
+            </tr>
+           {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <div>
+            <small class="text-muted">
+                <i class="bi bi-box-seam"></i> Total de Productos: 
+                <span class="fw-bold">{{ productos|length }}</span>
+            </small>
+        </div>
+        <div>
+            <strong class="me-2">Imprime tu catálogo:</strong>
+            <a href="#" 
+               onclick="imprimirLista('/reporte_form/{{ criterio }}/')" 
+               data-bs-toggle="modal" 
+               data-bs-target="#exampleModal" 
+               class="btn btn-success btn-sm">
+                <i class="bi bi-printer"></i> Imprimir
+            </a>
+        </div>
+    </div>    
+{% else %}
+    <div class="alert alert-warning text-center text-danger" role="alert">
+        No hay productos
+    </div>
+{% endif %}
+
+<script>
+    function imprimirLista(urls){
+        $.ajax({
+            type: 'get',
+            url: urls,
+            success: function (resp) {
+                $(".modal-content").html(resp);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Error:" + thrownError);
+            }
+        });
+    }
+</script>

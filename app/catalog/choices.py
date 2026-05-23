@@ -1,4 +1,9 @@
 GENDER = (
-    ('male','Masculino'),
-    ('female','Femenino'),
+    ('male', 'Masculino'),
+    ('female', 'Femenino'),
+)
+
+MONEY = (
+    ('Bs', 'Bolivianos (Bs)'),
+    ('$', 'Dólares ($)'),
 )

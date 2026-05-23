@@ -50,7 +50,6 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    'app.tiendas',
     'app.catalog',
     'app.inicio',
 ]

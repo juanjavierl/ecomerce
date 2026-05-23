@@ -56,23 +56,23 @@
             <a href="/media/{{p.image}}" data-gallery="portfolioGallery" class="portfolio-lightbox"
               title="{{p.name|capfirst}}"><i class="bx bx-plus"></i></a>
 
-            <a href="/{{p.id}}/{{company.id}}/detail_product" title="Mas detalles"><i class="bx bx-link"></i></a>
+            <a href="/detail_product//{{p.id}}/" title="Mas detalles"><i class="bx bx-link"></i></a>
               
           </div>
         </div>
       </div>
     </div>
     {% else %}
-     <i class="bi bi-image card-img-top icon" alt="..." onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')"></i>
+     <i class="bi bi-image card-img-top icon" alt="..." onclick="detailView('/detail_product/{{p.id}}/')"></i>
     {% endif %}
     {% if p.is_new %}
     <span class="badge rounded-pill bg-primary sale-tag d-flex">Nuevo</span>
     {% endif %}
     <div class="card-body" style="padding: 0px;">
-      <div class="text-section" onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')" style="cursor: pointer;">
+      <div class="text-section" onclick="detailView('/detail_product/{{p.id}}/')" style="cursor: pointer;">
         <h5 class="card-title text-wrap text-primary fw-bolder">{{p.name|capfirst}}</h5>
         <p class="card-text text-break text-wrap fst-italic">{{p.description|urlize_mode:"ocultar,nobr"|default:" - - - "|capfirst|truncatewords:5}}
-          <a href="/{{p.id}}/{{company.id}}/detail_product" style="font-size: 14px;"><i class="bx bx-link"></i></a>
+          <a href="/detail_product//{{p.id}}/" style="font-size: 14px;"><i class="bx bx-link"></i></a>
         </p>
         <p class="card-text">Categoria: <small class="text-muted">{{p.category|title}}</small></p>
       </div>
@@ -89,7 +89,7 @@
             
             {% if p.stock_actual > 0 %}
             <button type="submit" id="id_{{p.id}}"
-              onclick="add_item('/{{p.id}}/{{company.id}}/detail_product','{{p.id}}')"
+              onclick="add_item('/detail_product/{{p.id}}/','{{p.id}}')"
               class="btn btn-primary btn-sm">Agregar</button>
             {% else %}
               <button type="button" class="btn btn-primary btn-sm" disabled>Agotado</button>
@@ -101,18 +101,18 @@
               <span class="bi bi-three-dots-vertical"></span>
             </button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-              <a class="dropdown-item" href="#actualizar" onclick="updateProduct('/{{p.id}}/updateProduct/')"
+              <a class="dropdown-item" href="#actualizar" onclick="updateProduct('/updateProduct/{{p.id}}/')"
                 data-bs-toggle="modal" data-bs-target="#exampleModal">Actualizar datos</a>
-              <a class="dropdown-item" href="#" onclick="add_imagen('/{{p.id}}/imgs_products/')"
+              <a class="dropdown-item" href="#" onclick="add_imagen('/imgs_products/{{p.id}}/')"
                 data-bs-toggle="modal" data-bs-target="#exampleModal">Agregar más imagenes</a>
 
-              <a class="dropdown-item" href="#inventario" onclick="updateStock('/{{p.id}}/updateStock/')"
+              <a class="dropdown-item" href="#inventario" onclick="updateStock('/updateStock/{{p.id}}/')"
                 data-bs-toggle="modal" data-bs-target="#exampleModal">Stock </a>
               <hr class="dropdown-divider">
-              <a class="dropdown-item text-danger" href="#eliminar" onclick="deleteProduct('/{{p.id}}/deleteProduct/')"
+              <a class="dropdown-item text-danger" href="#eliminar" onclick="deleteProduct('/deleteProduct/{{p.id}}/')"
                 data-bs-toggle="modal" data-bs-target="#exampleModal">Eliminar producto</a>
               
-              <a class="dropdown-item text-danger" href="#" onclick="remove_imagen('/{{p.id}}/remode_imgs_products/')" 
+              <a class="dropdown-item text-danger" href="#" onclick="remove_imagen('/remode_imgs_products/{{p.id}}/')" 
                 data-bs-toggle="modal" data-bs-target="#exampleModal">Eliminar imágenes</a>
               
             </div>

@@ -1,0 +1,50 @@
+<h2 class="accordion-header">
+    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+        data-bs-target="#collapseFaif" aria-expanded="false" aria-controls="collapseFaif">
+        <strong>Inventario de Productos</strong>
+    </button>
+</h2>
+<div id="collapseFaif" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+    <div class="accordion-body row d-flex no-gutters justify-content-center">
+        
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="input-group">
+                    <form action="/inventario_productos/" method="POST" id="filterProduct">
+                        {% csrf_token %}
+                        <div class="input-group mb-3">
+                            <select name="criterio" id="invProduct" class="form-select" aria-label="Default select example" required>
+                                <option value="" selected>Seleccione una Opcion</option>
+                                <option value="todos">Obtener Todos los productos</option>
+                                <option value="con_stock">Solo productos con Stock</option>
+                                <option value="agotados">Solo productos agotados</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+            </div>
+       
+        <div class=" inventarioProductos col-lg-8 col-md-6 col-sm-12 align-items-center table-responsive">
+
+        </div>
+    </div>
+</div>
+<script>
+    $("#invProduct").change(function(){
+        $.ajax({
+            type: 'POST',
+            url: $('#filterProduct').attr('action'),
+            data: $("#filterProduct").serialize(),
+            success: function (resp) {
+                if (resp) {
+                    $('.inventarioProductos').fadeIn('slow').html(resp);
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $('.toast-body').addClass('alert alert-danger');
+                $('.toast-body').fadeIn(1000).html(thrownError);
+                mostrar_notificacion();
+            }
+        });
+        return false;
+    });
+</script>

@@ -7,7 +7,7 @@
 
 {% block tecnica_seo %}
 <meta name="description" content="{{ p.get_meta_description }}">
-<meta property="og:title" content="{{ p.get_meta_title }}">
+<meta property="og:title" content="{{ p.name|title|truncatechars:26 }}">
 <meta property="og:description" content="{{ p.get_meta_description }}">
 <meta property="og:image" content="{{ p.get_meta_image }}">
 <meta property="og:url" content="https://{{ request.get_host }}{{ p.get_meta_url }}">
@@ -15,7 +15,7 @@
 {% endblock tecnica_seo %}
 
 {% block company %}
-<a href="/{{company.id}}/catalogo">
+<a href="/">
   <marquee behavior="" direction="" style="margin-top: 14px;">{{ company.name|title }}</marquee>
 </a>
 {% endblock company %}
@@ -49,7 +49,7 @@
 {% endblock carrito %}
 
 {% block menus %}
-{% include 'menu_from_user.html' with categorias=categorias %}
+{% include 'company/menu_from_user.html' with categorias=categorias %}
 {% endblock menus %}
 
 {% block hero %} {% endblock hero %}
@@ -173,7 +173,7 @@
             </li>
             <br>
             <div class="align-items-start">
-              <form action="/{{p.id}}/{{company.id}}/detail_product" id="form_pedido" method="post"
+              <form action="/detail_product/{{p.id}}/" id="form_pedido" method="post"
                 class="form-row row">
                 {% csrf_token %}
                 <div class="col cantidades form-group">
@@ -203,7 +203,7 @@
                   </button><br><br>
 
                   <div class="btn-group" role="group" aria-label="Basic example">
-                    <a href="/{{company.id}}/catalogo" class="col btn btn-secondary btn-sm tb_text"
+                    <a href="/" class="col btn btn-secondary btn-sm tb_text"
                     style="padding-top: 5px;">
                     <i class="bi bi-arrow-left-circle"> Ir Atrás</i>
                   </a>
@@ -359,18 +359,18 @@
 <!-- ======= Contact Section ======= -->
 <section id="contact" class="contact">
   <div class="container">
-    {% include 'contact.html' %}
+    {% include 'company/contact.html' %}
   </div>
 </section>
 <!-- End Contact Section -->
 {% endblock contact %}
 
 {% block preg_frecuentes %}
-{% include 'preg_frecuentes_tienda.html' %}
+{% include 'company/preg_frecuentes_tienda.html' %}
 {% endblock preg_frecuentes %}
 
 {% block footer_catalog %}
-{% include 'footer_tienda.html' %}
+{% include 'company/footer_tienda.html' %}
 {% endblock footer_catalog %}
 {% block js %}
 <script src="{% static 'js/funcionesFromUser.js' %}"></script>
