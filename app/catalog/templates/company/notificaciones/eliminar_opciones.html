@@ -4,7 +4,7 @@
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
   <div class="modal-body table-responsive">
-    <form action="/{{aviso.id}}/eliminar_opciones" method="POST" id="eliminar_avisos" enctype="multipart/form-data">
+    <form action="/eliminar_opciones/{{aviso.id}}" method="POST" id="eliminar_avisos" enctype="multipart/form-data">
      {% csrf_token %}
      <div class="alert alert-danger" role="alert">
         Esta seguro de Eliminar las Opciones de avisos {{aviso|title}}?.

@@ -4,7 +4,7 @@
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
   <div class="modal-body table-responsive">
-    <form action="/{{banco.id}}/del_infor_banco_by_company" method="POST" id="eliminar_banco_envio" enctype="multipart/form-data">
+    <form action="/del_infor_banco_by_company/{{banco.id}}/" method="POST" id="eliminar_banco_envio" enctype="multipart/form-data">
      {% csrf_token %}
      <div class="alert alert-danger" role="alert">
         Esta seguro de Eliminar la datos del banco {{banco.name|title}}?.

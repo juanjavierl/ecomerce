@@ -4,7 +4,7 @@
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
   <div class="modal-body table-responsive">
-    <form action="/{{regla.id}}/delete_regla" method="POST" id="eliminar_regla">
+    <form action="/delete_regla/{{regla.id}}/" method="POST" id="eliminar_regla">
      {% csrf_token %}
      <div class="alert alert-danger" role="alert">
         Esta seguro de Eliminar los terminos y condiciones para sus ventas?: <br>{{regla.regla}}.

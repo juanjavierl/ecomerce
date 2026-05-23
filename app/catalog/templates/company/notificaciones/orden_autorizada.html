@@ -14,16 +14,16 @@
       </select>
 
       <button class="btn btn-primary btn-sm"
-              onclick="imprimirOrden({{ orden.company_id }}, {{ orden.id }})">
+              onclick="imprimirOrden({{ orden.id }})">
           <i class="bi bi-print"></i> Imprimir
       </button>
   </div>
 </div>
 <script>
-    function imprimirOrden(companyId, ordenId) {
+    function imprimirOrden(ordenId) {
     const tipo = document.getElementById(`tipo-print-${ordenId}`).value;
 
-    const url = `/orden/${companyId}/${ordenId}/print/?tipo=${tipo}`;
+    const url = `/orden/${ordenId}/print/?tipo=${tipo}`;
     window.open(url, '_blank');
 }
 </script>

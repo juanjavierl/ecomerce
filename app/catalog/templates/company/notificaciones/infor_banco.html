@@ -3,5 +3,5 @@
     <li><strong>A nombre de: </strong> {{a.destinatario|title}}</li>
     <li><strong>Nro de Cuenta: </strong> {{a.cuenta}}</li>
     <li><img class="img-fluid rounded" src="/media/{{a.qr_img}}" alt="" style="width: 250px; height: 250px;"></li>
-    <p style="text-align: center;"><a href="#" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="del_infor_comp('/{{a.id}}/del_infor_banco_by_company')"> Eliminar </a></p>
+    <p style="text-align: center;"><a href="#" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="del_infor_comp('/del_infor_banco/{{a.id}}/')"> Eliminar</a></p>
 {% endfor %}

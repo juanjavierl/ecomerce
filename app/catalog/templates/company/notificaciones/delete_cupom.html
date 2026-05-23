@@ -4,7 +4,7 @@
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
   <div class="modal-body table-responsive">
-    <form action="/{{cupom.id}}/delete_cupom" method="POST" id="eliminar_cupom">
+    <form action="/delete_cupom/{{cupom.id}}" method="POST" id="eliminar_cupom">
      {% csrf_token %}
      <div class="alert alert-danger" role="alert">
         Esta seguro de Eliminar los cupones?: <br>{{cupom.codigo}}.

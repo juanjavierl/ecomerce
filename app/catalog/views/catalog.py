@@ -525,7 +525,6 @@ def crear_orden(request, id_cliente, ref='tienda'):
     return orden
 
 def newProducto(request):
-    company = get_company(request.user)
     aviso = False
     date_expiration = False
     if request.method == 'POST':
@@ -544,7 +543,6 @@ def newProducto(request):
         producto.code = request.POST['code']
         producto.description = request.POST['description']
         producto.category_id = int(request.POST['category'])
-        producto.company_id = get_company_id()
         producto.price = float(request.POST['price'])
         producto.price_before = float(request.POST['price_before'])
         producto.stock = request.POST['stock']
@@ -552,19 +550,9 @@ def newProducto(request):
         producto.is_service = service
         producto.is_new = new
         producto.is_promotion = promotion
-        if company.expiration_date and company.expiration_date < datetime.now().date():
-            date_expiration = True
-            return JsonResponse({
-                'error': 'La suscripción de la tienda ha caducado.',
-                'aviso': aviso,
-                'date_expiration': date_expiration,
-            })
         producto.save()
         return JsonResponse({'success': 'Producto registrado exitosamente.', 'aviso': aviso, 'date_expiration': date_expiration})
     form = formProducto()
 
-    if company.expiration_date and company.expiration_date < datetime.now().date():
-        date_expiration = True
-
     categorys = Category.objects.all().order_by('-id')
-    return render(request, 'catalog/newProducto.html',{'form':form,'company':company,'categorys':categorys, 'aviso':aviso, 'date_expiration':date_expiration})
+    return render(request, 'catalog/newProducto.html',{'form':form,'categorys':categorys, 'aviso':aviso})

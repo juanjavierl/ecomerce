@@ -4,7 +4,7 @@
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
   <div class="modal-body table-responsive">
-    <form action="/{{address.id}}/del_address_comp" method="POST" id="eliminar_address">
+    <form action="/del_address_comp/{{address.id}}/" method="POST" id="eliminar_address">
      {% csrf_token %}
      <div class="alert alert-danger" role="alert">
         Esta seguro de Eliminar la direcion y ubicación {{address.address|title}}?.
@@ -34,7 +34,7 @@
                   }, 800);
 
                   setTimeout(function () {
-                    window.location.href='/'+resp.id_company+'/configuraciones';
+                    window.location.href='/configuraciones';
                   }, 1000);
                 }
               }

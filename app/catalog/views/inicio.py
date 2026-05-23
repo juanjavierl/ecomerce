@@ -171,7 +171,7 @@ def updateCompany(request):
             return JsonResponse({'redirect_url': '/configuraciones/'})
     else:
         form = formCompanyImage(instance=company)
-        return render(request, 'updateCompany.html', {'form': form, 'company': company})
+        return render(request, 'company/updateCompany.html', {'form': form, 'company': company})
 
 
 @login_required(login_url='/')
@@ -192,9 +192,8 @@ def redirigir_a_catalogo(request, slug):
 
 @login_required(login_url='/')
 def add_huvicacion(request):
-    company = get_company(request.user)
     if request.method == 'POST':
-        ubicacion, created = Sucursal.objects.get_or_create(company=company)
+        ubicacion, created = Sucursal.objects.get_or_create()
         ubicacion.address = request.POST['address']
         ubicacion.latitud = request.POST['latitud']
         ubicacion.longitud = request.POST['longitud']
@@ -205,7 +204,7 @@ def add_huvicacion(request):
 
 def info_address_company(request):
     address = Sucursal.objects.first()
-    return render(request, 'notificaciones/info_address_company.html', {'address': address})
+    return render(request, 'company/notificaciones/info_address_company.html', {'address': address})
 
 
 def del_address_comp(request, id_address):
@@ -213,7 +212,7 @@ def del_address_comp(request, id_address):
     if request.method == 'POST':
         address.delete()
         return JsonResponse({'success': 'Se Borro el registro.'})
-    return render(request, 'notificaciones/del_addres_company.html', {'address': address})
+    return render(request, 'company/notificaciones/del_addres_company.html', {'address': address})
 
 
 @login_required(login_url='/')
@@ -249,18 +248,26 @@ def get_precio_envios():
 
 @login_required(login_url='/')
 def precio_envio(request):
-    company = get_company(request.user)
     if request.method == 'POST':
-        preci = Precio_envio.objects.get_or_create(company=company)
-        preci.precio = request.POST['precio']
-        preci.precio_ciudad = request.POST['precio_ciudad']
-        preci.save()
-        return JsonResponse({
-            'success': 'Registro Exitoso.',
-            'precio': preci.precio,
-            'precio_ciudad': preci.precio_ciudad,
-            'id_precio': preci.id,
-        })
+        try:
+            preci = Precio_envio.objects.first()
+            if not preci:
+                preci = Precio_envio.objects.create(
+                    precio=request.POST['precio'],
+                    precio_ciudad=request.POST['precio_ciudad']
+                )
+            else:
+                preci.precio = request.POST['precio']
+                preci.precio_ciudad = request.POST['precio_ciudad']
+                preci.save()
+            return JsonResponse({
+                'success': 'Registro Exitoso.',
+                'precio': preci.precio,
+                'precio_ciudad': preci.precio_ciudad,
+                'id_precio': preci.id,
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)})
     return JsonResponse({'error': 'Método no permitido'})
 
 
@@ -276,7 +283,7 @@ def buscar_orden(request):
             orden, pedidos, precio_envio_val = None, None, None
         return render(
             request,
-            'reportes/buscar_orden.html',
+            'company/reportes/buscar_orden.html',
             {'orden': orden, 'pedidos': pedidos, 'precio_envio': precio_envio_val},
         )
     return HttpResponse(status=405)
@@ -293,7 +300,7 @@ def reportByRange(request):
                 datetime.strftime(final, '%Y-%m-%d'),
             )
         )
-        return render(request, 'reportes/reportByRangeOrden.html', {'ordenes': ordenes})
+        return render(request, 'company/reportes/reportByRangeOrden.html', {'ordenes': ordenes})
     return HttpResponse(status=405)
 
 
@@ -310,7 +317,7 @@ def inventarioProductos(request):
 
     return render(
         request,
-        'reportes/inventarioProductos.html',
+        'company/reportes/inventarioProductos.html',
         {
             'criterio': criterio,
             'productos': productos.order_by('category__name', '-id'),
@@ -322,7 +329,7 @@ def inventarioProductos(request):
 def reporte_form(request, criterio):
     return render(
         request,
-        'reportes/reporte_form.html',
+        'company/reportes/reporte_form.html',
         {'form': formProducto(), 'criterio': criterio},
     )
 
@@ -375,7 +382,7 @@ def add_avisos(request):
 
 def get_opciones(request):
     avisos = Aviso.objects.all()
-    return render(request, 'notificaciones/get_opciones.html', {'avisos': avisos})
+    return render(request, 'company/notificaciones/get_opciones.html', {'avisos': avisos})
 
 
 def del_precio(request, id_precio):
@@ -383,7 +390,7 @@ def del_precio(request, id_precio):
     if request.method == 'POST':
         precio.delete()
         return JsonResponse({'success': 'Se Borro el registro. '})
-    return render(request, 'notificaciones/del_precio.html', {'precio': precio})
+    return render(request, 'company/notificaciones/del_precio.html', {'precio': precio})
 
 
 @login_required(login_url='/')
@@ -402,7 +409,7 @@ def banco_envio(request):
 
 def infor_banco(request):
     banco = Banco.objects.all()
-    return render(request, 'notificaciones/infor_banco.html', {'banco': banco})
+    return render(request, 'company/notificaciones/infor_banco.html', {'banco': banco})
 
 
 def del_infor_banco_by_company(request, id_banco):
@@ -410,7 +417,7 @@ def del_infor_banco_by_company(request, id_banco):
     if request.method == 'POST':
         banco.delete()
         return JsonResponse({'success': 'Se Borro el registro. '})
-    return render(request, 'notificaciones/del_infor_banco_by_company.html', {'banco': banco})
+    return render(request, 'company/notificaciones/del_infor_banco_by_company.html', {'banco': banco})
 
 
 def eliminar_opciones(request, id_aviso):
@@ -418,7 +425,7 @@ def eliminar_opciones(request, id_aviso):
     if request.method == 'POST':
         aviso.delete()
         return JsonResponse({'success': 'Se Borro el registro. '})
-    return render(request, 'notificaciones/eliminar_opciones.html', {'aviso': aviso})
+    return render(request, 'company/notificaciones/eliminar_opciones.html', {'aviso': aviso})
 
 
 def print_orden(request, id_orden):
@@ -436,7 +443,7 @@ def print_orden(request, id_orden):
         'precio_envio': precio_envio_val,
         'sucursal': get_address(),
     }
-    template = 'reportes/report_order_pdf.html' if tipo == 'factura' else 'reportes/ticket_pdf.html'
+    template = 'company/reportes/report_order_pdf.html' if tipo == 'factura' else 'company/reportes/ticket_pdf.html'
     html = render_to_string(template, context, request=request)
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="{tipo}_orden_{orden.id}.pdf"'
@@ -481,14 +488,13 @@ def like_company(request, id_orden, id_cliente):
         base['like'] = 'Muchas gracias por su preferencia'
     else:
         base['productos'] = productos
-    return render(request, 'notificaciones/like_company.html', base)
+    return render(request, 'company/notificaciones/like_company.html', base)
 
 
 @login_required(login_url='/')
 def add_condiciones(request):
-    company = get_company(request.user)
     if request.method == 'POST':
-        cond, _ = Condicion.objects.get_or_create(company=company)
+        cond, _ = Condicion.objects.get_or_create()
         cond.regla = request.POST['regla']
         cond.save()
         return JsonResponse({'success': 'Registro exitoso.'})
@@ -497,7 +503,7 @@ def add_condiciones(request):
 
 def get_condiciones(request):
     reglas = Condicion.objects.all()
-    return render(request, 'notificaciones/get_condiciones.html', {'reglas': reglas})
+    return render(request, 'company/notificaciones/get_condiciones.html', {'reglas': reglas})
 
 
 def delete_regla(request, id_regla):
@@ -505,7 +511,7 @@ def delete_regla(request, id_regla):
     if request.method == 'POST':
         regla.delete()
         return JsonResponse({'success': 'Se Borro el registro. '})
-    return render(request, 'notificaciones/delete_reglas.html', {'regla': regla})
+    return render(request, 'company/notificaciones/delete_reglas.html', {'regla': regla})
 
 
 def create_mail_suscripcion(user_mail, subject, template_name, context):
@@ -525,7 +531,7 @@ def send_suscripcion_mail(email_user, url_tienda, company):
     mail = create_mail_suscripcion(
         email_user,
         'Bienvenido a ' + company.name.title(),
-        'notificaciones/sucripcion_user_email.html',
+        'company/notificaciones/sucripcion_user_email.html',
         {'email_user': email_user, 'url_tienda': url_tienda, 'company': company},
     )
     mail.send(fail_silently=False)
@@ -564,7 +570,7 @@ def add_cupon(request):
 
 def get_cupom(request):
     cupom = Cupon.objects.all()
-    return render(request, 'notificaciones/get_cupom.html', {'cupom': cupom})
+    return render(request, 'company/notificaciones/get_cupom.html', {'cupom': cupom})
 
 
 def delete_cupom(request, id_cupom):
@@ -572,7 +578,7 @@ def delete_cupom(request, id_cupom):
     if request.method == 'POST':
         cupom.delete()
         return JsonResponse({'success': 'Se Borro el registro. '})
-    return render(request, 'notificaciones/delete_cupom.html', {'cupom': cupom})
+    return render(request, 'company/notificaciones/delete_cupom.html', {'cupom': cupom})
 
 
 @login_required(login_url='/')
@@ -581,7 +587,7 @@ def estadoCompany(request):
     initial_url = request.build_absolute_uri('/')
     return render(
         request,
-        'notificaciones/estadoCompany.html',
+        'company/notificaciones/estadoCompany.html',
         {'company': company, 'initial_url': initial_url},
     )
 
@@ -590,7 +596,7 @@ def estadoCompany(request):
 def autorizar_orden(request, id_orden):
     orden = get_object_or_404(Orden, id=id_orden)
     if orden.status:
-        return render(request, 'notificaciones/orden_autorizada.html', {'orden': orden})
+        return render(request, 'company/notificaciones/orden_autorizada.html', {'orden': orden})
 
     if request.method == 'POST':
         orden.status = True
@@ -603,6 +609,6 @@ def autorizar_orden(request, id_orden):
                     salida=F('salida') + pedido.cant
                 )
         messages.success(request, 'La orden fue autorizada y las salidas actualizadas correctamente.')
-        return render(request, 'notificaciones/orden_autorizada.html', {'orden': orden})
+        return render(request, 'company/notificaciones/orden_autorizada.html', {'orden': orden})
 
-    return render(request, 'notificaciones/autorizar_orden.html', {'orden': orden})
+    return render(request, 'company/notificaciones/autorizar_orden.html', {'orden': orden})
