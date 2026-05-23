@@ -1,185 +1,32 @@
-#encoding:utf-8
-import os
-from .images import procesar_imagen
-from random import randint
+# encoding:utf-8
 from datetime import datetime
-from django.db.models import Sum, FloatField
-from django.db.models.functions import Coalesce
-from django.forms import model_to_dict
-
-from ventas import settings
-from app.catalog.choices import GENDER
-
 from django.db import models
-from app.tiendas.models import *
-
-class Category(models.Model):
-    name = models.CharField(max_length=50, unique=True, verbose_name='Nombre')
-    def __str__(self):
-        return self.name
-
-    def toJSON(self):
-        item = model_to_dict(self)
-        item['name'] = self.name
-        return item
-
-    class Meta:
-        verbose_name = 'Categoría'
-        verbose_name_plural = 'Categorías'
-
-
-class Product(models.Model):
-    name = models.CharField(max_length=100, verbose_name='Nombre')
-    code = models.CharField(max_length=20, blank=True,null=True, verbose_name='Código')
-    description = models.CharField(max_length=500, null=True, blank=True, verbose_name='Descripción')
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='Categoría')
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Compania')
-    price = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Precio de Venta')
-    #pvp = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Precio de Venta')
-    price_before = models.DecimalField(max_digits=9,decimal_places=2,null=True, blank=True,default=0.00, verbose_name='Precio Antes')
-    image = models.ImageField(upload_to='product/%Y', default="default.png", blank=True, null=True, verbose_name='Imagen')
-    is_service = models.BooleanField(default=False, verbose_name='¿Es un servicio?')
-    #with_tax = models.BooleanField(default=False, verbose_name='¿Se cobra impuesto?')
-    stock = models.IntegerField(default=1)
-    salida = models.IntegerField(default=0 ,blank=True,null=True)
-    is_new = models.BooleanField(default=False, verbose_name='¿Es novedad?', help_text='marque solo si corresponde')
-    is_promotion = models.BooleanField(default=False, verbose_name='¿Esta en promocion?',help_text='marque solo si corresponde')
-    date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')
-    date_update = models.DateTimeField(auto_now=True)
-    
-    def save(self, *args, **kwargs):
-        if self.image:# Si hay imagen nueva o editada
-            procesar_imagen(self, 'image')  # Procesar primero la imagen antes de guardar
-        super().save(*args, **kwargs)  # Guardar ya procesada
-
-    def __str__(self):
-        return self.get_full_name()
-    
-    def get_meta_title(self):
-        return f"{self.name} - {self.company.name}"
-
-    def get_meta_description(self):
-        if self.description:
-            return self.description
-        return f"Compra {self.name} en {self.company.name}, en la categoría {self.category.name}."
-
-    def get_meta_image(self):
-        return self.get_image()
-
-    def get_meta_url(self):
-        return f'/{self.id}/{self.company.id}/detail_product'
-
-    def get_full_name(self):
-        return f'{self.name} ({self.code}) ({self.category.name})'
-
-    def get_short_name(self):
-        return f'{self.name} ({self.category.name})'
-
-    def get_image(self):
-        if self.image:
-            return f'{settings.MEDIA_URL}{self.image}'
-        return f'{settings.STATIC_URL}img/default/empty.png'
-
-    def toJSON(self):
-        item = model_to_dict(self)
-        item['full_name'] = self.get_full_name()
-        item['short_name'] = self.get_short_name()
-        item['category'] = self.category.toJSON()
-        item['price'] = float(self.price)
-        #item['pvp'] = float(self.pvp)
-        item['price_before'] = float(self.price_before)
-        item['image'] = self.get_image()
-        return item
-
-    def porcentage(self):
-        total = (self.price_before - self.price)/self.price * 100
-        return int(total)
-
-    def num_aleatorio(self):
-        num = randint(1,11)
-        return num
-    
-    def stock_actual(self):
-        en_stock = int(self.stock) - int(abs(self.salida))
-        return en_stock
-
-    class Meta:
-        verbose_name = 'Producto'
-        verbose_name_plural = 'Productos'
-
-class Imagen(models.Model):
-    img = models.ImageField(upload_to='img_products', default="default.png", verbose_name='Imagen', help_text="Puede registrar hasta 2 imagenes como maximo")
-    items = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='producto')
-    
-    def save(self, *args, **kwargs):
-        if self.img:# Si hay imagen nueva o editada
-            procesar_imagen(self, 'img')  # Procesar primero la imagen antes de guardar
-        super().save(*args, **kwargs)  # Guardar ya procesada
-
-    def __str__(self):
-        return f'{self.img} ({self.items.name})'
-    
-    class Meta:
-        verbose_name = 'Imagen'
-        verbose_name_plural = 'Imagenes'
+from django.forms import model_to_dict
+from app.inicio.models import *
+from ventas import settings
 
 class Video(models.Model):
-    video = models.URLField(max_length=255, verbose_name='URL Video', help_text="Copie la url(link) del video")
+    video = models.URLField(max_length=255, verbose_name='URL Video', help_text='Copie la url(link) del video')
     items = models.OneToOneField(Product, on_delete=models.CASCADE, verbose_name='Producto')
-    
-    def __str__(self):
-        return f'{self.img} ({self.items.name})'
-    
+
     class Meta:
         verbose_name = 'video'
         verbose_name_plural = 'videos'
 
-class Client(models.Model):
-    names = models.CharField(max_length=150, verbose_name='Nombre completo')
-    dni = models.IntegerField(null=True, blank=True, verbose_name='Nro. Carnet/Nit (Opcional)')
-    gender = models.CharField(max_length=50, choices=GENDER, default=GENDER[0][0], verbose_name='Genero')
-    mobile = models.CharField(max_length=15, verbose_name='Celular (WhatsApp)')
-    email = models.EmailField(max_length=100, unique=True, verbose_name='Correo Electrónico')
-    date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')
-    address = models.CharField(max_length=500, null=True, blank=True, verbose_name='Dirección o referencia exacta*', help_text="Ingrese:Zona,Calle,Nro")
-
     def __str__(self):
-        return self.get_full_name()
+        return f'{self.video} ({self.items.name})'
 
-    def get_full_name(self):
-        return f'{self.names}'
-
-    def birthdate_format(self):
-        return self.birthdate.strftime('%Y-%m-%d')
-
-    def toJSON(self):
-        item = model_to_dict(self)
-        item['names'] = self.get_full_name()
-        item['gender'] = {'id': self.gender, 'name': self.get_gender_display()}
-        item['dni'] = self.dni
-        item['id'] = int(self.id)
-        item['mobile'] = self.mobile
-        return item
-
-    class Meta:
-        verbose_name = 'Cliente'
-        verbose_name_plural = 'Clientes'
 
 class Orden(models.Model):
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Compañia')
     client = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name='Cliente')
-    #employee = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name='Empleado')
-    subtotal = models.DecimalField(max_digits=9, decimal_places=2, default=0.00,verbose_name='Sub Total')
+    subtotal = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Sub Total')
     dscto = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Descuento')
     total = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Total a pagar')
-    creation_date = models.DateTimeField(auto_now_add=True, verbose_name='Fecha y hora de registro')#Fecha de modificacion
-    date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')#Fecha de registro
+    creation_date = models.DateTimeField(auto_now_add=True, verbose_name='Fecha y hora de registro')
+    date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')
     status = models.BooleanField(default=False)
-    # TODO: Define fields here
 
     class Meta:
-        """Meta definition for Orden."""
-
         verbose_name = 'Orden'
         verbose_name_plural = 'Ordens'
 
@@ -189,14 +36,13 @@ class Orden(models.Model):
     def toJSON(self):
         item = model_to_dict(self)
         item['id'] = int(self.id)
-        item['company'] = self.company.name
         item['client'] = self.client.names
         item['sub_total'] = self.subtotal
         item['total'] = self.total
         return item
 
+
 class Pedido(models.Model):
-    orden = models.ForeignKey(Orden, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     cant = models.IntegerField(default=0)
     price = models.DecimalField(max_digits=9, decimal_places=2, default=0.00)
@@ -205,27 +51,247 @@ class Pedido(models.Model):
     nota = models.TextField(max_length=255, null=True, blank=True)
 
     class Meta:
-        """Meta definition for Pedido."""
-
         verbose_name = 'Pedido'
         verbose_name_plural = 'Pedidos'
 
     def __str__(self):
-        """Unicode representation of Pedido."""
-        return "%s, orden # %s"%(self.product.name, self.orden)
+        return f'{self.product.name}, orden # {self.orden}'
 
 
 class Like(models.Model):
     like = models.IntegerField(verbose_name='like')
     date_joined = models.DateTimeField(auto_now_add=True)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Negocio')
     client = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name='Cliente')
     orden = models.ForeignKey(Orden, on_delete=models.CASCADE, verbose_name='Orden')
 
     class Meta:
-        """Meta definition for Bancos."""
         verbose_name = 'Like'
         verbose_name_plural = 'Likes'
 
     def __str__(self):
         return self.company.name
+
+
+
+class Bank_dashboard(models.Model):
+    """Model definition for Bancos."""
+    name = models.CharField(max_length=50, verbose_name='Nombre del Banco')
+    cuenta = models.CharField(max_length=50, verbose_name='Nro. de cuenta')
+    qr_img = models.ImageField(null=True, blank=True, upload_to='img_qr', verbose_name='Img QR de pago', help_text="Imagen que tenga validacion de un año")
+    dashboard = models.ForeignKey(Dashboard, on_delete=models.CASCADE, verbose_name='Negocio')
+    class Meta:
+        """Meta definition for Bancos."""
+
+        verbose_name = 'Banco'
+        verbose_name_plural = 'Bancos'
+
+    def __str__(self):
+        """Unicode representation of Bancos."""
+        return self.name
+    
+class Cupon(models.Model):
+    codigo = models.CharField(
+        max_length=255,
+        verbose_name='Ingrese el Código del Cupon',
+        help_text='Una o mas palabra separadas por coma Ej: 1234,tienda,negocio123',
+    )
+    descuento = models.IntegerField(help_text='Ingrese el porcentaje del descuento %')
+    estado = models.BooleanField(default=True, help_text='Indica que estara activo en todas las compras')
+
+    class Meta:
+        db_table = 'tiendas_cupon'
+        verbose_name = 'cupon'
+        verbose_name_plural = 'cupones'
+
+    def __str__(self):
+        return self.codigo
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['company'] = self.company.name
+        item['codigo'] = self.codigo
+        item['descuento'] = self.descuento
+        item['estado'] = self.estado
+        return item
+
+
+class Banco(models.Model):
+    name = models.CharField(max_length=50, verbose_name='Nombre del Banco')
+    destinatario = models.CharField(max_length=60, verbose_name='A Nombre de')
+    cuenta = models.CharField(max_length=50, verbose_name='Nro. de cuenta')
+    qr_img = models.ImageField(
+        null=True,
+        blank=True,
+        upload_to='img_qr',
+        verbose_name='Img QR de pago',
+        help_text='Recomendación que sea valido de un año o mas',
+    )
+    company = models.OneToOneField(Company, on_delete=models.CASCADE, verbose_name='Negocio')
+
+    class Meta:
+        db_table = 'tiendas_banco'
+        verbose_name = 'Banco'
+        verbose_name_plural = 'Bancos'
+
+    def __str__(self):
+        return self.name
+
+    def get_image(self):
+        if self.qr_img:
+            return f'{settings.MEDIA_URL}{self.qr_img}'
+        return f'{settings.STATIC_URL}img/empty.png'
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['name'] = self.name
+        item['destinatario'] = self.destinatario
+        item['cuenta'] = self.cuenta
+        item['qr_img'] = self.get_image()
+        return item
+
+
+class Sucursal(models.Model):
+    address = models.TextField(max_length=200, verbose_name='Dirección de todas sus sucursales y Horario')
+    latitud = models.CharField(max_length=50, verbose_name='Latitud')
+    longitud = models.CharField(max_length=50, verbose_name='Longitud')
+    date_joined = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'tiendas_sucursal'
+
+    def __str__(self):
+        return self.company.name
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['company'] = self.company.name
+        item['address'] = self.address
+        item['latitud'] = self.latitud
+        item['longitud'] = self.longitud
+        item['date_joined'] = self.date_joined.strftime('%Y-%m-%d')
+        return item
+
+
+class Precio_envio(models.Model):
+    precio = models.IntegerField(verbose_name='Precio de envio a domicilio')
+    precio_ciudad = models.IntegerField(verbose_name='Precio de envio a otra ciudad')
+    date_joined = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'tiendas_precio_envio'
+
+    def __str__(self):
+        return f"{self.precio} - {self.precio_ciudad}"
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['company'] = self.company.name
+        item['id'] = int(self.id)
+        item['precio'] = self.precio
+        item['precio_ciudad'] = self.precio_ciudad
+        item['date_joined'] = self.date_joined.strftime('%Y-%m-%d')
+        return item
+
+
+class Aviso(models.Model):
+    Tiempo_entrega = models.CharField(
+        verbose_name='Tiempo de Entrega',
+        max_length=50,
+        help_text='Ejemplo: En 24 Hrs.',
+    )
+    envios = models.CharField(
+        verbose_name='Lugar de envio',
+        max_length=50,
+        help_text='Ejemplo: Envios a todo el pais',
+    )
+    pedidos = models.CharField(
+        verbose_name='Pedidos',
+        max_length=50,
+        help_text='Ejemplo: Pedidos las 24 hrs.',
+    )
+    pide_ahora = models.CharField(
+        verbose_name='Metodo de Pedir',
+        max_length=50,
+        help_text='Ejemplo: Pide ahora y pague en casa',
+    )
+
+    class Meta:
+        db_table = 'tiendas_aviso'
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['company'] = self.company.name
+        item['Tiempo_entrega'] = self.Tiempo_entrega
+        item['envios'] = self.envios
+        item['pedidos'] = self.pedidos
+        item['pide_ahora'] = self.pide_ahora
+        return item
+
+
+class Condicion(models.Model):
+    regla = models.TextField(
+        verbose_name='Terminos y condiciones',
+        max_length=255,
+        help_text='Escriba las reglas y condiciones para sus ventas',
+    )
+
+    class Meta:
+        db_table = 'tiendas_condicion'
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['regla'] = self.regla
+        return item
+
+
+class RRSS(models.Model):
+    icono = models.CharField(verbose_name='Icono', max_length=50)
+    rrss = models.CharField(verbose_name='redes sociales', max_length=255)
+
+    class Meta:
+        db_table = 'tiendas_rrss'
+
+    def __str__(self):
+        return self.rrss
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['rrss'] = self.rrss
+        return item
+
+
+class PixelMeta(models.Model):
+    codigo = models.CharField(
+        max_length=50,
+        verbose_name='Pixel_id',
+        null=True,
+        blank=True,
+        help_text='Copie pixel id de Meta',
+    )
+
+    class Meta:
+        db_table = 'tiendas_pixelmeta'
+
+    def __str__(self):
+        return self.company.name
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['codigo'] = self.codigo
+        return item
+
+
+class Suscripcion(models.Model):
+    email = models.EmailField(max_length=255)
+
+    class Meta:
+        verbose_name = 'Suscripción'
+        verbose_name_plural = 'Suscripciones'
+
+    def __str__(self):
+        return self.email
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['email'] = self.email
+        return item

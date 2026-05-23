@@ -11,7 +11,7 @@
       {% for n in type_company %}
         {% for c, v in count_comp.items %}
           {% if c == n.name and v > 0 %}
-          <li style="cursor: pointer;" class="nav-link scrollto"><a href="/{{n.id}}/type">{{n.name|title}}</a></li>
+          <li style="cursor: pointer;" class="nav-link scrollto"><a href="/type/{{n.id}}/">{{n.name|title}}</a></li>
           {% endif %}
         {% endfor %}
       {% empty %}
@@ -23,7 +23,7 @@
     <a href="#team"><span>Ciudades</span> <i class="bi bi-chevron-down"></i></a>
     <ul>
       {% for c in ciudades %}
-      <li style="cursor: pointer;" class="nav-link scrollto"><a href="/{{c.id}}/city">{{c.ciudad|title}}</a></li>
+      <li style="cursor: pointer;" class="nav-link scrollto"><a href="/city/{{c.id}}/">{{c.ciudad|title}}</a></li>
       {% empty %}
       <li class="nav-link scrollto"><a href="">No hay Ciudades</a></li>
       {% endfor %}

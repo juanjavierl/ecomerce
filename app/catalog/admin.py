@@ -6,7 +6,23 @@ from app.catalog.models import *
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
-admin.site.register([Category, Pedido, Like, Imagen, Video])
+admin.site.register([
+    Category,
+    Pedido,
+    Like,
+    Imagen,
+    Video,
+    Company,
+    Banco,
+    Sucursal,
+    Precio_envio,
+    Aviso,
+    Condicion,
+    RRSS,
+    PixelMeta,
+    Cupon,
+    Suscripcion,
+])
 
 @admin.register(Client)
 class ClientAdmin(admin.ModelAdmin):
@@ -32,18 +48,16 @@ class ProductAdmin(ImportExportModelAdmin):
         'name',
         'code',
         'category',
-        'company',
         'price',
         'stock',
         'date_joined',
     )
     search_fields = ('name','code',)
-    list_filter = ('company',)
+    list_filter = ('category',)
 
 @admin.register(Orden)
 class OrdenAdmin(admin.ModelAdmin):
     list_display = (
-        'company',
         'client',
         'subtotal',
         'dscto',

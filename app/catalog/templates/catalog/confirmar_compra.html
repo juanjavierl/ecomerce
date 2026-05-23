@@ -5,7 +5,7 @@
 {% endblock titulo %}
 
 {% block company %}
-<a href="/{{company.id}}/catalogo">
+<a href="/">
   <marquee behavior="" direction="" style="margin-top: 14px;">{{company.name|title}}</marquee>
 </a>
 {% endblock company %}
@@ -37,7 +37,7 @@
 
 
 {% block menus %}
-{% include 'menu_from_user.html' %}
+{% include 'company/menu_from_user.html' %}
 {% endblock menus %}
 
 {% block hero %} {% endblock hero %}
@@ -82,7 +82,7 @@
     </div>
     <div class="col-lg-5 d-flex align-items-stretch form_msj">
 
-      <form action="/{{company.id}}/confirmar_compra/" method="post" class="" id="form_pedido" style="width: 100%;">
+      <form action="/confirmar_compra/" method="post" class="" id="form_pedido" style="width: 100%;">
         {% csrf_token %}
         {{ form|crispy }}
         <label for="">Tipo de entrega* </label>
@@ -133,7 +133,7 @@
           <button type="submit" class="btn btn-success btn-sm btn-block" style="margin-bottom: 20px; margin-right: 10px;"><i
             class="bi bi-save"></i> Registrar Pedido & Confirmar por Whatsapp</button>
 
-          <a href="/{{company.id}}/catalogo" class="btn btn-secondary btn-sm"
+          <a href="/" class="btn btn-secondary btn-sm"
             style="margin-bottom: 20px;"><i class="bi bi-arrow-left-circle"></i> Ir Atrás</a>
         </div>
       </form>
@@ -210,7 +210,7 @@
     $("#tipo_envio").change(function () {
       $.ajax({
         type: 'GET',
-        url: "/{{company.id}}/getPrecioEnvio",
+        url: "/getPrecioEnvio",
         data:{'opcion':$(this).val()},
         success: function (resp) {
           //$("#t_p").text(resp.datos.total);
@@ -276,7 +276,7 @@
       $(".form_msj").hide();
       $(".col-6 h2").fadeIn(1000).html("No hay productos");
       setTimeout(function () {
-        window.location.href = "/{{company.id}}/catalogo";
+        window.location.href = "/";
       }, 5000);
     }
   });
@@ -406,7 +406,7 @@
         // 🔁 Actualizar productos recomendados
         $.ajax({
           type: 'GET',
-          url: "/" + resp.company_object.id + "/" + resp.orden.id + "/" + resp.cliente_object.id + "/like",
+          url: "/like/" + resp.orden.id + "/" + resp.cliente_object.id + "/",
           success: function (response) {
             $("#team_productos").html(response);
           }
@@ -441,7 +441,7 @@
       success: function (resp) {
         $("#cont_compras").html(resp);
         //$(".datos_confirmar").fadeIn(1000).html(resp)
-        window.location.href = "/{{company.id}}/confirmar_compra/";
+        window.location.href = "/confirmar_compra/";
         //verCarrito('/ver_carrito/');
       }
     });
@@ -477,11 +477,11 @@
 <!-- ======= Contact Section ======= -->
 <section id="contact" class="contact">
   <div class="container">
-    {% include 'contact.html' %}
+    {% include 'company/contact.html' %}
   </div>
 </section>
 {% endblock contact %}
 
 {% block footer_catalog %}
-{% include 'footer_tienda.html' %}
+{% include 'company/footer_tienda.html' %}
 {% endblock footer_catalog %}

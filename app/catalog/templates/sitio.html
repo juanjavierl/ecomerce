@@ -15,7 +15,7 @@
 {% endblock tecnica_seo %}
 
 {% block company %}
-    <a href="/{{company.id}}/catalogo">
+    <a href="/">
       <marquee behavior="" direction="" style="margin-top: 14px;">{{ company.name|title }}</marquee>
     </a>
 {% endblock company %}
@@ -46,7 +46,7 @@
 {% endblock carrito %}
 
 {% block menus %}
-    {% include 'menu_from_user.html' %}
+    {% include 'company/menu_from_user.html' %}
 {% endblock menus %}
 
   {% block hero %}  
@@ -75,7 +75,7 @@
               <div class="swiper-slide">
                 <div class="testimonial-item">
                   <p>
-                    <a type="button" onclick="mostrar_por_categoria('/{{company.id}}/{{c.id}}/mostrar_por_categoria')" 
+                    <a type="button" onclick="mostrar_por_categoria('/mostrar_por_categoria/{{c.id}}/')" 
                     href="#team_productos" class="btn btn-success btn-lg" 
                     style="background-color: #1bac91;; color: white; border-radius: 50px;">
                     <i class="bi bi-bag-check"></i> {{c.name|title}}
@@ -131,7 +131,7 @@
 {% endblock suscipcion_for_email %}
 
 {% block preg_frecuentes %}
-{% include 'preg_frecuentes_tienda.html' %}
+{% include 'company/preg_frecuentes_tienda.html' %}
 {% endblock preg_frecuentes %}
 
 {% block productos_mas_vistos %}  {% endblock productos_mas_vistos %} 
@@ -144,12 +144,12 @@
   <!-- ======= Contact Section ======= -->
 <section id="contact" class="contact">
   <div class="container">
-    {% include 'contact.html' with company=company %}
+    {% include 'company/contact.html' with company=company %}
   </div>
 </section>
 <!-- End Contact Section -->
 {% endblock contact %}
 
 {% block footer_catalog %}
-  {% include 'footer_tienda.html' %}
+  {% include 'company/footer_tienda.html' %}
 {% endblock footer_catalog %}

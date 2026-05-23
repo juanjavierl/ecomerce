@@ -19,8 +19,7 @@ from django.utils.decorators import method_decorator
 from django.db.models import Q
 from django.core.cache import cache
 from app.inicio.models import *
-from app.tiendas.models import *
-from app.catalog.models import *
+from app.catalog.models import Company, Product
 from .forms import *
 
 from openai import OpenAI
@@ -41,34 +40,8 @@ def robots_txt(request):
     return HttpResponse("\n".join(lines), content_type="text/plain")
 
 def inicio(request):
-    data = cache.get('pagina_inicio')
-    if not data:
-        ciudades = Ciudad.objects.all().order_by('-id')
-        # Contar companias por categoria (en una sola consulta)
-        categorias = (
-            Tipo_company.objects
-            .annotate(total_companies=Count('company'))
-            .order_by('-id')
-        )
-        # Construir el diccionario count_comp a partir del annotate
-        count_comp = {cat.name: cat.total_companies for cat in categorias}
-
-        tiendas_online = (
-            Company.objects
-            .filter(status=True)
-            .select_related('category', 'cuidad')  # evita consultas extra
-            .order_by('?')[:12]
-        )
-        data = {
-            'dashboard':get_Dashboard(),
-            'type_company':categorias,
-            'count_comp':count_comp,
-            'ciudades':ciudades,
-            'tiendas':tiendas_online
-        }
-        # Guardar todo en cache durante 12 horas
-        cache.set('pagina_inicio', data,  60 * 60 * 12) 
-    return render(request, 'index.html', data)
+    """Redirige al catálogo único (single-tenant)."""
+    return redirect('/')
 
 def get_Dashboard():
     try:
@@ -78,22 +51,7 @@ def get_Dashboard():
     return dashboard
 
 def verPlanes(request):
-    if request.headers.get('x-requested-with') != 'XMLHttpRequest':
-        return redirect('/')
-    idCompany = int(request.GET.get('id_company', 0))
-    if idCompany == 0:
-        planes = Plataforma.objects.filter(ilimitado=False).order_by('-id')
-        company = False
-    else:
-        company = Company.objects.get(id = idCompany)
-        planes = Plataforma.objects.exclude(id=company.plan.id)
-        company = company
-    dic = {
-        'celular':get_Dashboard(),
-        'planes':planes,
-        'company':company
-    }
-    return render(request, 'verPlanes.html',dic)
+    return redirect('/')
 
 def update_perfil_user(request, user_id):
     user = get_object_or_404(User, id = int(user_id))
@@ -172,7 +130,10 @@ def guardar_datos_extra(backend, user, response, *args, **kwargs):
 
 def redirigir_a_companys(backend, user, response, *args, **kwargs):
     if user and user.is_authenticated:
-        return redirect(f"/{user.id}/companys/")
+        company = Company.objects.first()
+        if company and company.user_id == user.id:
+            return redirect('/configuraciones/')
+        return redirect('/')
 
 #client = OpenAI(api_key=settings.OPENAI_API_KEY)
 @method_decorator(csrf_exempt, name='dispatch')
@@ -193,9 +154,9 @@ class ChatBotView(View):
                 "price": str(p.price),
                 "moneda": p.company.moneda,
                 "image_url": p.image.url if p.image else "",
-                "url": f"/{p.id}/{p.company.id}/detail_product",
+                "url": f"/detail_product/{p.id}/",
                 "description": (p.description[:100] + "...") if p.description and len(p.description) > 80 else p.description or "",
-                "ciudad": p.company.cuidad.ciudad if p.company and p.company.cuidad else "---",
+                "ciudad": getattr(p.company, 'cuidad', '') or "---",
             }
             for p in productos
         ]

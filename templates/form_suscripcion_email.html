@@ -4,7 +4,7 @@
             <strong><i class="bi bi-award-fill" style="color: gold;"></i> ¡Suscríbete a nuestra tienda y gana un cupón de descuento!</strong>
         </div>
         <div class="container col-12 col-md-6" id="form_more_aviso">
-            <form action="/{{company.id}}/suscribirse/" method="post" id="id_suscripcion">
+            <form action="/suscribirse/" method="post" id="id_suscripcion">
                 {% csrf_token %}
                 <div class="input-group mb-3">
                     <input type="email" name="email" class="form-control" placeholder="Ingresa tu email"  required>
