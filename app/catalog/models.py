@@ -4,6 +4,66 @@ from django.db import models
 from django.forms import model_to_dict
 from app.inicio.models import *
 from ventas import settings
+from app.catalog.choices import *
+
+class Dashboard(models.Model):
+
+    name = models.CharField(max_length=50,unique=True,verbose_name='Nombre del Sistema')
+
+    author = models.CharField(
+        max_length=120,
+        default="jjavierl"
+    )
+
+    codigo = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True,
+        verbose_name='Pixel Meta'
+    )
+
+    favicon = models.ImageField(
+        upload_to='dashboard/favicon/',
+        null=True,
+        blank=True
+    )
+    navbar = models.CharField(max_length=50, choices=NAVBAR, default=NAVBAR[0][0], verbose_name='Navbar')
+
+    color_texto = models.CharField(max_length=50, default='#000000', verbose_name='Color del texto')
+    class Meta:
+        verbose_name = 'Dashboard'
+        verbose_name_plural = 'Dashboard'
+
+    
+
+    def __str__(self):
+        return self.name
+    
+    def get_image(self):
+        if self.image:
+            return self.image.url
+        return f'{settings.STATIC_URL}img/default/empty.png'
+    
+    @property
+    def get_logo(self):
+        if self.logo:
+            return self.logo.url
+
+        if self.image:
+            return self.image.url
+
+        return f'{settings.STATIC_URL}img/default_store.jpg'
+
+    def toJSON(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'author': self.author,
+            'codigo': self.codigo,
+            'favicon': self.get_image(),
+            'navbar': self.navbar,
+            'color_texto': self.color_texto
+        }
 
 class Video(models.Model):
     video = models.URLField(max_length=255, verbose_name='URL Video', help_text='Copie la url(link) del video')
@@ -126,7 +186,6 @@ class Banco(models.Model):
         verbose_name='Img QR de pago',
         help_text='Recomendación que sea valido de un año o mas',
     )
-    company = models.OneToOneField(Company, on_delete=models.CASCADE, verbose_name='Negocio')
 
     class Meta:
         db_table = 'tiendas_banco'
@@ -194,25 +253,21 @@ class Precio_envio(models.Model):
 
 
 class Aviso(models.Model):
-    Tiempo_entrega = models.CharField(
-        verbose_name='Tiempo de Entrega',
+    mensaje1 = models.CharField(
+        verbose_name='Mensaje 1',
         max_length=50,
-        help_text='Ejemplo: En 24 Hrs.',
     )
-    envios = models.CharField(
-        verbose_name='Lugar de envio',
+    mensaje2 = models.CharField(
+        verbose_name='Mensaje 2',
         max_length=50,
-        help_text='Ejemplo: Envios a todo el pais',
     )
-    pedidos = models.CharField(
-        verbose_name='Pedidos',
+    mensaje3 = models.CharField(
+        verbose_name='Mensaje 3',
         max_length=50,
-        help_text='Ejemplo: Pedidos las 24 hrs.',
     )
-    pide_ahora = models.CharField(
-        verbose_name='Metodo de Pedir',
+    mensaje4 = models.CharField(
+        verbose_name='Mensaje 4',
         max_length=50,
-        help_text='Ejemplo: Pide ahora y pague en casa',
     )
 
     class Meta:
@@ -220,19 +275,18 @@ class Aviso(models.Model):
 
     def toJSON(self):
         item = model_to_dict(self)
-        item['company'] = self.company.name
-        item['Tiempo_entrega'] = self.Tiempo_entrega
-        item['envios'] = self.envios
-        item['pedidos'] = self.pedidos
-        item['pide_ahora'] = self.pide_ahora
+        item['mensaje1'] = self.mensaje1
+        item['mensaje2'] = self.mensaje2
+        item['mensaje3'] = self.mensaje3
+        item['mensaje4'] = self.mensaje4
         return item
 
 
 class Condicion(models.Model):
     regla = models.TextField(
-        verbose_name='Terminos y condiciones',
+        verbose_name='Requisitos para la compra a credito',
         max_length=255,
-        help_text='Escriba las reglas y condiciones para sus ventas',
+        help_text='Escriba los requisitos para la compra a credito, Ejemplo: Tener una antiguedad de 6 meses como cliente.',
     )
 
     class Meta:
@@ -282,16 +336,16 @@ class PixelMeta(models.Model):
 
 
 class Suscripcion(models.Model):
-    email = models.EmailField(max_length=255)
+    celular = models.CharField(max_length=10, verbose_name='WhatsApp')
 
     class Meta:
         verbose_name = 'Suscripción'
         verbose_name_plural = 'Suscripciones'
 
     def __str__(self):
-        return self.email
+        return self.celular
 
     def toJSON(self):
         item = model_to_dict(self)
-        item['email'] = self.email
+        item['celular'] = self.celular
         return item

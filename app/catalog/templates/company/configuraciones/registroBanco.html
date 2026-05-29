@@ -26,7 +26,7 @@
                     style="width: 250px; height: 250px;" alt=""></li>
             <p style="text-align: center;"><a href="#" type="button" data-bs-toggle="modal"
                     data-bs-target="#exampleModal"
-                    onclick="del_infor_comp('/del_infor_banco_by_company/{{a.id}}/')"> Eliminar </a></p>
+                    onclick="del_infor_comp('/del_infor_banco/{{a.id}}/')"> Eliminar </a></p>
             {% empty %}
             <div class="alert alert-primary text-center" role="alert">
                 Esta información bancaria será visible para el cliente al realizar su compra. de esta manera lo pueden realizar una transferencia, si no tiene nada registrado no se preocupe no afecta en nada el funcionamiento.
@@ -50,7 +50,6 @@
                     $('.toast-body').addClass('alert alert-success');
                     $('.toast-body').fadeIn(1000).html(resp.success);
                     mostrar_notificacion();
-                    $('#form_banco_envio')[0].reset();
                     $.ajax({
                         type: 'get',
                         url: '/infor_banco/',

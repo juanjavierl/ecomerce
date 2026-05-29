@@ -2,88 +2,16 @@
 from datetime import datetime
 from random import randint
 
-from app.catalog.choices import GENDER, MONEY
+from app.catalog.choices import *
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.forms import model_to_dict
 from meta.models import ModelMeta
-
-from app.catalog.choices import GENDER, MONEY
 from app.catalog.images import procesar_imagen
 from ventas import settings
 
 User = get_user_model()
 # Create your models here.
-class Dashboard(models.Model):
-
-    name = models.CharField(
-        max_length=50,
-        unique=True,
-        verbose_name='Nombre del Sistema'
-    )
-
-    description = models.TextField(
-        verbose_name='Descripción General'
-    )
-
-    author = models.CharField(
-        max_length=120,
-        default="jjavierl"
-    )
-
-    codigo = models.CharField(
-        max_length=50,
-        null=True,
-        blank=True,
-        verbose_name='Pixel Meta'
-    )
-
-    favicon = models.ImageField(
-        upload_to='dashboard/favicon/',
-        null=True,
-        blank=True
-    )
-
-    class Meta:
-        verbose_name = 'Dashboard'
-        verbose_name_plural = 'Dashboard'
-
-    
-
-    def __str__(self):
-        return self.name
-    
-    def get_image(self):
-        if self.image:
-            return self.image.url
-        return f'{settings.STATIC_URL}img/default/empty.png'
-    
-    @property
-    def get_logo(self):
-        if self.logo:
-            return self.logo.url
-
-        if self.image:
-            return self.image.url
-
-        return f'{settings.STATIC_URL}img/default_store.jpg'
-
-    def toJSON(self):
-        return {
-            'id': self.id,
-            'name': self.name,
-            'description': self.description,
-            'mobile': self.mobile,
-            'email': self.email,
-            'address': self.address,
-            'ciudad': self.ciudad,
-            'website': self.website,
-            'moneda': self.moneda,
-            'status': self.status,
-            'image': self.get_image(),
-            'logo': self.get_logo,
-        }
-
 
 class Company(models.Model, ModelMeta):
 
@@ -91,7 +19,11 @@ class Company(models.Model, ModelMeta):
         max_length=50,
         verbose_name='Nombre/Razón social'
     )
-
+    nit = models.CharField(
+        max_length=15,
+        blank=True,
+        null=True
+    )
     description = models.TextField(
         null=True,
         blank=True,
@@ -132,16 +64,12 @@ class Company(models.Model, ModelMeta):
     )
 
     logo = models.ImageField(
-        upload_to='company/logo/%Y/',
+        upload_to='company/logo/',
         null=True,
         blank=True
     )
 
-    nit = models.CharField(
-        max_length=15,
-        blank=True,
-        null=True
-    )
+    button = models.CharField(max_length=150, verbose_name='Boton de Accion', help_text='Ingrese el texto del boton de accion')
 
     status = models.BooleanField(
         default=True
@@ -170,9 +98,15 @@ class Company(models.Model, ModelMeta):
         return {
             'id': self.id,
             'name': self.name,
+            'nit': self.nit,
             'description': self.description,
-            'author': self.author,
-            'codigo': self.codigo,
+            'mobile': self.mobile,
+            'email': self.email,
+            'address': self.address,
+            'ciudad': self.ciudad,
+            'moneda': self.moneda,
+            'image': self.get_meta_image(),
+            'button': self.button
         }
 
     def __str__(self):
@@ -216,14 +150,13 @@ class Product(models.Model):
         null=True,
         verbose_name='Imagen',
     )
-    is_service = models.BooleanField(default=False, verbose_name='¿Es un servicio?')
     stock = models.IntegerField(default=1)
     salida = models.IntegerField(default=0, blank=True, null=True)
-    is_new = models.BooleanField(default=False, verbose_name='¿Es novedad?', help_text='marque solo si corresponde')
-    is_promotion = models.BooleanField(
-        default=False,
-        verbose_name='¿Esta en promocion?',
-        help_text='marque solo si corresponde',
+    is_promotion = models.CharField(
+        max_length=50,
+        choices=IS_PROMOTION,
+        default=IS_PROMOTION[0][0],
+        verbose_name='¿Elija una opcion?',
     )
     date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')
     date_update = models.DateTimeField(auto_now=True)
@@ -246,7 +179,7 @@ class Product(models.Model):
     def get_meta_description(self):
         if self.description:
             return self.description
-        return f'Compra {self.name} en {self.company.name}, en la categoría {self.category.name}.'
+        return f'Compra {self.name} en la categoría {self.category.name}.'
 
     def get_meta_image(self):
         return self.get_image()
@@ -311,7 +244,6 @@ class Imagen(models.Model):
 class Client(models.Model):
     names = models.CharField(max_length=150, verbose_name='Nombre completo')
     dni = models.IntegerField(null=True, blank=True, verbose_name='Nro. Carnet/Nit (Opcional)')
-    gender = models.CharField(max_length=50, choices=GENDER, default=GENDER[0][0], verbose_name='Genero')
     mobile = models.CharField(max_length=15, verbose_name='Celular (WhatsApp)')
     email = models.EmailField(max_length=100, unique=True, verbose_name='Correo Electrónico')
     date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')

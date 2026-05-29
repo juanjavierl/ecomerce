@@ -12,33 +12,8 @@
       {% else %}
       <h2>lo siento aún no hay contenido disponible</h2>
       {% endif %}
-
-      {% if company.is_service %}
-      <p>Los mejores servicios & especialidades los  encuentras en: <strong>{{company.name|title}}</strong></p>
-      {% else %}
       <p>Los mejores productos & servicios los encuentras en: <strong>{{company.name|title}}</strong></p>
-      {% endif %}
 
-      {% if user.is_authenticated and date_expiration %}
-      <div class="alert alert-warning" role="alert">
-        Up.! su contrato expiro hace: {{company.expiration_date|timesince}}<strong>
-          <a href="https://api.whatsapp.com/send?text=ID cliente: {{company.id}}%0A Hola, fecha de expiración caducado, renovare mi contrato muchas gracias. &phone={{dashboard.mobile}}"
-            target="_blank">Contactese con el administrador aqui</a></strong><br>
-        <small class="text-muted ">Aviso: Debe renovar su contrato en los siguientes 15 dias, caso contrario su página
-          estara inactivo, muchas gracias por su comprención.</small>
-      </div>
-      {% endif %}
-
-      {% if user.is_authenticated and company.status == False %}
-      <div class="alert alert-danger" role="alert">
-        Up.! su catálogo está inactivo: <strong>
-          <a href="https://api.whatsapp.com/send?text=ID cliente: {{company.id}}%0A Hola, mi catálogo está inactivo renovare mi contrato muchas gracias. &phone={{dashboard.mobile}}"
-            target="_blank">Contactese con el administrador aqui</a></strong><br>
-        <small class="text-muted ">Aviso: Cuando un cátalogo esta inactivo, quiere decir que las personas no podran ver
-          su página en los buscadores, además en los proximos 15 dias se eliminaran todos los registros de su
-          cátalogo</small>
-      </div>
-      {% endif %}
     </div>
   </div>
 </div>
@@ -56,7 +31,7 @@
             <a href="/media/{{p.image}}" data-gallery="portfolioGallery" class="portfolio-lightbox"
               title="{{p.name|capfirst}}"><i class="bx bx-plus"></i></a>
 
-            <a href="/detail_product//{{p.id}}/" title="Mas detalles"><i class="bx bx-link"></i></a>
+            <a href="/detail_product/{{p.id}}/" title="Mas detalles"><i class="bx bx-link"></i></a>
               
           </div>
         </div>
@@ -65,14 +40,12 @@
     {% else %}
      <i class="bi bi-image card-img-top icon" alt="..." onclick="detailView('/detail_product/{{p.id}}/')"></i>
     {% endif %}
-    {% if p.is_new %}
-    <span class="badge rounded-pill bg-primary sale-tag d-flex">Nuevo</span>
-    {% endif %}
+    <span class="badge rounded-pill bg-primary sale-tag d-flex"><small>{{p.is_promotion|capfirst|default:""}}</small></span>
     <div class="card-body" style="padding: 0px;">
       <div class="text-section" onclick="detailView('/detail_product/{{p.id}}/')" style="cursor: pointer;">
         <h5 class="card-title text-wrap text-primary fw-bolder">{{p.name|capfirst}}</h5>
         <p class="card-text text-break text-wrap fst-italic">{{p.description|urlize_mode:"ocultar,nobr"|default:" - - - "|capfirst|truncatewords:5}}
-          <a href="/detail_product//{{p.id}}/" style="font-size: 14px;"><i class="bx bx-link"></i></a>
+          <a href="/detail_product/{{p.id}}/" style="font-size: 14px;"><i class="bx bx-link"> Ver detalles</i></a>
         </p>
         <p class="card-text">Categoria: <small class="text-muted">{{p.category|title}}</small></p>
       </div>
@@ -95,7 +68,7 @@
               <button type="button" class="btn btn-primary btn-sm" disabled>Agotado</button>
             {% endif %}
               
-            {% if user.is_authenticated and company.user == request.user %}
+            {% if user.is_authenticated and user.is_superuser %}
             <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="dropdown" aria-expanded="false"
               aria-haspopup="true">
               <span class="bi bi-three-dots-vertical"></span>
@@ -133,8 +106,7 @@
   </div>
   {% else %}
   <div class="alert alert-warning" role="alert" style="text-align: center;">
-    No se encontraron resultados. <a
-    href="/">Ir al Inicio</a></div>
+    No se encontraron resultados. <a href="/">Ir al Inicio</a></div>
   {% endif %}
   
   {% endfor %}

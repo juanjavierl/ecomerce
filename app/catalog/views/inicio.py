@@ -21,6 +21,7 @@ from app.catalog.forms import formProducto
 from app.catalog.models import *
 from app.catalog.views.catalog import *
 from app.inicio.views import get_Dashboard
+from app.inicio.forms import *
 from ventas import settings
 
 def newCategory(request):
@@ -124,9 +125,6 @@ def getPrecioEnvio(request):
 def form_sheart_product(request):
     return render(request, 'catalog/form_sheart_product.html', {'company': get_company()})
 
-
-
-
 def login_user(request):
     if request.headers.get('x-requested-with') != 'XMLHttpRequest':
         return redirect('/')
@@ -160,30 +158,6 @@ def validar_form(request):
         return JsonResponse({'error': formulario.errors})
     return JsonResponse({'error': 'Método no permitido'})
 
-
-@login_required(login_url='/')
-def updateCompany(request):
-    company = get_company(request.user)
-    if request.method == 'POST':
-        form = formCompanyImage(request.POST, request.FILES, instance=company)
-        if form.is_valid():
-            form.save()
-            return JsonResponse({'redirect_url': '/configuraciones/'})
-    else:
-        form = formCompanyImage(instance=company)
-        return render(request, 'company/updateCompany.html', {'form': form, 'company': company})
-
-
-@login_required(login_url='/')
-def add_images_company(request):
-    company = get_company(request.user)
-    if request.method == 'POST':
-        form = CompanyPortadaLogoForm(request.POST, request.FILES, instance=company)
-        if form.is_valid():
-            form.save()
-            return JsonResponse({'success': True, 'redirect_url': '/configuraciones/'})
-    form = CompanyPortadaLogoForm(instance=company)
-    return render(request, 'add_images_company.html', {'form': form, 'company': company})
 
 
 def redirigir_a_catalogo(request, slug):
@@ -221,23 +195,24 @@ def configuraciones_company(request):
     pedidos = Orden.objects.values('client_id').order_by('-id').distinct()
     productos = Product.objects.filter(stock__gt=0).order_by('-id')
     dic = {
-        'form_huvicacion': FormHuvicacion(),
-        'form_ban': FormBanco(),
-        'form_precio': PrecioForm(),
-        'form_avisos': Form_avisos(),
-        'form_regla': Form_condiciones(),
-        'categorias': categorys_from_productos(productos),
-        'company': company,
-        'total_compra': sum(item['cantidad'] for item in request.session.get('compra', [])),
+        'reglas': Condicion.objects.all()[:1],
         'precio': get_precio_envios(),
         'avisos': Aviso.objects.all()[:1],
         'banco': Banco.objects.all()[:1],
-        'reglas': Condicion.objects.all()[:1],
+        'cupom': Cupon.objects.all()[:1],
         'ordens': list(pedidos),
         'clientes': Client.objects.all().order_by('-id'),
+        'categorias': categorys_from_productos(productos),
+        'company': company,
+        'total_compra': sum(item['cantidad'] for item in request.session.get('compra', [])),
         'address': get_address(),
-        'form_cupom': FormCupon(),
-        'cupom': Cupon.objects.all()[:1],
+
+        'form_huvicacion': FormHuvicacion(instance=Sucursal.objects.first()),
+        'form_ban': FormBanco(instance=Banco.objects.first()),
+        'form_precio': PrecioForm(instance=Precio_envio.objects.first()),
+        'form_avisos': Form_avisos(instance=Aviso.objects.first()),
+        'form_regla': Form_condiciones(instance=Condicion.objects.first()),
+        'form_cupom': FormCupon(instance=Cupon.objects.first()),
     }
     return render(request, 'company/configuraciones_company.html', dic)
 
@@ -353,7 +328,7 @@ def reporte_inventario(request, criterio):
             productos = productos.filter(stock_actual__lte=0)
 
         html = render_to_string(
-            'reportes/reporte_inventario_pdf.html',
+            'company/reportes/reporte_inventario_pdf.html',
             {
                 'productos': productos.order_by('category__name', '-id'),
                 'seleccionados': seleccionados,
@@ -368,9 +343,8 @@ def reporte_inventario(request, criterio):
 
 @login_required(login_url='/')
 def add_avisos(request):
-    company = get_company(request.user)
     if request.method == 'POST':
-        aviso, _ = Aviso.objects.get_or_create(company=company)
+        aviso = Aviso()
         aviso.Tiempo_entrega = request.POST['Tiempo_entrega']
         aviso.envios = request.POST['envios']
         aviso.pedidos = request.POST['pedidos']
@@ -389,26 +363,31 @@ def del_precio(request, id_precio):
     precio = get_object_or_404(Precio_envio, id=int(id_precio))
     if request.method == 'POST':
         precio.delete()
-        return JsonResponse({'success': 'Se Borro el registro. '})
+        return JsonResponse({'success': 'Se Borro el registro correctamente. '})
     return render(request, 'company/notificaciones/del_precio.html', {'precio': precio})
 
 
 @login_required(login_url='/')
 def banco_envio(request):
-    company = get_company(request.user)
     if request.method == 'POST':
-        form_ban = FormBanco(request.POST, request.FILES)
-        if form_ban.is_valid():
-            formulario = form_ban.save(commit=False)
-            formulario.company = company
-            formulario.save()
-            return JsonResponse({'success': 'Registro Exitoso.'})
-        return JsonResponse({'error': 'Error intente nuevamente.'})
+        try:
+            banco = Banco.objects.first()
+            form_ban = FormBanco(request.POST,request.FILES,instance=banco)
+            if form_ban.is_valid():
+
+                formulario = form_ban.save(
+                    commit=False
+                )
+                formulario.save()
+                return JsonResponse({'success': 'Registro Exitoso.'})
+            return JsonResponse({'error': form_ban.errors})
+        except Exception as e:
+            return JsonResponse({'error': str(e)})
     return JsonResponse({'error': 'Método no permitido'})
 
 
 def infor_banco(request):
-    banco = Banco.objects.all()
+    banco = Banco.objects.all()[:1]
     return render(request, 'company/notificaciones/infor_banco.html', {'banco': banco})
 
 
@@ -424,7 +403,7 @@ def eliminar_opciones(request, id_aviso):
     aviso = get_object_or_404(Aviso, id=int(id_aviso))
     if request.method == 'POST':
         aviso.delete()
-        return JsonResponse({'success': 'Se Borro el registro. '})
+        return JsonResponse({'success': 'Se Borro el registro correctamente. '})
     return render(request, 'company/notificaciones/eliminar_opciones.html', {'aviso': aviso})
 
 
@@ -494,11 +473,21 @@ def like_company(request, id_orden, id_cliente):
 @login_required(login_url='/')
 def add_condiciones(request):
     if request.method == 'POST':
-        cond, _ = Condicion.objects.get_or_create()
-        cond.regla = request.POST['regla']
-        cond.save()
-        return JsonResponse({'success': 'Registro exitoso.'})
-    return JsonResponse({'error': 'Ya existe el registro.'})
+        try:
+            cond = Condicion.objects.first()
+            if not cond:
+                cond = Condicion.objects.create(
+                    regla=request.POST['regla']
+                )
+            else:
+                cond.regla = request.POST['regla']
+                cond.save()
+            return JsonResponse({'success': 'Registro exitoso.'})
+        except Exception as e:
+            return JsonResponse({
+                'error': str(e)
+            })
+    return JsonResponse({'error': 'Método no permitido'})
 
 
 def get_condiciones(request):
@@ -537,7 +526,7 @@ def send_suscripcion_mail(email_user, url_tienda, company):
     mail.send(fail_silently=False)
 
 
-def suscribirse(request):
+""" def suscribirse(request):
     company = get_company()
     url_tienda = f'https://{request.get_host()}/'
     if request.method == 'POST':
@@ -553,7 +542,36 @@ def suscribirse(request):
             })
         except Exception:
             return JsonResponse({'error': 'El email ya está suscrito.'})
-    return JsonResponse({'error': 'Método no permitido'})
+    return JsonResponse({'error': 'Método no permitido'}) """
+
+
+def suscribirse(request):
+    print("suscribirse")
+    if request.method == 'POST':
+        celular = request.POST.get('celular')
+        if not celular:
+            return JsonResponse({'error': 'Ingrese un número.'})
+
+        existe = Suscripcion.objects.filter(
+            celular=celular
+        ).exists()
+
+        if existe:
+            return JsonResponse({
+                'error': 'El número ya existe.'
+            })
+
+        Suscripcion.objects.create(
+            celular=celular
+        )
+
+        return JsonResponse({
+            'success': 'Muchas gracias por suscribirte! Pronto te enviaremos un mensaje con todas las ofertas y novedades.'
+        })
+
+    return JsonResponse({
+        'error': 'Método no permitido.'
+    })
 
 
 @login_required(login_url='/')

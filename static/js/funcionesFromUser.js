@@ -66,7 +66,6 @@ function mostrar_buscador(id_company) {
 }
 
 function newProducto(urls){
-    
   $.ajax({
         type:'GET',
         url:urls,

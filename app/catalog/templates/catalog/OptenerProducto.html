@@ -126,9 +126,7 @@
 
             {% endif %}
           </div>
-          {% if p.is_new %}
-          <span class="badge rounded-pill bg-primary sale-tag d-flex">Nuevo</span>
-          {% endif %}
+          <span class="badge rounded-pill bg-primary sale-tag d-flex">{{p.is_promotion|capfirst|default:""}}</span>
           <div class="swiper-pagination"></div>
         </div>
       </div>
@@ -197,10 +195,28 @@
                     placeholder="Ejem: Color Negro Talla 36 etc."></textarea>
                 </div>
                 <div class="row btn_add align-items-center" style="height: 30px;">
-                  <button type="col submit" class="btn btn-success btn-sm tb_text efecto_button">
+                  <!-- <button type="col submit" class="btn btn-success btn-sm tb_text efecto_button">
                     <i class="bi bi-cart-fill"></i>
                     Agregar al Carrito
-                  </button><br><br>
+                  </button>
+                  <button type="col submit" class="btn btn-warning btn-sm tb_text" style="width: 95%; margin: auto;">
+                    <i class="bi bi-box-arrow-right"></i>
+                    Compra a credito
+                  </button><br><br> -->
+
+                  <div class="btn-group" role="group" aria-label="Basic example">
+                    <button type="col submit" class="btn btn-success btn-sm tb_text">
+                      <i class="bi bi-cart-fill"></i>
+                      Agregar al Carrito
+                    </button>
+                      <a href="https://api.whatsapp.com/send?phone={{ company.mobile }}&text=¿Me%20interesa%20la%20compra a credito del %20producto:%20*{{ p.name|title|default:' ' }}*%20(cod:%20{{ p.codigo }})%3F%0A🔗%20{{ request.build_absolute_uri }}%0A"
+                        target="_blank"
+                        class="btn btn-warning btn-sm tb_text">
+                        <i class="bi bi-box-arrow-right"></i>
+                        Compra a credito
+                      </a>
+                  </div>
+                  <br><br>
 
                   <div class="btn-group" role="group" aria-label="Basic example">
                     <a href="/" class="col btn btn-secondary btn-sm tb_text"
@@ -231,34 +247,6 @@
   </div>
 </section><!-- End Portfolio Details Section -->
 <script>
-
-  if (navigator.share) {
-
-    // Código si la Web Share API es soportada
-    document.getElementById("compartir").value = "En más lugares"
-    const shareData = {
-      title: "Catalogo",
-      text: "Visita mi Catálogo!",
-      url: window.location.href,
-    };
-    let btn = document.getElementById("compartir");
-    const resultPara = document.getElementsByClassName("alert-success");
-
-    btn.addEventListener("click", async () => {
-      try {
-        await navigator.share(shareData);
-        resultPara.textContent = "Recurso compartido";
-
-      } catch (err) {
-        $("#status").hide()
-        document.getElementById("status").hidden();
-        alert("Up! parase que tu navegador no esta lista para compartir este recurso.");
-      }
-    });
-  } else {
-    // Fallback
-    $("#status").hide();
-  }
 
   $('#form_pedido').submit(function (e) {
     e.preventDefault();

@@ -1,0 +1,80 @@
+{% load crispy_forms_tags %}
+<div class="container">
+  <div class="section-title" data-aos="fade-up">
+    <h2>información del sitio web</h2>
+  </div>
+  <div class="row mt-5 justify-content-center" data-aos="fade-up">
+    <div class="col-lg-10">
+      <form action="/informacion_web/" method="post" role="form" enctype="multipart/form-data"
+        id="form_web" class="php-email-form">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <label for="{{ form.name.id_for_label }}">Nombre del sitio web:*</label>
+            
+            {{form.name}}
+          </div>
+          <div class="col-md-6 form-group">
+            <label for="{{ form.author.id_for_label }}">Propietario:*</label>
+            {{form.author}}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 form-group"><br>
+            <label for="{{ form.navbar.id_for_label }}">Color navbar:*</label>
+            {{form.navbar}}
+          </div>
+          <div class="col-md-6 form-group mt-4">
+            <label for="{{ form.color_texto.id_for_label }}">Color del texto:*</label>
+            {{form.color_texto}}
+          </div>
+        </div>
+        
+        <hr>
+        <div class="modal-footer">
+          <a class="btn btn-secondary btn-sm" type="button" href="/"
+            style="margin-right: 5px;"><i class="bi bi-arrow-left-circle"></i> Ir Atras</a>
+          <button type="submit" class="btn btn-success btn-sm btn_product"><i class="bi bi-save"></i> Registrar
+            Producto</button>
+        </div>
+      </form>
+
+
+    </div>
+  </div>
+</div>
+<br>
+<script>
+
+  $('#form_web').on('submit', async function (e) {
+    e.preventDefault();
+    const form = this;
+    const botonSubmit = $(form).find('button[type="submit"]');
+    botonSubmit.prop('disabled', true).text('Enviando...');
+    const datos = new FormData(form);
+    $.ajax({
+      type: 'POST',
+      url: $(form).attr('action'),
+      data: datos,
+      contentType: false,
+      processData: false,
+      success: function (resp) {
+        if (resp.success) {
+          $('.toast-body').removeClass('alert-danger').addClass('alert-success').fadeIn(1000).html(resp.success);
+          mostrar_notificacion();
+          setTimeout(function () {
+            window.location.href = '/';
+          }, 1500);
+        } else {
+          $('.toast-body').removeClass('alert-success').addClass('alert-danger').fadeIn(1000).html(resp.error);
+        }
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        alert("Error al enviar el formulario. Por favor, intente de nuevo.\nDetalles: " + thrownError);
+      },
+      complete: function () {
+        botonSubmit.prop('disabled', false).html('<i class="bi bi-save"></i> Registrar Producto');
+      }
+    });
+  });
+</script>

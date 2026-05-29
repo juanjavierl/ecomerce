@@ -4,7 +4,7 @@
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
   <div class="modal-body table-responsive">
-    <form action="/{{product.id}}/updateProduct/" method="post" id="product_forms_update" enctype="multipart/form-data">
+    <form action="/updateProduct/{{product.id}}/" method="post" id="product_forms_update" enctype="multipart/form-data">
      {% csrf_token %}
        {{form|crispy}}
        <div class="modal-footer">
@@ -29,7 +29,7 @@
                 $(".invalid").text(resp.error);
               }
               else{
-                window.location.href='/'+resp.id_company+'/catalogo';
+                window.location.href='/';
               }
             },
             error: function (xhr, ajaxOptions, thrownError) {

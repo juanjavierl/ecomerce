@@ -7,21 +7,17 @@
 </style>
 <div class="container">
   <div class="section-title" data-aos="fade-up">
-    <h2>Registrar nuevo items</h2>
+    <h2>Registrar nuevo producto</h2>
   </div>
   <div class="row mt-5 justify-content-center" data-aos="fade-up">
     <div class="col-lg-10">
-      <form action="/{{company.id}}/new_producto/" method="post" role="form" enctype="multipart/form-data"
+      <form action="/new_producto/" method="post" role="form" enctype="multipart/form-data"
         id="form_producto" class="php-email-form">
         {% csrf_token %}
         <div class="row">
           <div class="col-md-6 form-group">
-
-            {% if company.is_service %}
-            <label for="{{ form.name.id_for_label }}">Nombre del servicio:*</label>
-            {% else %}
             <label for="{{ form.name.id_for_label }}">Nombre del producto:*</label>
-            {% endif %}
+            
             {{form.name}}
           </div>
           <div class="col-md-6 form-group mt-3 mt-md-0">
@@ -58,11 +54,8 @@
         </div>
         <div class="row">
           <div class="col-md-6 form-group"><br>
-            {% if company.is_service %}
-            <label for="{{ form.price.id_for_label }}">Precio del servicio:*</label>
-            {% else %}
             <label for="{{ form.price.id_for_label }}">Precio de Venta:*</label>
-            {% endif %}
+          
 
             {{form.price}}
           </div>
@@ -73,34 +66,29 @@
         </div>
         <div class="row">
           <div class="col-md-6 form-group">
-            <label for="{{ form.stock.id_for_label }}">Stock:
-              <span id="passwordHelpBlock" class="form-text">
-                Si es de tipo servicio dejar por defecto en 1
-              </span>
-            </label>
+            <label for="{{ form.stock.id_for_label }}">Stock:</label>
             {{form.stock}}
+          </div>
 
-          </div>
-          <div class="col-md-6 form-group mt-3 mt-md-0"><br>
-            <input type="checkbox" name="is_new" class="checkboxinput form-check-input" id="id_is_new">
-
-            <label for="{{ form.is_new.id_for_label }}">¿Es Nuevo producto?:</label>
-          </div>
-          <div class="col-md-6 form-group mt-md-0">
-            <input type="checkbox" name="is_service" class="checkboxinput form-check-input" id="id_is_service">
-            <label for="{{ form.is_service.id_for_label }}">¿Es Servicio?:</label>
-            <span id="passwordHelpBlock" class="form-text">
-              Solo aplica a los items que se comercializa en aqui y no en otras ciudades
-            </span>
-          </div>
           <div class="col-md-6 form-group mt-3 mt-md-0">
-            <input type="checkbox" name="is_promotion" class="checkboxinput form-check-input" id="id_is_promotion">
-            <label for="{{ form.is_promotion.id_for_label }}">¿Esta en Promoción?:</label>
+            <label for="{{ form.is_promotion.id_for_label }}">
+                  Accion del producto
+              </label>
+          
+              <select name="is_promotion"id="id_is_promotion"class="form-select">
+                  {% for value, text in form.is_promotion.field.choices %}
+                      <option value="{{ value }}">
+                          {{ text }}
+                      </option>
+                  {% endfor %}
+              </select>
           </div>
+
+
         </div>
         <hr>
         <div class="modal-footer">
-          <a class="btn btn-secondary btn-sm" type="button" href="/{{company.id}}/catalogo"
+          <a class="btn btn-secondary btn-sm" type="button" href="/"
             style="margin-right: 5px;"><i class="bi bi-arrow-left-circle"></i> Ir Catálogo</a>
 
 
@@ -113,25 +101,6 @@
           {% endif %}
         </div>
       </form>
-
-      {% if aviso %}
-      <div class="alert alert-warning aviso_plan text-center" style="margin-top: 5px;" role="alert">
-        Alcansaste el limite de registros para este plan {{company.plan|title}}
-        <a href="#" onclick="verPlanes('/ver_planes', '{{company.id}}')" data-bs-toggle="modal"
-          data-bs-target="#exampleModal"><strong>Solicitar Nuevo Plan</strong></a>
-      </div>
-      {% endif %}
-
-
-      {% if date_expiration %}
-      <div class="alert alert-warning aviso_plan text-center" style="margin-top: 5px;" role="alert">
-        Up.! su contrato expiro hace: {{company.expiration_date|timesince}}<strong>
-          <a href="https://api.whatsapp.com/send?text=Id página: {{company.id}}:%0A Hola, solicito renovar mi contrato muchas gracias. &phone={{dashboard.mobile}}"
-            target="_blank">Contactese con el administrador aqui</a></strong><br>
-        <small class="text-muted ">Aviso: Debe renovar su contrato en los siguientes 15 dias, caso contrario su página
-          estara inactivo, muchas gracias por su comprención.</small>
-      </div>
-      {% endif %}
 
 
     </div>

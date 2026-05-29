@@ -6,9 +6,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <title>
-    {% block titulo %}
-    {{dashboard.name|upper|truncatechars:17|cut:" "}}
-    {% endblock titulo %}
+    {% block titulo %}  {% endblock titulo %}
   </title>
 
   {% block tecnica_seo %}
@@ -414,6 +412,33 @@
   });
   function detailView(urls) {
     window.location.href = urls;
+  }
+  if (navigator.share) {
+
+    // Código si la Web Share API es soportada
+    document.getElementById("compartir").value = "En más lugares"
+    const shareData = {
+      title: "Catalogo",
+      text: "Visita mi Catálogo {% now 'M-Y' %} | {{company.name|upper|default:' '}} Una tienda online diseñada especialmente para nuestros clientes, donde pueden descubrir productos exclusivos y realizar sus pedidos de forma fácil, rápida y segura.",
+      url: window.location.href,
+    };
+    let btn = document.getElementById("compartir");
+    const resultPara = document.getElementsByClassName("alert-success");
+
+    btn.addEventListener("click", async () => {
+      try {
+        await navigator.share(shareData);
+        resultPara.textContent = "Recurso compartido";
+
+      } catch (err) {
+        $("#status").hide()
+        document.getElementById("status").hidden();
+        alert("Up! parase que tu navegador no esta lista para compartir este recurso.");
+      }
+    });
+  } else {
+    // Fallback
+    $("#status").hide();
   }
 </script>
 

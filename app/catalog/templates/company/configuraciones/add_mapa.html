@@ -92,7 +92,6 @@
                     $('.toast-body').addClass('alert alert-success');
                     $('.toast-body').fadeIn(1000).html(resp.success);
                     mostrar_notificacion();
-                    $('#form_add_mapa')[0].reset();
                     $.ajax({
                         type: 'get',
                         url: '/info_address_company/',

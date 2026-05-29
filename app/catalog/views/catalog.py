@@ -13,6 +13,7 @@ from django.db.models import Q
 from app.catalog.models import *
 from app.catalog.forms import *
 from app.catalog.company_helpers import get_company, get_company_id, assign_company
+from app.inicio.forms import formConfiguraciones, formWeb
 from app.inicio.views import get_Dashboard
 from django.db.models import F, ExpressionWrapper, IntegerField
 from django.db.models.functions import Coalesce
@@ -525,19 +526,7 @@ def crear_orden(request, id_cliente, ref='tienda'):
     return orden
 
 def newProducto(request):
-    aviso = False
-    date_expiration = False
     if request.method == 'POST':
-        new = request.POST.get('is_new', False) == 'on'
-        if new == 'on':
-            new = True
-        service = request.POST.get('is_service',False) == 'on'
-        if service == 'on':
-            service = True
-        promotion = request.POST.get('is_promotion',False) == 'on'
-        if promotion == 'on':
-            promotion = True
-
         producto = Product()
         producto.name = request.POST['name']
         producto.code = request.POST['code']
@@ -547,12 +536,38 @@ def newProducto(request):
         producto.price_before = float(request.POST['price_before'])
         producto.stock = request.POST['stock']
         producto.image = request.FILES.get('image','')
-        producto.is_service = service
-        producto.is_new = new
-        producto.is_promotion = promotion
+        producto.is_promotion = request.POST['is_promotion']
         producto.save()
-        return JsonResponse({'success': 'Producto registrado exitosamente.', 'aviso': aviso, 'date_expiration': date_expiration})
+        return JsonResponse({'success': 'Producto registrado exitosamente.'})
     form = formProducto()
-
     categorys = Category.objects.all().order_by('-id')
-    return render(request, 'catalog/newProducto.html',{'form':form,'categorys':categorys, 'aviso':aviso})
+    return render(request, 'catalog/newProducto.html',{'form':form,'categorys':categorys})
+
+
+def informacion_web(request):
+    dashboard = Dashboard.objects.first()
+    if request.method == 'POST':
+        form = formWeb(request.POST, instance=dashboard)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': 'Información web registrada exitosamente.'})
+        else:
+            return JsonResponse({'error': form.errors})
+    else:
+        form = formWeb(instance=dashboard)
+    return render(request, 'catalog/informacion_web.html', {'form': form})
+
+def informacion_empresa(request):
+    company = get_company()
+    if request.method == 'POST':
+        form = formConfiguraciones(request.POST, request.FILES, instance=company)
+        print(form.is_valid())
+        print(form.errors)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': 'Información de la empresa registrada exitosamente.'})
+        else:
+            return JsonResponse({'error': form.errors})
+    else:
+        form = formConfiguraciones(instance=company)
+    return render(request, 'catalog/informacion_empresa.html', {'form': form})

@@ -1,0 +1,117 @@
+{% load crispy_forms_tags %}
+<div class="container">
+  <div class="section-title" data-aos="fade-up">
+    <h2>información de la empresa</h2>
+  </div>
+  <div class="row mt-5 justify-content-center" data-aos="fade-up">
+    <div class="col-lg-10">
+      <form action="/informacion_empresa/" method="post" role="form" enctype="multipart/form-data"
+        id="form_empresa" class="php-email-form">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <label for="{{ form.name.id_for_label }}">Nombre de la Empresa:*</label>
+            
+            {{form.name}}
+          </div>
+
+          <div class="col-md-6 form-group">
+            <label for="{{ form.nit.id_for_label }}">NIT:*</label>
+            {{form.nit}}
+          </div>
+        </div>
+
+        <div class="form-group mt-3">
+            <label for="{{ form.description.id_for_label }}">Descripción: (Opcional)</label>
+            {{form.description}}
+        </div>
+
+        <div class="row">
+          <div class="col-md-4 form-group mt-3">
+            <label for="{{ form.mobile.id_for_label }}">Celular (WhatsApp):*</label>
+            
+            {{form.mobile}}
+          </div>
+          <div class="col-md-4 form-group mt-3">
+            <label for="{{ form.email.id_for_label }}">Correo:*</label>
+            {{form.email}}
+          </div>
+          <div class="col-md-4 form-group mt-3">
+            <label for="{{ form.address.id_for_label }}">Dirección:*</label>
+            {{form.address}}
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 form-group mt-3">
+            <label for="{{ form.ciudad.id_for_label }}">Ciudad:*</label>
+            
+            {{form.ciudad}}
+          </div>
+          <div class="col-md-6 form-group mt-3">
+            <label for="{{ form.moneda.id_for_label }}">Moneda:*</label>
+            {{form.moneda}}
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 form-group mt-3">
+            <label for="{{ form.image.id_for_label }}">Imagen:*</label>
+            
+            {{form.image}}
+          </div>
+          <div class="col-md-6 form-group mt-3">
+            <label for="{{ form.button.id_for_label }}">Botton Accion:*</label>
+            {{form.button}}
+          </div>
+        </div>
+        
+        <hr>
+        <div class="modal-footer">
+          <a class="btn btn-secondary btn-sm" type="button" href="/"
+            style="margin-right: 5px;"><i class="bi bi-arrow-left-circle"></i> Ir Atras</a>
+          <button type="submit" class="btn btn-success btn-sm btn_product"><i class="bi bi-save"></i> Registrar
+            Producto</button>
+        </div>
+      </form>
+
+
+    </div>
+  </div>
+</div>
+<br>
+<script>
+
+  $('#form_empresa').on('submit', async function (e) {
+    e.preventDefault();
+    const form = this;
+    const botonSubmit = $(form).find('button[type="submit"]');
+    botonSubmit.prop('disabled', true).text('Enviando...');
+    const datos = new FormData(form);
+    console.log(datos);
+    $.ajax({
+      type: 'POST',
+      url: $(form).attr('action'),
+      data: datos,
+      contentType: false,
+      processData: false,
+      success: function (resp) {
+        if (resp.success) {
+          $('.toast-body').removeClass('alert-danger').addClass('alert-success').fadeIn(1000).html(resp.success);
+          mostrar_notificacion();
+          setTimeout(function () {
+            window.location.href = '/';
+          }, 1500);
+        } else {
+          $('.toast-body').removeClass('alert-success').addClass('alert-danger').fadeIn(1000).html(resp.error);
+        }
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        alert("Error al enviar el formulario. Por favor, intente de nuevo.\nDetalles: " + thrownError);
+      },
+      complete: function () {
+        botonSubmit.prop('disabled', false).html('<i class="bi bi-save"></i> Registrar Producto');
+      }
+    });
+  });
+</script>

@@ -2,7 +2,7 @@
 <h2 class="accordion-header">
     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
         data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-        <strong>Avisos de Catalogo (Opcional)</strong>
+        <strong>Registro de avisos (Opcional)</strong>
     </button>
 </h2>
 <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
@@ -62,7 +62,6 @@
                     $('.toast-body').addClass('alert alert-success');
                     $('.toast-body').fadeIn(1000).html(resp.success);
                     mostrar_notificacion();
-                    $('#add_avisos_forms')[0].reset();
                     $.ajax({
                         type: 'get',
                         url: '/get_opciones/',

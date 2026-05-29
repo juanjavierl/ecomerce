@@ -1,13 +1,15 @@
 <section class="container col-11" id="bot_amceb" data-aos="fade-up">
     <div class="alert alert-primary container row" role="alert">
         <div class="container col-12 col-md-6 text-center">
-            <strong><i class="bi bi-award-fill" style="color: gold;"></i> ¡Suscríbete a nuestra tienda y gana un cupón de descuento!</strong>
+            <strong><i class="bi bi-award-fill" style="color: gold;"></i> 
+              ¡Suscríbete a nuestra tienda, para recibir ofertas y novedades de nuestros productos!
+            </strong>
         </div>
         <div class="container col-12 col-md-6" id="form_more_aviso">
             <form action="/suscribirse/" method="post" id="id_suscripcion">
                 {% csrf_token %}
                 <div class="input-group mb-3">
-                    <input type="email" name="email" class="form-control" placeholder="Ingresa tu email"  required>
+                    <input type="text" name="celular" class="form-control" placeholder="Ingrese su WhatsApp"  required>
                     <button class="btn btn-primary" type="submit" id="button-addon2">Suscribirme</button>
                 </div>
             </form>

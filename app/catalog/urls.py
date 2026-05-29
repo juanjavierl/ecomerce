@@ -29,8 +29,6 @@ urlpatterns = [
     path('login_user/', inicio.login_user, name='login_user'),
     path('salir/', inicio.salir, name='salir'),
     path('validar_form/', inicio.validar_form, name='validar_form'),
-    path('updateCompany/', inicio.updateCompany, name='updateCompany'),
-    path('add_images_company/', inicio.add_images_company, name='add_images'),
     path('add_huvicacion/', inicio.add_huvicacion, name='add_huvicacion'),
     path('configuraciones/', inicio.configuraciones_company, name='configuraciones'),
     path('precio_envio/', inicio.precio_envio, name='precio_envio'),
@@ -60,4 +58,7 @@ urlpatterns = [
     path('estado_company/', inicio.estadoCompany, name='estado_company'),
     path('autorizar/<int:id_orden>/', inicio.autorizar_orden, name='autorizar_orden'),
     path('catalogo/<slug:slug>/', inicio.redirigir_a_catalogo, name='redirigir_a_catalogo'),
+
+    path('informacion_web/', inicio.informacion_web, name='informacion_web'),
+    path('informacion_empresa/', inicio.informacion_empresa, name='informacion_empresa'),
 ]

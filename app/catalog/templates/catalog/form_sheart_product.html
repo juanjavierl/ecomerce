@@ -1,5 +1,5 @@
 <nav class="navbar navbar-light bg-light" data-mdb-input-init>
-    <form action="/{{company.id}}/shear_product/" class="form-outline" id="shear_pro" method="POST">
+    <form action="/shear_product/" class="form-outline" id="shear_pro" method="POST">
       {% csrf_token %}
       <div class="input-group">
         <input type="search" name="search" id="shear_text" autocomplete="off" class="form-control" placeholder="Buscar producto" aria-label="buscar" aria-describedby="basic-addon1" required>
