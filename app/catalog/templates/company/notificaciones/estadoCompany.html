@@ -9,10 +9,9 @@
         <div class="card-body">
         <ul class="list-group list-group-flush" id="company-info">
             <li class="list-group-item"><strong>Nombre:</strong> {{ company.name }}</li>
-            <li class="list-group-item"><strong>Propietario:</strong> {{ company.user.username }}</li>
-            <li class="list-group-item"><strong>Fecha de registro:</strong> {{ company.date_joined }}</li>
-            <li class="list-group-item"><strong>Fecha expiración:</strong> {{ company.expiration_date }}</li>
-            <li class="list-group-item"><strong>Plan:</strong> {{ company.plan.name }}</li>
+            <li class="list-group-item"><strong>Email:</strong> {{ company.email|default:"- - -" }}</li>
+            <li class="list-group-item"><strong>WhatsApp:</strong> {{ company.mobile|default:"- - -" }}</li>
+            <li class="list-group-item"><strong>Ciudad:</strong> {{ company.ciudad|default:"- - -" }}</li>
             <li class="list-group-item"><strong>Dominio:</strong>
             <input type="text" class="form-control" id="registered-url" value="{{ initial_url }}" readonly>
             </li>

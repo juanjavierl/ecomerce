@@ -9,7 +9,7 @@
       style="width: 400px; height: 300px; text-align: center; border: 0;">
 
   </div>
-  <form action="/{{product.id}}/imgs_products/" method="post" enctype="multipart/form-data" id="FormImgProduct">
+  <form action="/imgs_products/{{product.id}}/" method="post" enctype="multipart/form-data" id="FormImgProduct">
     {% csrf_token %}
 
     <div id="div_id_img" class="mb-3">

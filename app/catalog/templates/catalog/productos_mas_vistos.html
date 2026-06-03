@@ -44,9 +44,9 @@
 
                             </p>
                             <button type="submit" id="id_{{p.id}}"
-                                onclick="add_item('/{{p.id}}/{{p.company.id}}/detail_product','{{p.id}}')"
+                                onclick="add_item('/detail_product/{{p.id}}/','{{p.id}}')"
                                 class="btn btn-primary btn-sm">Agregar</button>
-                            <button type="submit" onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')"
+                            <button type="submit" onclick="detailView('/detail_product/{{p.id}}/')"
                                 class="btn btn-warning btn-sm text-white">Ver datalles</button>
 
                         </div>
@@ -84,8 +84,8 @@
                     const path = window.location.pathname;
                     const esConfirmarCompra = /^\/\d+\/confirmar_compra\/?$/.test(path);
                     if(esConfirmarCompra){
-                        updateProductosEnConfirmar("/{{company.id}}/show_productos_carrito/");
-                        updateTotalPago("/{{company.id}}/getPrecioEnvio/",$('#tipo_envio').val());
+                        updateProductosEnConfirmar("/show_productos_carrito/");
+                        updateTotalPago("/getPrecioEnvio/",$('#tipo_envio').val());
                     }
                 }
             }

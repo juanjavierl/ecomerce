@@ -70,12 +70,12 @@
 
         {% for item in companies_data %}
             <div class="company-block">
-                <h2>{{ item.company.name }}</h2>
+                <h2>{{ item.name }}</h2>
                 <p>
                     Visita su catálogo aquí 👉 
 
                     <a href="{{item.url}}" target="_blank">
-                        {{ item.company.name }}
+                        {{ item.name }}
                     </a>
                 </p>
                 <div class="products">

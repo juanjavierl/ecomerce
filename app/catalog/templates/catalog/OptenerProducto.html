@@ -64,9 +64,6 @@
 {% block contenido %}
 <!-- ======= Portfolio Details Section ======= -->
 <section id="portfolio-details" class="portfolio-details" data-aos="fade-up">
-  {% if aviso %}
-  {% include 'notificaciones/opciones_avisos.html' %}
-  {% endif %}
   <style>
     .cantidades {
       display: flex;
@@ -158,7 +155,7 @@
             <li><strong>Producto</strong>:
               {% if p.stock_actual > 0 %}
               <span id="passwordHelpBlock" class="form-text text-success fw-bold">
-                Disponible {{p.stock_actual}} uds. <i class="bi bi-check-lg"></i>
+                Disponible <i class="bi bi-check-lg"></i>
                 <i class="bi bi-star-fill" style="color: gold;"></i>
                 <i class="bi bi-star-fill" style="color: gold;"></i>
                 <i class="bi bi-star-fill" style="color: gold;"></i>
@@ -187,12 +184,12 @@
                 <div class="form-check" style="margin-bottom: 10px;">
                   <input class="form-check-input" type="checkbox" name="is_nota" id="defaultCheck1">
                   <label class="form-check-label" for="defaultCheck1">
-                    Ingrese una Nota (si corresponde)
+                    Ingrese una Nota (Opcional)
                   </label>
                 </div>
                 <div class="mb-3 caracteristica_producto">
                   <textarea name="nota" class="form-control" id="exampleFormControlTextarea1" rows="3"
-                    placeholder="Ejem: Color Negro Talla 36 etc."></textarea>
+                    placeholder="Ejem: Color Negro"></textarea>
                 </div>
                 <div class="row btn_add align-items-center" style="height: 30px;">
                   <!-- <button type="col submit" class="btn btn-success btn-sm tb_text efecto_button">

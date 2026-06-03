@@ -16,7 +16,7 @@ from django.template.loader import get_template, render_to_string
 from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 
-from app.catalog.company_helpers import get_company, get_company_id
+from app.catalog.company_helpers import get_company
 from app.catalog.forms import formProducto
 from app.catalog.models import *
 from app.catalog.views.catalog import *
@@ -75,6 +75,7 @@ def updateStock(request, id_product):
 def imgs_products(request, id_producto):
     product = Product.objects.get(id=id_producto)
     if request.method=='POST':
+        print(request.FILES)
         form=FormImgProducto(request.POST, request.FILES)
         if form.is_valid():
             imgsProducto = form.save(commit=False)
@@ -85,7 +86,7 @@ def imgs_products(request, id_producto):
                 imgsProducto.save()
                 return JsonResponse({'success':'Registro exitoso'})
         else:
-            return JsonResponse({'error':'Error intente nuevamente'})
+            return JsonResponse({'error': form.errors})
     else:
         form=FormImgProducto()
     return render(request, 'catalog/imgs_products.html',{'form':form,'product':product})
@@ -195,7 +196,7 @@ def configuraciones_company(request):
     pedidos = Orden.objects.values('client_id').order_by('-id').distinct()
     productos = Product.objects.filter(stock__gt=0).order_by('-id')
     dic = {
-        'reglas': Condicion.objects.all()[:1],
+        'reglas': Condicion.objects.all(),
         'precio': get_precio_envios(),
         'avisos': Aviso.objects.all()[:1],
         'banco': Banco.objects.all()[:1],
@@ -211,7 +212,7 @@ def configuraciones_company(request):
         'form_ban': FormBanco(instance=Banco.objects.first()),
         'form_precio': PrecioForm(instance=Precio_envio.objects.first()),
         'form_avisos': Form_avisos(instance=Aviso.objects.first()),
-        'form_regla': Form_condiciones(instance=Condicion.objects.first()),
+        'form_regla': Form_condiciones(),
         'form_cupom': FormCupon(instance=Cupon.objects.first()),
     }
     return render(request, 'company/configuraciones_company.html', dic)
@@ -344,14 +345,13 @@ def reporte_inventario(request, criterio):
 @login_required(login_url='/')
 def add_avisos(request):
     if request.method == 'POST':
-        aviso = Aviso()
-        aviso.Tiempo_entrega = request.POST['Tiempo_entrega']
-        aviso.envios = request.POST['envios']
-        aviso.pedidos = request.POST['pedidos']
-        aviso.pide_ahora = request.POST['pide_ahora']
-        aviso.save()
-        return JsonResponse({'success': 'Registro Exitoso.', 'avisos': aviso.toJSON()})
-    return JsonResponse({'error': 'Error intente nuevamente.'})
+        aviso = Aviso.objects.first()
+        form = Form_avisos(request.POST, instance=aviso)
+        if form.is_valid():
+            aviso = form.save()
+            return JsonResponse({'success': 'Registro Exitoso.', 'avisos': aviso.toJSON()})
+        return JsonResponse({'error': form.errors}, status=400)
+    return JsonResponse({'error': 'Metodo no permitido.'}, status=405)
 
 
 def get_opciones(request):
@@ -410,14 +410,14 @@ def eliminar_opciones(request, id_aviso):
 def print_orden(request, id_orden):
     tipo = request.GET.get('tipo', 'ticket')
     orden = get_object_or_404(
-        Orden.objects.select_related('company', 'client'),
+        Orden.objects.select_related('client'),
         id=id_orden,
     )
     pedidos = Pedido.objects.filter(orden=orden)
     precio_envio_val = orden.total - orden.subtotal
     context = {
         'orden': orden,
-        'company': orden.company,
+        'company': get_company(),
         'pedidos': pedidos,
         'precio_envio': precio_envio_val,
         'sucursal': get_address(),
@@ -445,7 +445,6 @@ def like_company(request, id_orden, id_cliente):
     if request.method == 'POST':
         lik = Like()
         lik.like = int(request.POST['like'])
-        lik.company = company
         lik.client_id = int(id_cliente)
         lik.orden_id = int(id_orden)
         lik.save()
@@ -473,21 +472,11 @@ def like_company(request, id_orden, id_cliente):
 @login_required(login_url='/')
 def add_condiciones(request):
     if request.method == 'POST':
-        try:
-            cond = Condicion.objects.first()
-            if not cond:
-                cond = Condicion.objects.create(
-                    regla=request.POST['regla']
-                )
-            else:
-                cond.regla = request.POST['regla']
-                cond.save()
-            return JsonResponse({'success': 'Registro exitoso.'})
-        except Exception as e:
-            return JsonResponse({
-                'error': str(e)
-            })
-    return JsonResponse({'error': 'Método no permitido'})
+        form = Form_condiciones(request.POST)
+        if form.is_valid():
+            condicion = form.save()
+            return JsonResponse({'success': 'Registro Exitoso.'})
+        return JsonResponse({'error': form.errors}, status=400)
 
 
 def get_condiciones(request):
@@ -531,7 +520,7 @@ def send_suscripcion_mail(email_user, url_tienda, company):
     url_tienda = f'https://{request.get_host()}/'
     if request.method == 'POST':
         try:
-            Suscripcion.objects.create(company=company, email=request.POST['email'])
+            Suscripcion.objects.create(email=request.POST['email'])
             thread = threading.Thread(
                 target=send_suscripcion_mail,
                 args=(request.POST['email'].strip(), url_tienda, company),
@@ -576,9 +565,10 @@ def suscribirse(request):
 
 @login_required(login_url='/')
 def add_cupon(request):
-    company = get_company(request.user)
     if request.method == 'POST':
-        cupon, _ = Cupon.objects.get_or_create(company=company)
+        cupon = Cupon.objects.first()
+        if not cupon:
+            cupon = Cupon()
         cupon.codigo = request.POST['codigo'].strip()
         cupon.descuento = int(request.POST['descuento'])
         cupon.save()

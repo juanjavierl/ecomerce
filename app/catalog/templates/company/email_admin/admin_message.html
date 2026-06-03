@@ -85,7 +85,7 @@
 
         <!-- Body -->
         <div class="email-body">
-            <h2>Hola {{ company.user.get_full_name|default:company.user.username }}</h2>
+            <h2>Hola {{ company.name }}</h2>
 
             <p>Tu catálogo <strong>{{ company.name }}</strong> <br>
                 expiró el <strong>{{ company.expiration_date }}</strong>.</p>

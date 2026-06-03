@@ -12,7 +12,7 @@ from django.views.generic import DeleteView, CreateView, UpdateView, TemplateVie
 from django.db.models import Q
 from app.catalog.models import *
 from app.catalog.forms import *
-from app.catalog.company_helpers import get_company, get_company_id, assign_company
+from app.catalog.company_helpers import get_company
 from app.inicio.forms import formConfiguraciones, formWeb
 from app.inicio.views import get_Dashboard
 from django.db.models import F, ExpressionWrapper, IntegerField
@@ -46,7 +46,8 @@ def CatalogView(request, url_referido=None):
             'aviso':optener_avisos_by_company(),
             'dashboard':get_Dashboard(),
             'address':get_address(),
-            'code':get_code_meta()
+            'code':get_code_meta(),
+            'reglas':get_rule_condicion()
         }
         return render(request,template_name, dic)
  
@@ -66,7 +67,7 @@ def get_code_meta():
 
 def get_rule_condicion():
     try:
-        reglas = Condicion.objects.first()
+        reglas = Condicion.objects.all()
     except:
         reglas = False
     return reglas
@@ -157,7 +158,8 @@ def optenerProducto(request, id_producto, url_referido=None):
                     'aviso':optener_avisos_by_company(),
                     'productos':productosMasVistos(),
                     'address':get_address(),
-                    'code':get_code_meta()
+                    'code':get_code_meta(),
+                    'images_product':Imagen.objects.filter(items_id=id_producto),
                 }
     return render(request,'catalog/OptenerProducto.html',context)
 
@@ -366,7 +368,7 @@ def confirmar_compra(request, url_referido=None):
         request.session['compra'] = []
 
         # --- Enviar correo al propietario ---
-        email_propietario = company.user.email
+        email_propietario = company.email
         if email_propietario:
             threading.Thread(
                 target=send_confirmar_venta_mail,
@@ -480,7 +482,6 @@ def getProducto(id_producto):
     return producto
 
 def productosMasVistos():
-    #productos = Product.objects.filter(stock__gt=0, company_id=id_company, is_promotion=True)
     productos = Product.objects.annotate(
         stock_real=ExpressionWrapper(
             F('stock') - Coalesce(F('salida'), 0),
@@ -519,7 +520,6 @@ def crear_orden(request, id_cliente, ref='tienda'):
         pr_envio = 0
     orden = Orden()
     orden.client_id = int(id_cliente)
-    orden.company_id = get_company_id()
     orden.subtotal = float(calcular_pago(request))
     orden.total = float(calcular_pago(request)) + pr_envio
     orden.save()

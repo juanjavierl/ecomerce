@@ -72,9 +72,6 @@
 </style>
 {% load crispy_forms_tags %}
 <section class="container" id="team_productos" style="margin-top: 80px;">
-  {% if aviso %}
-  {% include 'notificaciones/opciones_avisos.html' %}
-  {% endif %}
   <div class="row d-flex no-gutters justify-content-center info productos_por_categorias" data-aos="fade-up"
     id="data_dable">
     <div class="section-title" data-aos="fade-up">
@@ -146,13 +143,7 @@
             <tr>
               <td colspan="5">
                 <div class="alert alert-success" role="alert" style="padding: 0px 10px; text-align: justify;">
-                   
-                  {% if regla %}
-                   <small><i class="bi bi-star-fill" style="color: gold;"></i>
-                     {{regla.regla|urlize_mode:"ver_mas,br"}}</small>
-                  {% else %}
-                  <small><i class="bi bi-star-fill" style="color: gold;"></i> En buena hora, ¡ya casi lo tienes! Resumen de su pedido</small>
-                   {% endif %}
+                  <small><i class="bi bi-star-fill" style="color: gold;"></i> En buena hora, ¡ya casi lo tienes! Resumen de su pedido</small> 
                 </div>
               </td>
             </tr>
@@ -216,14 +207,15 @@
         success: function (resp) {
           //$("#t_p").text(resp.datos.total);
           if(resp.datos.precio_envio != "0"){
-            $(".menj_valor_envio").text("Costo de envio: {{company.moneda}}. "+ resp.datos.precio_envio).show();
+            $(".menj_valor_envio").text("Costo de envio: Por pagar.").show();
             $('.img_pagoQr').fadeIn(500).show();
             
             if(resp.datos.qr == false){
               $('.img_pagoQr').hide();
             }else{
               $('.img_pagoQr img').attr('src',resp.datos.qr.qr_img);
-              $('#costos').text("Importe: "+ resp.datos.importe + " Precio de envio: "+ resp.datos.precio_envio + " Total a pagar : {{company.moneda}}." + resp.datos.total_pagar);
+              //$('#costos').text("Importe: "+ resp.datos.importe + " Precio de envio: "+ resp.datos.precio_envio + " Total a pagar : {{company.moneda}}." + resp.datos.total_pagar);
+              $('#costos').text("Total a pagar: "+ resp.datos.importe);
             }
           
           }else{
@@ -231,12 +223,12 @@
               $(".menj_valor_envio").text('Una vez confirmado puede pasar a recoger.').show();
 
             }else{
-              $(".menj_valor_envio").text('Envio Gratis').show();
+              $(".menj_valor_envio").text('Costo de envio: Por pagar.').show();
               if(resp.datos.qr == false){
                 $('.img_pagoQr').fadeIn(500).hide();
               }else{
                 $('.img_pagoQr img').attr('src',resp.datos.qr.qr_img);
-                $('#costos').text("Importe: "+ resp.datos.importe + " Precio de envio: "+ resp.datos.precio_envio + " Total a pagar : {{company.moneda}}." + resp.datos.total_pagar);
+                $('#costos').text("Total a pagar: "+ resp.datos.importe);
                 $('.img_pagoQr').fadeIn(500).show();
               }
             }

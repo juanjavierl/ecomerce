@@ -174,7 +174,10 @@ class Product(models.Model):
         return self.get_full_name()
 
     def get_meta_title(self):
-        return f'{self.name} - {self.company.name}'
+        company = Company.objects.first()
+        if company:
+            return f'{self.name} - {company.name}'
+        return self.name
 
     def get_meta_description(self):
         if self.description:

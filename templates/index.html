@@ -145,10 +145,6 @@
       </div>
     </section>
     {% endblock contenido %}
-    {% block suscipcion_for_email %}
-    {% include 'buscador_general.html' %}
-    {% endblock suscipcion_for_email %}
-
     <section id="product_mas_vistos" class="product_view">
       <div class="container">
         {% block productos_mas_vistos %}
@@ -161,6 +157,9 @@
     {% include 'preguntas_frecuentes.html' %}
     {% endblock preg_frecuentes %}
 
+      {% block suscipcion_for_email %}
+        {% include 'buscador_general.html' %}
+      {% endblock suscipcion_for_email %}
     <!-- ======= Services Section ======= -->
     <section id="services" class="services section-bg">
       <div class="container">

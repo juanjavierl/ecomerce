@@ -234,12 +234,11 @@
       data: { valores: JSON.stringify(datos_registro) },//JSON.stringify(objteto) {company_data: {…}, plan_data: {…}}
 
       success: function (resp) {
-        //console.log(resp.user_id);
         if(resp.error){
           $(".validate_img_qr").html(resp.error)
         }
         else{
-          window.location.href = "/companys/" + resp.user_id + "/";
+          window.location.href = "/";
         }
       },
       error: function (xhr, ajaxOptions, thrownError) {

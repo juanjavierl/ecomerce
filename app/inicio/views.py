@@ -130,16 +130,14 @@ def guardar_datos_extra(backend, user, response, *args, **kwargs):
 
 def redirigir_a_companys(backend, user, response, *args, **kwargs):
     if user and user.is_authenticated:
-        company = Company.objects.first()
-        if company and company.user_id == user.id:
-            return redirect('/configuraciones/')
-        return redirect('/')
+        return redirect('/configuraciones/')
 
 #client = OpenAI(api_key=settings.OPENAI_API_KEY)
 @method_decorator(csrf_exempt, name='dispatch')
 class ChatBotView(View):
     def post(self, request):
         user_message = request.POST.get("text_boot", "").strip()
+        company = Company.objects.first()
 
         # Buscar productos por nombre, descripción o categoría
         productos = Product.objects.filter(
@@ -152,11 +150,11 @@ class ChatBotView(View):
             {
                 "name": p.name.title(),
                 "price": str(p.price),
-                "moneda": p.company.moneda,
+                "moneda": company.moneda if company else "",
                 "image_url": p.image.url if p.image else "",
                 "url": f"/detail_product/{p.id}/",
                 "description": (p.description[:100] + "...") if p.description and len(p.description) > 80 else p.description or "",
-                "ciudad": getattr(p.company, 'cuidad', '') or "---",
+                "ciudad": company.ciudad if company else "---",
             }
             for p in productos
         ]

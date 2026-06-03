@@ -3,7 +3,7 @@
 <h2 class="accordion-header">
     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
         data-bs-target="#collapseEit" aria-expanded="false" aria-controls="collapseEit">
-        <strong>Requisitos para la compra a credito</strong>
+        <strong>Preguntas Frecuentes</strong>
     </button>
 </h2>
 <div id="collapseEit" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
@@ -18,12 +18,15 @@
                 </form>
             </div>
         </div>
-        <div class="info_rule col-lg-5 d-flex align-items-stretch" id="delete_regla">
+        <div class="info_rule col-lg-5 align-items-stretch" id="delete_regla">
             {% for regla in reglas %}
             <li>
-                Requisitos para la compra a credito : <br> <strong>{{regla.regla|urlize_mode:"ver_mas,br"}}</strong> <a href="#"
-                    type="button" data-bs-toggle="modal" data-bs-target="#exampleModal"
-                    onclick="del_regla('/delete_regla/{{regla.id}}/')">Eliminar</a>
+                <strong>{{regla.pregunta}}</strong><br>
+                <small>{{regla.regla|urlize_mode:"ver_mas,br"}}
+                    <a href="#"
+                                type="button" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                                onclick="del_regla('/delete_regla/{{regla.id}}/')">Eliminar</a>
+                </small>
             </li>
             {% endfor %}
         </div>
@@ -42,9 +45,9 @@
                     $('.toast-body').fadeIn(1000).html(resp.error);
                     mostrar_notificacion();
                 } else {
-                    $(".precios_env").html("");
                     $('.toast-body').addClass('alert alert-success');
                     $('.toast-body').fadeIn(1000).html(resp.success);
+                    $('#add_regla_forms')[0].reset();
                     mostrar_notificacion();
                     $.ajax({
                         type: 'get',

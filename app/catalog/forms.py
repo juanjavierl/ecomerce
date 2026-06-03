@@ -58,7 +58,7 @@ class formUpdateProducto(forms.ModelForm):
 
     class Meta:
         model = Product
-        exclude = ['company', 'salida', 'date_joined', 'stock']
+        exclude = ['salida', 'date_joined', 'stock']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'code': forms.TextInput(attrs={'class': 'form-control'}),
@@ -77,7 +77,7 @@ class formProducto(forms.ModelForm):
 
     class Meta:
         model = Product
-        exclude = ['company', 'salida', 'date_joined']
+        exclude = ['salida', 'date_joined']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'code': forms.TextInput(attrs={'class': 'form-control'}),
@@ -102,7 +102,7 @@ class formCategory(forms.ModelForm):
 class FormLike(forms.ModelForm):
     class Meta:
         model = Like
-        exclude = ('company','date_joined')
+        exclude = ('date_joined',)
 
 class FormImgProducto(forms.ModelForm):
     class Meta:
@@ -139,12 +139,12 @@ class formCompany(forms.ModelForm):
 class FormHuvicacion(forms.ModelForm):
     class Meta:
         model = Sucursal
-        exclude = ('date_joined','company')
+        exclude = ('date_joined',)
 
 class PrecioForm(forms.ModelForm):
     class Meta:
         model = Precio_envio
-        exclude = ('date_joined','company')
+        exclude = ('date_joined',)
 
 class FormCupon(forms.ModelForm):
     descuento = forms.IntegerField(
@@ -163,22 +163,22 @@ class FormCupon(forms.ModelForm):
     )
     class Meta:
         model = Cupon
-        exclude = ('company','estado',)
+        exclude = ('estado',)
 
 class FormBanco(forms.ModelForm):
     class Meta:
         model = Banco
-        exclude = ('company',)
+        fields = '__all__'
 
 class Form_avisos(forms.ModelForm):
     class Meta:
         model = Aviso
-        exclude = ('company',)
+        fields = '__all__'
 
 class Form_condiciones(forms.ModelForm):
     class Meta:
         model = Condicion
-        exclude = ('company',)
+        fields = '__all__'
 
 
 class AdminEmailForm(forms.Form):

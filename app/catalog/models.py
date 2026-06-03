@@ -129,7 +129,8 @@ class Like(models.Model):
         verbose_name_plural = 'Likes'
 
     def __str__(self):
-        return self.company.name
+        company = Company.objects.first()
+        return company.name if company else str(self.like)
 
 
 
@@ -168,7 +169,8 @@ class Cupon(models.Model):
 
     def toJSON(self):
         item = model_to_dict(self)
-        item['company'] = self.company.name
+        company = Company.objects.first()
+        item['company'] = company.name if company else ''
         item['codigo'] = self.codigo
         item['descuento'] = self.descuento
         item['estado'] = self.estado
@@ -219,11 +221,13 @@ class Sucursal(models.Model):
         db_table = 'tiendas_sucursal'
 
     def __str__(self):
-        return self.company.name
+        company = Company.objects.first()
+        return company.name if company else self.address
 
     def toJSON(self):
         item = model_to_dict(self)
-        item['company'] = self.company.name
+        company = Company.objects.first()
+        item['company'] = company.name if company else ''
         item['address'] = self.address
         item['latitud'] = self.latitud
         item['longitud'] = self.longitud
@@ -244,7 +248,8 @@ class Precio_envio(models.Model):
 
     def toJSON(self):
         item = model_to_dict(self)
-        item['company'] = self.company.name
+        company = Company.objects.first()
+        item['company'] = company.name if company else ''
         item['id'] = int(self.id)
         item['precio'] = self.precio
         item['precio_ciudad'] = self.precio_ciudad
@@ -283,10 +288,14 @@ class Aviso(models.Model):
 
 
 class Condicion(models.Model):
-    regla = models.TextField(
-        verbose_name='Requisitos para la compra a credito',
+    pregunta = models.CharField(
+        verbose_name='Pregunta frecuente',
         max_length=255,
-        help_text='Escriba los requisitos para la compra a credito, Ejemplo: Tener una antiguedad de 6 meses como cliente.',
+    )
+    regla = models.TextField(
+        verbose_name='Respuesta a la pregunta frecuente',
+        max_length=255,
+        help_text='Escriba la respuesta a la pregunta frecuente.',
     )
 
     class Meta:
@@ -294,6 +303,7 @@ class Condicion(models.Model):
 
     def toJSON(self):
         item = model_to_dict(self)
+        item['pregunta'] = self.pregunta
         item['regla'] = self.regla
         return item
 
@@ -327,7 +337,8 @@ class PixelMeta(models.Model):
         db_table = 'tiendas_pixelmeta'
 
     def __str__(self):
-        return self.company.name
+        company = Company.objects.first()
+        return company.name if company else self.codigo
 
     def toJSON(self):
         item = model_to_dict(self)

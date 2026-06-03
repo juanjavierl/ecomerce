@@ -1,9 +1,9 @@
 
 {% for a in avisos %}
-    <li><strong>Tiempo de Entregas: </strong> {{a.Tiempo_entrega}}</li>
-    <li><strong>Envios : </strong> {{a.envios}}</li>
-    <li><strong>Pedidos : </strong> {{a.pedidos}}</li>
-    <li><strong>Contra Entrega: </strong> {{a.pide_ahora}}</li>
-    <p style="text-align: center;"><a href="#" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="elimnarOpciones('/eliminar_opciones/{{a.id}}')"> Eliminar </a></p>
+    <li><strong>Aviso 1: </strong> {{a.mensaje1}}</li>
+    <li><strong>Aviso 2: </strong> {{a.mensaje2}}</li>
+    <li><strong>Aviso 3: </strong> {{a.mensaje3}}</li>
+    <li><strong>Aviso 4: </strong> {{a.mensaje4}}</li>
+    <p style="text-align: center;"><a href="#" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="elimnarOpciones('/eliminar_opciones/{{a.id}}/')"> Eliminar </a></p>
 {% endfor %}
     

@@ -1,7 +1,7 @@
 {% extends 'index.html' %}
 
 {% block titulo %}
-    {{company.name|title|truncatechars:26}}
+  {{ company.name|title|truncatechars:60 }}
 {% endblock titulo %}
   
 {% block tecnica_seo %}
@@ -9,15 +9,18 @@
   <meta name="description" content="{{ company.get_meta_description }}">
   <meta property="og:title" content="{{ company.get_meta_title }}">
   <meta property="og:description" content="{{ company.get_meta_description }}">
-  <meta property="og:image" content="{{ company.get_meta_image }}">
-  <meta property="og:url" content="https://{{ request.get_host }}{{ company.get_meta_url }}">
-  <link rel="canonical" href="https://{{ request.get_host }}{{ company.get_meta_url }}">
+  <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ company.get_meta_image }}">
+  <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}/">
+  <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}/">
 {% endblock tecnica_seo %}
 
 {% block company %}
-    <a href="/">
-      <marquee behavior="" direction="" style="margin-top: 14px;">{{ company.name|title }}</marquee>
-    </a>
+  <a href="/" class="d-flex align-items-center gap-2" style="margin-top: 14px;">
+    {% if company.logo %}
+      <img src="{{ company.logo.url }}" alt="{{ company.name|title }}" style="max-height: 38px; width: auto;">
+    {% endif %}
+    <span>{{ company.name|title }}</span>
+  </a>
 {% endblock company %}
 
 {% block code_meta %}
@@ -49,86 +52,129 @@
     {% include 'company/menu_from_user.html' %}
 {% endblock menus %}
 
-  {% block hero %}  
-  {% if company.image %}
-    <style>
-      #hero{
-        width: 100%;
-        height: calc(100vh - 50px);
-        background: url("/media/{{company.image}}") center center;
-        background-size: cover;
-        position: relative;
-        margin-top: 50px;
-        padding: 0;
+{% block hero %}
+  <style>
+    #hero.company-hero {
+      width: 100%;
+      min-height: calc(100vh - 50px);
+      margin-top: 50px;
+      padding: 96px 0 72px;
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(90deg, rgba(8, 27, 39, .82), rgba(8, 27, 39, .44)),
+        {% if company.image %}url("{{ company.image.url }}") center center / cover no-repeat{% else %}#0f2d35{% endif %};
+    }
+
+    #hero.company-hero .company-hero-content {
+      max-width: 760px;
+    }
+
+    #hero.company-hero h1 {
+      margin-bottom: 16px;
+      color: #fff;
+      line-height: 1.05;
+    }
+
+    #hero.company-hero .company-description {
+      max-width: 680px;
+      margin: 0 0 24px;
+      color: rgba(255, 255, 255, .9);
+      font-size: 20px;
+      line-height: 1.45;
+    }
+
+    .company-category-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .company-category-list .btn {
+      border-radius: 999px;
+      padding: 8px 16px;
+      border: 1px solid rgba(255, 255, 255, .38);
+      background: rgba(255, 255, 255, .12);
+      color: #fff;
+      backdrop-filter: blur(4px);
+    }
+
+    .company-category-list .btn:hover,
+    .company-category-list .btn:focus {
+      background: #1bac91;
+      border-color: #1bac91;
+      color: #fff;
+    }
+
+    @media (max-width: 768px) {
+      #hero.company-hero {
+        min-height: auto;
+        padding: 72px 0 48px;
       }
-    </style>
-    <section id="hero" class="d-flex flex-column justify-content-center align-items-center">
-      <div class="container text-center text-md-left" data-aos="fade-up">
-        <h1>{{company.name|title}}</h1><br><br>
-        
-        <a href="#team_productos" class="btn-get-started scrollto">{{ company.button }}</a>
-        <h2>
-          <br>
-          <div class="testimonials-slider swiper" data-aos="fade-left" data-aos-delay="100">
-            <div class="swiper-wrapper">
-              {% for c in categorias %}
-              <div class="swiper-slide">
-                <div class="testimonial-item">
-                  <p>
-                    <a type="button" onclick="mostrar_por_categoria('/mostrar_por_categoria/{{c.id}}/')" 
-                    href="#team_productos" class="btn btn-success btn-lg" 
-                    style="background-color: #1bac91;; color: white; border-radius: 50px;">
-                    <i class="bi bi-bag-check"></i> {{c.name|title}}
-                    </a>
-                  </p>
-                </div>
-              </div><!-- End testimonial item -->
-              {% endfor %}
-            </div><br><br>
-            <div class="swiper-pagination"></div>
+
+      #hero.company-hero .company-description {
+        font-size: 16px;
+      }
+    }
+  </style>
+
+  <section id="hero" class="company-hero d-flex align-items-center">
+    <div class="container" data-aos="fade-up">
+      <div class="company-hero-content text-center text-md-start">
+        {% if company.description %}
+          <p class="company-description">{{ company.description|truncatewords:28 }}</p>
+        {% endif %}
+
+        <a href="#team_productos" class="btn-get-started scrollto">
+          {{ company.button|default:"Ver productos" }}
+        </a>
+
+        {% if categorias %}
+          <div class="company-category-list" aria-label="Categorias de productos">
+            {% for c in categorias %}
+              <a
+                href="#team_productos"
+                class="btn"
+                onclick="mostrar_por_categoria('/mostrar_por_categoria/{{ c.id }}/')"
+              >
+                <i class="bi bi-bag-check"></i> {{ c.name|title }}
+              </a>
+            {% endfor %}
           </div>
-        </h2>
+        {% endif %}
       </div>
-    </section>
-  {% else %}
-    <style>
-      .portfolio {
-        margin-top: 80px;
-      }
-    </style>
-  {% endif %}
+    </div>
+  </section>
 {% endblock hero %}
 
 
 {% block form_buscador %}
-    <div class="form_buscador_product" style="display: none;">
-    
-    </div>
+  <div class="form_buscador_product" style="display: none;"></div>
 {% endblock form_buscador %}
 
 {% block acerca %} {% endblock acerca %}
 
+{% block avisos %}
+  
+{% endblock avisos %}
+  
 {% block contenido %}
-    <section id="team_productos" class="portfolio">
-      
-      {% if aviso %}
-        {% include 'notificaciones/opciones_avisos.html' %}
-      {% endif %}
-      <div class="container-fluid productos_por_categorias">
-          {% include 'catalog/card_productos.html' with productos=productos %}
-        <hr>
-          {% include 'pag_productos.html' %}
-      </div> 
-    </section>
+  <section id="team_productos" class="portfolio">
+    {% if aviso %}
+      {% include 'company/notificaciones/avisos.html' with aviso=aviso %}
+    {% endif %}
+    <div class="container-fluid productos_por_categorias">
+      {% include 'catalog/card_productos.html' with productos=productos company=company %}
+      <hr>
+      {% include 'pag_productos.html' %}
+    </div>
+  </section>
 {% endblock contenido %}
 
 {% block button_whatsap %}
   {% include 'button_whatsap.html' %}
 {% endblock button_whatsap %}
-
-{% block suscipcion_for_email %}
-  {% include 'form_suscripcion_email.html' %}
-{% endblock suscipcion_for_email %}
 
 {% block preg_frecuentes %}
 {% include 'company/preg_frecuentes_tienda.html' %}
@@ -149,6 +195,9 @@
 </section>
 <!-- End Contact Section -->
 {% endblock contact %}
+{% block suscipcion_for_email %}
+  {% include 'form_suscripcion_email.html' %}
+{% endblock suscipcion_for_email %}
 
 {% block footer_catalog %}
   {% include 'company/footer_tienda.html' %}

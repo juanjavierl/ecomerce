@@ -7,7 +7,7 @@
     <form action="/delete_regla/{{regla.id}}/" method="POST" id="eliminar_regla">
      {% csrf_token %}
      <div class="alert alert-danger" role="alert">
-        Esta seguro de Eliminar los terminos y condiciones para sus ventas?: <br>{{regla.regla}}.
+        Esta seguro de Eliminar los terminos y condiciones para sus ventas?: <br>{{regla.pregunta}}.
       </div>
        <div class="modal-footer">
         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="bi bi-arrow-left-circle"></i> Cancelar</button>
@@ -28,8 +28,13 @@
                   $(".invalid").text(resp.error);
                 }
                 else{
-                  //window.location.href='/'+{{precio.company.id}}+'/configuraciones';
-                  $('.info_rule').html(" ");
+                  $.ajax({
+                    type: 'get',
+                    url: '/get_condiciones/',
+                    success: function (resp) {
+                        $('#delete_regla').html(resp);
+                    }
+                  });
                   setTimeout(function () {
                     $(".btn-close").click();
                   }, 1000);
