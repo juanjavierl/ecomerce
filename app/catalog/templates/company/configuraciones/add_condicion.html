@@ -19,16 +19,9 @@
             </div>
         </div>
         <div class="info_rule col-lg-5 align-items-stretch" id="delete_regla">
-            {% for regla in reglas %}
-            <li>
-                <strong>{{regla.pregunta}}</strong><br>
-                <small>{{regla.regla|urlize_mode:"ver_mas,br"}}
-                    <a href="#"
-                                type="button" data-bs-toggle="modal" data-bs-target="#exampleModal"
-                                onclick="del_regla('/delete_regla/{{regla.id}}/')">Eliminar</a>
-                </small>
-            </li>
-            {% endfor %}
+            <ul class="list-group list-group-flush">
+                {% include 'company/notificaciones/get_condiciones.html' %}
+            </ul>
         </div>
     </div>
 </div>

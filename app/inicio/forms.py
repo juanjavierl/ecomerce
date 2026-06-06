@@ -46,6 +46,6 @@ class formWeb(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'author': forms.TextInput(attrs={'class': 'form-control'}), 
-            'navbar': forms.Select(attrs={'class': 'form-control'}),
+            'navbar': forms.TextInput(attrs={'class': 'form-control'}),
             'color_texto': forms.TextInput(attrs={'class': 'form-control'}),
         }

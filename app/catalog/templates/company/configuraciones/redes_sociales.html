@@ -1,0 +1,90 @@
+{% load crispy_forms_tags %}
+<h2 class="accordion-header">
+    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+        data-bs-target="#collapseNine" aria-expanded="false" aria-controls="collapseNine">
+        <strong>Redes Sociales</strong>
+    </button>
+</h2>
+<div id="collapseNine" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+    <div class="accordion-body row d-flex justify-content-center">
+        <!-- Columna formulario para registrar una nueva red social -->
+        <div class="form-envio col-lg-5 align-items-stretch">
+            <div class="input-group">
+                <form action="/add_red_social/" method="post" id="add_red_social_form">
+                    {% csrf_token %}
+                    {{ form_red_social|crispy }}
+                    <button type="submit" class="btn btn-primary btn-sm"
+                        id="button-addon2">Registrar</button>
+                </form>
+            </div>
+        </div>
+        <!-- Columna para mostrar redes sociales registradas -->
+        <div class="info_redes col-lg-5 align-items-stretch" id="lista_redes">
+            {% include 'company/notificaciones/get_redes_sociales.html' with redes=redes %}
+        </div>
+    </div>
+</div>
+<script>
+    $('#add_red_social_form').on('submit', function (e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: $(this).serialize(),
+            success: function (resp) {
+                if (resp.error) {
+                    $('.toast-body').addClass('alert alert-danger');
+                    $('.toast-body').fadeIn(1000).html(resp.error);
+                    mostrar_notificacion();
+                } else {
+                    $('.toast-body').addClass('alert alert-success');
+                    $('.toast-body').fadeIn(1000).html(resp.success);
+                    $('#add_red_social_form')[0].reset();
+                    mostrar_notificacion();
+                    // Recargar lista de redes sociales
+                    $.ajax({
+                        type: 'get',
+                        url: '/get_redes_sociales/',
+                        success: function (resp) {
+                            $('#lista_redes').html(resp);
+                        }
+                    });
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $('.toast-body').addClass('alert alert-danger');
+                $('.toast-body').fadeIn(1000).html("Ya existe esa red social o ocurrió un error.");
+                mostrar_notificacion();
+            }
+        });
+    });
+
+    function eliminar_red_social(url) {
+        $.ajax({
+            type: 'get',
+            url: url,
+            success: function (resp) {
+                if (resp.error) {
+                    $('.toast-body').addClass('alert alert-danger');
+                    $('.toast-body').fadeIn(1000).html(resp.error);
+                    mostrar_notificacion();
+                } else {
+                    $('.toast-body').addClass('alert alert-success');
+                    $('.toast-body').fadeIn(1000).html(resp.success || "Red social eliminada.");
+                    mostrar_notificacion();
+                    // Recargar lista de redes sociales
+                    $.ajax({
+                        type: 'get',
+                        url: '/get_redes_sociales/',
+                        success: function (resp) {
+                            $('#lista_redes').html(resp);
+                        }
+                    });
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Error:" + thrownError);
+            }
+        });
+    }
+</script>

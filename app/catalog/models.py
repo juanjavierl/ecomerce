@@ -27,9 +27,9 @@ class Dashboard(models.Model):
         null=True,
         blank=True
     )
-    navbar = models.CharField(max_length=50, choices=NAVBAR, default=NAVBAR[0][0], verbose_name='Navbar')
+    navbar = models.CharField(max_length=50, verbose_name='Color del Navbar', default='#000')
 
-    color_texto = models.CharField(max_length=50, default='#000000', verbose_name='Color del texto')
+    color_texto = models.CharField(max_length=50, default='#fff', verbose_name='Color del texto')
     class Meta:
         verbose_name = 'Dashboard'
         verbose_name_plural = 'Dashboard'
@@ -103,6 +103,14 @@ class Orden(models.Model):
 
 
 class Pedido(models.Model):
+    orden = models.ForeignKey(
+        Orden,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='pedidos',
+        verbose_name='Orden',
+    )
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     cant = models.IntegerField(default=0)
     price = models.DecimalField(max_digits=9, decimal_places=2, default=0.00)
@@ -115,7 +123,8 @@ class Pedido(models.Model):
         verbose_name_plural = 'Pedidos'
 
     def __str__(self):
-        return f'{self.product.name}, orden # {self.orden}'
+        orden_id = self.orden_id if self.orden_id else 'Sin orden'
+        return f'{self.product.name}, orden # {orden_id}'
 
 
 class Like(models.Model):
@@ -131,50 +140,6 @@ class Like(models.Model):
     def __str__(self):
         company = Company.objects.first()
         return company.name if company else str(self.like)
-
-
-
-class Bank_dashboard(models.Model):
-    """Model definition for Bancos."""
-    name = models.CharField(max_length=50, verbose_name='Nombre del Banco')
-    cuenta = models.CharField(max_length=50, verbose_name='Nro. de cuenta')
-    qr_img = models.ImageField(null=True, blank=True, upload_to='img_qr', verbose_name='Img QR de pago', help_text="Imagen que tenga validacion de un año")
-    dashboard = models.ForeignKey(Dashboard, on_delete=models.CASCADE, verbose_name='Negocio')
-    class Meta:
-        """Meta definition for Bancos."""
-
-        verbose_name = 'Banco'
-        verbose_name_plural = 'Bancos'
-
-    def __str__(self):
-        """Unicode representation of Bancos."""
-        return self.name
-    
-class Cupon(models.Model):
-    codigo = models.CharField(
-        max_length=255,
-        verbose_name='Ingrese el Código del Cupon',
-        help_text='Una o mas palabra separadas por coma Ej: 1234,tienda,negocio123',
-    )
-    descuento = models.IntegerField(help_text='Ingrese el porcentaje del descuento %')
-    estado = models.BooleanField(default=True, help_text='Indica que estara activo en todas las compras')
-
-    class Meta:
-        db_table = 'tiendas_cupon'
-        verbose_name = 'cupon'
-        verbose_name_plural = 'cupones'
-
-    def __str__(self):
-        return self.codigo
-
-    def toJSON(self):
-        item = model_to_dict(self)
-        company = Company.objects.first()
-        item['company'] = company.name if company else ''
-        item['codigo'] = self.codigo
-        item['descuento'] = self.descuento
-        item['estado'] = self.estado
-        return item
 
 
 class Banco(models.Model):
@@ -309,11 +274,11 @@ class Condicion(models.Model):
 
 
 class RRSS(models.Model):
-    icono = models.CharField(verbose_name='Icono', max_length=50)
-    rrss = models.CharField(verbose_name='redes sociales', max_length=255)
+    rrss = models.CharField(verbose_name='Red Social', unique=True, max_length=50, choices=RRSS_CHOICES, default=RRSS_CHOICES[0][0], help_text='Seleccione la red social')
+    enlace = models.URLField(verbose_name='Enlace', max_length=255, help_text='Copie el enlace de su red social')
 
     class Meta:
-        db_table = 'tiendas_rrss'
+        db_table = 'tienda_rrss'
 
     def __str__(self):
         return self.rrss
@@ -321,6 +286,7 @@ class RRSS(models.Model):
     def toJSON(self):
         item = model_to_dict(self)
         item['rrss'] = self.rrss
+        item['enlace'] = self.enlace
         return item
 
 

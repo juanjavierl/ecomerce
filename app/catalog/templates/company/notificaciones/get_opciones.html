@@ -1,9 +1,38 @@
 
 {% for a in avisos %}
-    <li><strong>Aviso 1: </strong> {{a.mensaje1}}</li>
-    <li><strong>Aviso 2: </strong> {{a.mensaje2}}</li>
-    <li><strong>Aviso 3: </strong> {{a.mensaje3}}</li>
-    <li><strong>Aviso 4: </strong> {{a.mensaje4}}</li>
-    <p style="text-align: center;"><a href="#" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="elimnarOpciones('/eliminar_opciones/{{a.id}}/')"> Eliminar </a></p>
+    <div class="card mb-3 shadow-sm border-success">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <span>
+                <i class="bi bi-bell-fill me-2"></i>
+                Avisos
+            </span>
+            <a href="#"
+               type="button"
+               class="btn btn-danger btn-sm"
+               data-bs-toggle="modal"
+               data-bs-target="#exampleModal"
+               onclick="elimnarOpciones('/eliminar_opciones/{{a.id}}/')">
+                <i class="bi bi-trash"></i> Eliminar
+            </a>
+        </div>
+        <div class="card-body">
+            {% if a.mensaje1 %}
+            <p class="mb-2"><strong>Aviso 1:</strong> {{ a.mensaje1|default:"-" }}</p>
+            {% endif %}
+            {% if a.mensaje2 %}
+            <p class="mb-2"><strong>Aviso 2:</strong> {{ a.mensaje2|default:"-" }}</p>
+            {% endif %}
+            {% if a.mensaje3 %}
+            <p class="mb-2"><strong>Aviso 3:</strong> {{ a.mensaje3|default:"-" }}</p>
+            {% endif %}
+            {% if a.mensaje4 %}
+            <p class="mb-0"><strong>Aviso 4:</strong> {{ a.mensaje4|default:"-" }}</p>
+            {% endif %}
+        </div>
+    </div>
+{% empty %}
+    <div class="alert alert-info text-center">
+        No hay avisos registrados.
+    </div>
 {% endfor %}
     

@@ -23,7 +23,7 @@
     function imprimirOrden(ordenId) {
     const tipo = document.getElementById(`tipo-print-${ordenId}`).value;
 
-    const url = `/orden/${ordenId}/print/?tipo=${tipo}`;
+    const url = `/orden/print/${ordenId}/?tipo=${tipo}`;
     window.open(url, '_blank');
 }
 </script>

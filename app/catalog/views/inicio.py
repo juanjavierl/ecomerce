@@ -167,18 +167,29 @@ def redirigir_a_catalogo(request, slug):
 
 @login_required(login_url='/')
 def add_huvicacion(request):
+    ubicacion = Sucursal.objects.first()
     if request.method == 'POST':
+        form_huvicacion = FormHuvicacion(request.POST, instance=ubicacion)
+        if form_huvicacion.is_valid():
+            form_huvicacion.save()
+            return JsonResponse({'success': 'Registro exitoso.'})
+        return JsonResponse({'error': form_huvicacion.errors})
+    else:
+        form_huvicacion = FormHuvicacion(instance=ubicacion)
+        return render(request, 'company/configuraciones/add_mapa.html', {'form_huvicacion': form_huvicacion, 'ubicacion': ubicacion})
+    
+    """ if request.method == 'POST':
         ubicacion, created = Sucursal.objects.get_or_create()
         ubicacion.address = request.POST['address']
         ubicacion.latitud = request.POST['latitud']
         ubicacion.longitud = request.POST['longitud']
         ubicacion.save()
         return JsonResponse({'success': 'Registro exitoso.'})
-    return JsonResponse({'error': 'Método no permitido'})
+    return JsonResponse({'error': 'Método no permitido'}) """
 
 
 def info_address_company(request):
-    address = Sucursal.objects.first()
+    address = get_address()
     return render(request, 'company/notificaciones/info_address_company.html', {'address': address})
 
 
@@ -200,20 +211,20 @@ def configuraciones_company(request):
         'precio': get_precio_envios(),
         'avisos': Aviso.objects.all()[:1],
         'banco': Banco.objects.all()[:1],
-        'cupom': Cupon.objects.all()[:1],
         'ordens': list(pedidos),
         'clientes': Client.objects.all().order_by('-id'),
         'categorias': categorys_from_productos(productos),
         'company': company,
         'total_compra': sum(item['cantidad'] for item in request.session.get('compra', [])),
         'address': get_address(),
+        'redes': RRSS.objects.all(),
 
         'form_huvicacion': FormHuvicacion(instance=Sucursal.objects.first()),
         'form_ban': FormBanco(instance=Banco.objects.first()),
         'form_precio': PrecioForm(instance=Precio_envio.objects.first()),
         'form_avisos': Form_avisos(instance=Aviso.objects.first()),
         'form_regla': Form_condiciones(),
-        'form_cupom': FormCupon(instance=Cupon.objects.first()),
+        'form_red_social': formRedSocial(),
     }
     return render(request, 'company/configuraciones_company.html', dic)
 
@@ -612,10 +623,9 @@ def autorizar_orden(request, id_orden):
         pedidos = Pedido.objects.filter(orden=orden).select_related('product')
         for pedido in pedidos:
             producto = pedido.product
-            if not producto.is_service:
-                Product.objects.filter(id=producto.id).update(
-                    salida=F('salida') + pedido.cant
-                )
+            Product.objects.filter(id=producto.id).update(
+                salida=F('salida') + pedido.cant
+            )
         messages.success(request, 'La orden fue autorizada y las salidas actualizadas correctamente.')
         return render(request, 'company/notificaciones/orden_autorizada.html', {'orden': orden})
 

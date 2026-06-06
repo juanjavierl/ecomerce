@@ -20,7 +20,6 @@ admin.site.register([
     Condicion,
     RRSS,
     PixelMeta,
-    Cupon,
     Suscripcion,
 ])
 

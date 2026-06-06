@@ -1,0 +1,21 @@
+{% if redes %}
+    <ul class="list-group">
+        {% for rrss in redes %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>
+                    <strong>
+                        {{ rrss.rrss }}
+                    </strong>
+                    <br>
+                    <small>{{ rrss.enlace }}</small>
+                </span>
+                <a href="#" class="btn btn-danger btn-sm"
+                    onclick="eliminar_red_social('/delete_red_social/{{ rrss.id }}/'); return false;">
+                    Eliminar
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <div class="alert alert-info">No hay redes sociales registradas aún.</div>
+{% endif %}

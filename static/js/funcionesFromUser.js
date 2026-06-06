@@ -7,7 +7,6 @@ function verCarrito(urls){
         }
     });
   }
-
 function updateProductosEnConfirmar(urls){
     $.ajax({
         type: 'GET',
@@ -24,7 +23,7 @@ function updateTotalPago(urls, valor_option){
         url:urls,
         data:{'opcion':valor_option},
         success:function(resp){
-          $('#costos').text("Importe: "+ resp.datos.importe + " Precio de envio: "+ resp.datos.precio_envio + " Total a pagar : Bs." + resp.datos.total_pagar)
+          $('#costos').text("total a pagar: "+ resp.datos.importe)
         }
       });
 }

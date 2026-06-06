@@ -81,7 +81,7 @@
             //$("#data_dable tbody #t_p").html("Importe estimado: "+resp.t_pago);
             $("#cont_compras").html(resp.cant_compras);
             const path = window.location.pathname;
-            const esConfirmarCompra = /^\/\d+\/confirmar_compra\/?$/.test(path);
+            const esConfirmarCompra = /^\/confirmar_compra\/?$/.test(path);
             if(esConfirmarCompra){
               verCarrito('/ver_carrito/');
               updateProductosEnConfirmar("/show_productos_carrito/");
@@ -113,7 +113,7 @@
           success:function(resp){
             $("#cont_compras").html(resp.cant_compras);
             const path = window.location.pathname;
-            const esConfirmarCompra = /^\/\d+\/confirmar_compra\/?$/.test(path);
+            const esConfirmarCompra = /^\/confirmar_compra\/?$/.test(path);
             if(esConfirmarCompra){
               verCarrito('/ver_carrito/');
               updateProductosEnConfirmar("/show_productos_carrito/");

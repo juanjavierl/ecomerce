@@ -18,20 +18,7 @@
             </div>
         </div>
         <div class="info_banco col-lg-5 align-items-stretch">
-            {% for a in banco %}
-            <li><strong>Institución financiera: </strong> {{a.name|title}}</li>
-            <li><strong>A nombre de : </strong> {{a.destinatario|title}}</li>
-            <li><strong>Nro de Cuenta : </strong> {{a.cuenta}}</li>
-            <li><img class="img-fluid rounded" src="/media/{{a.qr_img}}"
-                    style="width: 250px; height: 250px;" alt=""></li>
-            <p style="text-align: center;"><a href="#" type="button" data-bs-toggle="modal"
-                    data-bs-target="#exampleModal"
-                    onclick="del_infor_comp('/del_infor_banco/{{a.id}}/')"> Eliminar </a></p>
-            {% empty %}
-            <div class="alert alert-primary text-center" role="alert">
-                Esta información bancaria será visible para el cliente al realizar su compra. de esta manera lo pueden realizar una transferencia, si no tiene nada registrado no se preocupe no afecta en nada el funcionamiento.
-              </div>
-            {% endfor %}
+            {% include 'company/notificaciones/infor_banco.html' %}
         </div>
     </div>
 </div>

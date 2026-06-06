@@ -1,7 +1,41 @@
 {% for a in banco %}
-    <li><strong>Institución financiera: </strong> {{a.name|title}}</li>
-    <li><strong>A nombre de: </strong> {{a.destinatario|title}}</li>
-    <li><strong>Nro de Cuenta: </strong> {{a.cuenta}}</li>
-    <li><img class="img-fluid rounded" src="/media/{{a.qr_img}}" alt="" style="width: 250px; height: 250px;"></li>
-    <p style="text-align: center;"><a href="#" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="del_infor_comp('/del_infor_banco/{{a.id}}/')"> Eliminar</a></p>
-{% endfor %}
+            <div class="card mb-4 shadow bank-card-modern">
+                <div class="card-body pb-0">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3 p-2 bg-primary rounded-circle text-white" style="font-size:1.8rem;width:45px;height:45px;display:flex;align-items:center;justify-content:center;">
+                            <i class="bi bi-bank"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-0">{{ a.name|title }}</h5>
+                            <small class="text-muted" style="font-size:0.95rem;">Institución financiera</small>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <strong>A nombre de: </strong>
+                        <span class="text-primary">{{ a.destinatario|title }}</span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Nro de Cuenta: </strong>
+                        <span style="letter-spacing: 1px; font-family: 'Fira Mono', monospace;">{{ a.cuenta }}</span>
+                    </div>
+                    <div class="my-3 text-center">
+                        <img class="img-thumbnail mx-auto" src="/media/{{ a.qr_img }}" alt="Código QR" style="width:180px;max-width:100%;border-radius:16px;box-shadow:0 4px 16px rgba(0,0,0,0.05);">
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 pb-3 d-flex justify-content-end">
+                    <a href="#" type="button" class="btn btn-danger btn-sm rounded-pill d-flex align-items-center gap-2 px-3"
+                        data-bs-toggle="modal"
+                        data-bs-target="#exampleModal"
+                        onclick="del_infor_comp('/del_infor_banco/{{a.id}}/')">
+                        <i class="bi bi-trash"></i> Eliminar
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="alert alert-primary text-center modern-info" role="alert" style="border-radius: 12px; font-size: 1.1rem;">
+                <i class="bi bi-info-circle me-2"></i>
+                Esta información bancaria será visible para el cliente al realizar su compra. De esta manera pueden realizar una transferencia. 
+                <br>
+                <span class="text-muted">Si no tiene nada registrado, no se preocupe, no afecta el funcionamiento de la tienda.</span>
+            </div>
+            {% endfor %}

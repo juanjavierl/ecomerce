@@ -47,7 +47,8 @@ def CatalogView(request, url_referido=None):
             'dashboard':get_Dashboard(),
             'address':get_address(),
             'code':get_code_meta(),
-            'reglas':get_rule_condicion()
+            'reglas':get_rule_condicion(),
+            'rrss':RRSS.objects.all(),
         }
         return render(request,template_name, dic)
  
@@ -160,6 +161,7 @@ def optenerProducto(request, id_producto, url_referido=None):
                     'address':get_address(),
                     'code':get_code_meta(),
                     'images_product':Imagen.objects.filter(items_id=id_producto),
+                    'dashboard': get_Dashboard(),
                 }
     return render(request,'catalog/OptenerProducto.html',context)
 
@@ -354,6 +356,7 @@ def confirmar_compra(request, url_referido=None):
                 product_id=producto_id,
                 cant=cantidad,
                 price=precio,
+                subtotal=total,
                 total=total,
                 nota=item.get('nota', '')
             )
@@ -368,12 +371,12 @@ def confirmar_compra(request, url_referido=None):
         request.session['compra'] = []
 
         # --- Enviar correo al propietario ---
-        email_propietario = company.email
+        """ email_propietario = company.email
         if email_propietario:
             threading.Thread(
                 target=send_confirmar_venta_mail,
                 args=(email_propietario, orden, company)
-            ).start()
+            ).start() """
 
         return JsonResponse({
             'success': "Tu pedido fue registrado con éxito.",
@@ -404,7 +407,8 @@ def confirmar_compra(request, url_referido=None):
         'regla': get_rule_condicion(),
         'code': get_code_meta(),
         'ahora': ahora.strftime("%Y-%m-%dT%H:%M"),
-        'limite': limite.strftime("%Y-%m-%dT%H:%M")
+        'limite': limite.strftime("%Y-%m-%dT%H:%M"),
+        'dashboard': get_Dashboard(),
     }
     return render(request, 'catalog/confirmar_compra.html', dic)
 
@@ -483,14 +487,14 @@ def getProducto(id_producto):
 
 def productosMasVistos():
     productos = Product.objects.annotate(
-        stock_real=ExpressionWrapper(
-            F('stock') - Coalesce(F('salida'), 0),
-            output_field=IntegerField()
-        )
-    ).filter(
-        stock_real__gt=0,
-        is_promotion=True
-    )
+        stock_real=F('stock') - Coalesce(F('salida'), 0)
+        ).filter(
+            stock_real__gt=0,
+            is_promotion='Ofertas del dia',
+            image__isnull=False
+        ).exclude(
+            image=''
+        ).order_by('-id')
     return productos
 
 def determinarPrecioEnvio():
@@ -571,3 +575,24 @@ def informacion_empresa(request):
     else:
         form = formConfiguraciones(instance=company)
     return render(request, 'catalog/informacion_empresa.html', {'form': form})
+
+def add_red_social(request):
+    if request.method == 'POST':
+        form = formRedSocial(request.POST)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': 'Red social registrada exitosamente.'})
+        else:
+            return JsonResponse({'error': form.errors})
+    else:
+        form = formRedSocial()
+    return render(request, 'catalog/add_red_social.html', {'form': form})
+
+def get_redes_sociales(request):
+    redes = RRSS.objects.all()
+    return render(request, 'company/notificaciones/get_redes_sociales.html', {'redes': redes})
+
+def delete_red_social(request, id_red_social):
+    red_social = RRSS.objects.get(id=id_red_social)
+    red_social.delete()
+    return JsonResponse({'success': 'Red social eliminada exitosamente.'})

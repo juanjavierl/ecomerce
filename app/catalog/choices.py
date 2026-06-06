@@ -4,29 +4,19 @@ MONEY = (
     ('$', 'Dólares ($)'),
 )
 
-NAVBAR = (
-    ('navbar-dark navbar-navy', 'navbar-navy'),
-    ('navbar-dark navbar-primary', 'navbar-primary'),
-    ('navbar-dark navbar-secondary', 'navbar-secondary'),
-    ('navbar-dark navbar-info', 'navbar-info'),
-    ('navbar-dark navbar-success', 'navbar-success'),
-    ('navbar-dark navbar-danger', 'navbar-danger'),
-    ('navbar-dark navbar-indigo', 'navbar-indigo'),
-    ('navbar-dark navbar-purple', 'navbar-purple'),
-    ('navbar-dark navbar-pink', 'navbar-pink'),
-    ('navbar-dark navbar-lightblue', 'navbar-lightblue'),
-    ('navbar-dark navbar-teal', 'navbar-teal'),
-    ('navbar-dark navbar-cyan', 'navbar-cyan'),
-    ('navbar-dark navbar-dark', 'navbar-dark'),
-    ('navbar-dark navbar-gray-dark', 'navbar-gray-dark'),
-    ('navbar-dark navbar-gray', 'navbar-gray'),
-    ('navbar-light navbar-light', 'navbar-light'),
-    ('navbar-light navbar-warning', 'navbar-warning'),
-    ('navbar-light navbar-white', 'navbar-white'),
-    ('navbar-light navbar-orange', 'navbar-orange'),
+RRSS_CHOICES = (
+    ('facebook', 'Facebook'),
+    ('tiktok', 'TikTok'),
+    ('whatsapp_grupo', 'WhatsApp Grupo'),
+    ('youtube', 'YouTube'),
+    ('telegram', 'Telegram'),
+    ('twitter', 'Twitter'),
+    ('instagram', 'Instagram'),
+    ('linkedin', 'LinkedIn'),
 )
 
 IS_PROMOTION = (
+    ('', ''),
     ('ofertas', 'En oferta'),
     ('nuevo', 'Es nuevo'),
     ('promaciones', 'En promación'),

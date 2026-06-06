@@ -157,6 +157,7 @@ class Product(models.Model):
         choices=IS_PROMOTION,
         default=IS_PROMOTION[0][0],
         verbose_name='¿Elija una opcion?',
+        blank=True, null=True
     )
     date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')
     date_update = models.DateTimeField(auto_now=True)
@@ -271,7 +272,6 @@ class Client(models.Model):
     def toJSON(self):
         item = model_to_dict(self)
         item['names'] = self.get_full_name()
-        item['gender'] = {'id': self.gender, 'name': self.get_gender_display()}
         item['dni'] = self.dni
         item['id'] = int(self.id)
         item['mobile'] = self.mobile

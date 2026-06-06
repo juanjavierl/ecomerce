@@ -1,10 +1,23 @@
 {% load extras %}
-{% for regla in reglas %}
-<li>
-    <strong>{{regla.pregunta}}</strong><br>
-    <small>{{regla.regla|urlize_mode:"ver_mas,br"}}
-        <a href="#" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal"
-            onclick="del_regla('/delete_regla/{{regla.id}}/')">Eliminar</a>
-    </small>
-</li>
-{% endfor %}
+{% if reglas %}
+    <ul class="list-group">
+        {% for regla in reglas %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>
+                    <strong>
+                        {{ regla.pregunta|title }}
+                    </strong>
+                    <br>
+                    <small>{{ regla.regla|urlize_mode:"ver_mas,br" }}</small>
+                </span>
+                <button class="btn btn-danger btn-sm ms-3 rounded-pill" 
+                    type="button" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                    onclick="del_regla('/delete_regla/{{ regla.id }}/')">
+                    <i class="bi bi-trash"></i> Eliminar
+                </button>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <div class="alert alert-info">No hay preguntas frecuentes registradas aún.</div>
+{% endif %}

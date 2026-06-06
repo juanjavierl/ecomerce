@@ -7,7 +7,7 @@
 </h2>
 <div id="collapseSeven" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
     <div class="accordion-body row d-flex justify-content-center">
-        {% if not address %}
+        
         <div class="forn-envio col-lg-5 d-flex align-items-stretch">
             <div class="input-group">
                 <form action="/add_huvicacion/" method="post" id="form_add_mapa">
@@ -22,16 +22,12 @@
 
             </div>
         </div>
-        {% else %}
-        <div class="alert alert-success info_map_registro" role="alert">
-            <p>
-                <strong>Direccion registrada:{{address.address}} <br> Fecha y hora registro: {{address.date_joined}}</strong>
-                <strong><a style="color: red;" href="#" type="button" data-bs-toggle="modal"
-                    data-bs-target="#exampleModal"
-                    onclick="del_address_comp('/del_address_comp/{{address.id}}/')"> Eliminar </a></strong>
-            </p>
+        
+        <div class="alert alert-success info_map_registro d-flex align-items-center gap-3 shadow-sm rounded-4 p-4" role="alert">
+                {% include 'company/notificaciones/info_address_company.html' with address=address %}
+           
         </div>
-        {% endif %}
+       
         
     </div>
 </div>
@@ -96,7 +92,7 @@
                         type: 'get',
                         url: '/info_address_company/',
                         success: function (resp) {
-                            $('.info_map_registro').fadeIn(1000).html(resp.address);
+                            $('.info_map_registro').fadeIn(1000).html(resp);
                         }
                     });
 

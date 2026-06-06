@@ -1,6 +1,20 @@
-<p>
-    <strong>Direccion registrada:{{address.address}} <br> Fecha y hora registro: {{address.date_joined}}</strong>
-    <strong style="color: red;"><a href="#" type="button" data-bs-toggle="modal"
-        data-bs-target="#exampleModal"
-        onclick="del_address_comp('/del_address_comp/{{address.id}}')"> Eliminar </a></strong>
-</p>
+{% if address %}
+    <p class="mb-1">
+        <span class="fw-semibold text-dark">Dirección registrada:</span> 
+        <span class="fw-normal">{{address.address}}</span>
+    </p>
+    <p class="mb-2">
+        <span class="text-muted">Registrado el:</span> 
+        <span class="fw-normal">{{address.date_joined}}</span>
+    </p>
+    <a href="#" 
+    class="btn btn-outline-danger btn-sm rounded-pill px-3"
+    type="button"
+    data-bs-toggle="modal"
+    data-bs-target="#exampleModal"
+    onclick="del_address_comp('/del_address_comp/{{address.id}}/')">
+        <i class="bi bi-trash"></i> Eliminar dirección
+    </a>
+{% else %}
+    <p>Registre una dirección</p>
+{% endif %}

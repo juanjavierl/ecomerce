@@ -61,4 +61,8 @@ urlpatterns = [
 
     path('informacion_web/', inicio.informacion_web, name='informacion_web'),
     path('informacion_empresa/', inicio.informacion_empresa, name='informacion_empresa'),
+
+    path('add_red_social/', inicio.add_red_social, name='add_red_social'),
+    path('get_redes_sociales/', inicio.get_redes_sociales, name='get_redes_sociales'),
+    path('delete_red_social/<int:id_red_social>/', inicio.delete_red_social, name='delete_red_social'),
 ]
