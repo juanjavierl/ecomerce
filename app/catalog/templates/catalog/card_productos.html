@@ -40,7 +40,9 @@
     {% else %}
      <i class="bi bi-image card-img-top icon" alt="..." onclick="detailView('/detail_product/{{p.id}}/')"></i>
     {% endif %}
-    <span class="badge rounded-pill bg-primary sale-tag d-flex"><small>{{p.is_promotion|capfirst|default:""}}</small></span>
+    {% if p.is_promotion %}
+      <span class="badge rounded-pill bg-primary sale-tag d-flex"><small>{{p.is_promotion|capfirst|default:""}}</small></span>
+    {% endif %}
     <div class="card-body" style="padding: 0px;">
       <div class="text-section" onclick="detailView('/detail_product/{{p.id}}/')" style="cursor: pointer;">
         <h5 class="card-title text-wrap text-primary fw-bolder">{{p.name|capfirst}}</h5>
@@ -51,13 +53,24 @@
       </div>
       <div class="cta-section">
         <div>
-          <p style="margin-bottom: 0px;">{{company.moneda}}. {{p.price|default:" 0 "}}</p>
-          {% if p.price_before %}
-          <p class="text-decoration-line-through text-danger" style="font-size: 14px; margin-bottom: 0px;">Antes:
-            {{p.price_before}}</p>
-          <p><span class="badge text-bg-warning text-white desc">Desc. {{p.porcentage}}%</span></p>
-          {% endif %}
+          {% if es_afiliado %}
+              <p style="margin-bottom: 0px;">
+                  {{company.moneda}}. {{p.price|default:" 0 "}}
+              </p>
+              <p>
+                <span class="badge bg-info text-white" style="margin-top: 10px;">
+                  Ganas Bs. {{ p.comision_ganancia|default:" 0 " }}
+              </span>
+              </p>
 
+          {% else %}
+              <p style="margin-bottom: 0px;">{{company.moneda}}. {{p.price|default:" 0 "}}</p>
+              {% if p.price_before %}
+              <p class="text-decoration-line-through text-danger" style="font-size: 14px; margin-bottom: 0px;">Antes:
+                {{p.price_before}}</p>
+              <p><span class="badge text-bg-warning text-white desc">Desc. {{p.porcentage}}%</span></p>
+              {% endif %}
+          {% endif %}
           <div class="dropdown">
             
             {% if p.stock_actual > 0 %}
@@ -88,6 +101,18 @@
               <a class="dropdown-item text-danger" href="#" onclick="remove_imagen('/remode_imgs_products/{{p.id}}/')" 
                 data-bs-toggle="modal" data-bs-target="#exampleModal">Eliminar imágenes</a>
               
+            </div>
+            {% elif es_afiliado %}
+              <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="dropdown" aria-expanded="false"
+              aria-haspopup="true">
+              <span class="bi bi-three-dots-vertical"></span>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item"
+                href="#"
+                onclick="event.preventDefault(); copiarEnlace('{{ request.scheme }}://{{ request.get_host }}/detail_product/{{p.id}}/?ref={{user.id}}');">
+                Copiar enlace
+              </a>
             </div>
             {% endif %}
           </div>

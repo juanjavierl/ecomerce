@@ -16,7 +16,7 @@ RRSS_CHOICES = (
 )
 
 IS_PROMOTION = (
-    ('', ''),
+    ('', '-Ninguno-'),
     ('ofertas', 'En oferta'),
     ('nuevo', 'Es nuevo'),
     ('promaciones', 'En promación'),
@@ -31,4 +31,11 @@ IS_PROMOTION = (
     ('Productos recomendados', 'Productos recomendados'),
     ('Los más vendidos', 'Los más vendidos'),
     ('Productos más buscados', 'Productos más buscados'),
+)
+
+STATUS_CHOICES = (
+    ('pending', 'Pendiente'),
+    ('approved', 'Aprobada'),
+    ('paid', 'Pagada'),
+    ('cancelled', 'Anulada'),
 )

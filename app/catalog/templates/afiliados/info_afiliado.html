@@ -1,0 +1,127 @@
+<div class="modal-header  thead-light" style="background-color: #58bba9;">
+    <h5 class="modal-title text-white" id="exampleModalLabel">Información del Afiliado</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="container-fluid">
+
+    <div class="mb-3">
+        <small class="text-muted">
+            {{ user_afiliado.get_full_name|title }} <br>
+        </small>
+    </div>
+
+    <!-- RESUMEN -->
+    <div class="row g-2 mb-3">
+
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body text-center p-2">
+                    <i class="bi bi-share-fill text-primary"></i>
+                    <div class="small text-muted">Compartidos</div>
+                    <h6 class="fw-bold mb-0">{{ productos_compartidos }}</h6>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body text-center p-2">
+                    <i class="bi bi-clock-history text-warning"></i>
+                    <div class="small text-muted">Pendientes</div>
+                    <h6 class="fw-bold mb-0">{{ pendientes }}</h6>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body text-center p-2">
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                    <div class="small text-muted">Aprobadas</div>
+                    <h6 class="fw-bold mb-0">{{ aprobadas }}</h6>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="card bg-success text-white shadow-sm">
+                <div class="card-body text-center p-2">
+                    <i class="bi bi-cash-stack"></i>
+                    <div class="small">Ganado</div>
+                    <h6 class="fw-bold mb-0">
+                        Bs. {{ total_ganado|floatformat:2 }}
+                    </h6>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TABLA -->
+    <div class="table-responsive">
+
+        <table class="table table-sm table-hover align-middle">
+
+            <thead class="table-light">
+                <tr>
+                    <th>Orden</th>
+                    <th>Producto</th>
+                    <th>Ganancia</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for c in comisiones %}
+
+                <tr>
+
+                    <td>#{{ c.orden.id }}</td>
+
+                    <td>
+                        <small>
+                            {{ c.product.name|truncatechars:25 }}
+                        </small>
+                    </td>
+
+                    <td class="fw-bold text-success">
+                        Bs. {{ c.commission_amount }}
+                    </td>
+
+                    <td>
+
+                        {% if c.status == 'pending' %}
+                            <span class="badge bg-warning text-dark">Pend.</span>
+
+                        {% elif c.status == 'approved' %}
+                            <span class="badge bg-success">Aprob.</span>
+
+                        {% elif c.status == 'paid' %}
+                            <span class="badge bg-primary">Pagada</span>
+
+                        {% else %}
+                            <span class="badge bg-danger">Anulada</span>
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="4" class="text-center text-muted">
+                        Sin registros
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

@@ -1,0 +1,209 @@
+{% extends 'index.html' %}
+
+{% block titulo %}
+Panel de Afiliado
+{% endblock %}
+
+{% block company %}
+<a href="/">
+    {{company.name|title}}
+</a>
+{% endblock company %}
+
+{% block menus %}
+    {% include 'company/menu_from_user.html' %}
+{% endblock menus %}
+
+{% block contenido %}
+
+<div class="container py-5" style="margin-top: 50px;">
+
+    <div class="mb-4">
+        <h2 class="fw-bold">
+            <i class="bi bi-person-badge"></i>
+            Panel de Afiliado
+        </h2>
+        <p class="text-muted mb-0">
+            Bienvenido {{ user.first_name|default:user.username }}.
+            Aquí puedes visualizar tus referencias y ganancias.
+        </p>
+    </div>
+
+    <!-- RESUMEN -->
+    <div class="row g-4 mb-5">
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-share-fill fs-1 text-primary"></i>
+                    <h6 class="mt-3 text-muted">Productos Compartidos</h6>
+                    <h2 class="fw-bold">{{ productos_compartidos }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-clock-history fs-1 text-warning"></i>
+                    <h6 class="mt-3 text-muted">Pendientes</h6>
+                    <h2 class="fw-bold">{{ pendientes }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-check-circle-fill fs-1 text-success"></i>
+                    <h6 class="mt-3 text-muted">Aprobadas</h6>
+                    <h2 class="fw-bold">{{ aprobadas }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100 bg-success text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-cash-stack fs-1"></i>
+                    <h6 class="mt-3">Ganancias Totales</h6>
+                    <h2 class="fw-bold">
+                        Bs. {{ total_ganado|floatformat:2 }}
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TABLA DE COMISIONES -->
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="bi bi-graph-up"></i>
+                Historial de Comisiones
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>Cliente # orden</th>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Precio</th>
+                            <th>Ganancia</th>
+                            <th>Estado</th>
+                            <th>Fecha</th>
+                            {% ifchanged c.orden.id %}
+                                {% if c.status == 'approved' %}
+                                <th>Acciones</th>
+                                {% endif %}
+                            {% endifchanged %}
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for c in comisiones %}
+
+                        <tr>
+
+                            <td>
+                                {{ c.orden.client.names }} #{{ c.orden.id }}
+                            </td>
+
+                            <td>
+                                {{ c.product.name|title }}
+                            </td>
+
+                            <td>
+                                {{ c.quantity }}
+                            </td>
+
+                            <td>
+                                Bs. {{ c.product_total }}
+                            </td>
+
+                            <td class="fw-bold text-success">
+                                Bs. {{ c.commission_amount }}
+                            </td>
+                            <td>
+                                {% if c.status == 'pending' %}
+                                <span class="badge bg-warning text-dark">
+                                    Pendiente
+                                </span>
+
+                                {% elif c.status == 'approved' %}
+                                <span class="badge bg-success">
+                                    Aprobada
+                                </span>
+
+                                {% elif c.status == 'paid' %}
+                                <span class="badge bg-primary">
+                                    Pagada
+                                </span>
+
+                                {% else %}
+                                <span class="badge bg-danger">
+                                    Anulada
+                                </span>
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+                                {{ c.creation_date|date:"d/m/Y H:i A" }}
+                            </td>
+                            {% ifchanged c.orden.id %}
+                                {% if c.status == 'approved' %}
+                                <td>
+                                    
+                                    <a
+                                        href="https://wa.me/{{ company.mobile }}?text=Hola, soy *{{ c.affiliate.get_full_name }}* y deseo solicitar el pago de mi comisión correspondiente a la *orden #{{ c.orden.id }}*"
+                                        target="_blank"
+                                        class="btn btn-success btn-sm">
+                                        <i class="bi bi-whatsapp"></i>
+                                        Solicitar pago
+                                    </a>
+                                        
+                                </td>
+                                {% endif %}
+                            {% endifchanged %}
+                        </tr>
+
+                        {% empty %}
+
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+
+                                <i class="bi bi-inbox fs-1 text-muted"></i>
+
+                                <p class="mt-3 mb-0 text-muted">
+                                    Aún no tienes comisiones registradas.
+                                </p>
+
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

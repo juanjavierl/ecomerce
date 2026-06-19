@@ -19,7 +19,7 @@
         </div>
     </div>
     <small class="text-muted text-center">solo ingrese una casilla para aumentar o restar al stock actual</small>
-    <form action="/{{p.id}}/updateStock/" method="POST" id="form_incrementar">
+    <form action="/updateStock/{{p.id}}/" method="POST" id="form_incrementar">
         {% csrf_token %}
         <div class="row">
             <label for="inputPassword" class="col-9 col-form-label">Incrementar stock Inicial</label>

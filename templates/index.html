@@ -80,6 +80,10 @@
   <style>
     #header {
         background: {{ dashboard.navbar|default:"#000" }};
+        
+    }
+    .navbar ul li a{
+      color: {{ dashboard.color_texto|default:"rgba(255, 255, 255, 0.8)" }};
     }
   </style>
 </head>
@@ -107,7 +111,7 @@
       <nav id="navbar" class="navbar">
 
         {% block menus %}
-        {% include 'menu_index.html' with type_company=type_company count_comp=count_comp %}
+        {% include 'company/menu_from_user.html' %}
         {% endblock menus %}
 
         <i class="bi bi-list mobile-nav-toggle"></i>
@@ -117,15 +121,6 @@
   <!-- End Header -->
   <!-- ======= Hero Section ======= -->
   {% block hero %}
-  <section id="hero" class="d-flex flex-column justify-content-center align-items-center">
-    <div class="container text-center text-md-left" data-aos="fade-up">
-      <h1>Crea tu tienda online ahora</h1>
-      <h2>Convierte tu idea en un negocio digital que venda solo fácil, rápido y seguro con IA + SEO, 24/7.</h2>
-      <a href="#team" class="btn-get-started scrollto"> Ver Ultimas Novedades</a>
-      <a href="#" onclick="form_company('/registro_company/')" data-bs-toggle="modal" data-bs-target="#exampleModal"
-        class="btn-get-started scrollto"> crear mi tienda online</a>
-    </div>
-  </section>
   {% endblock hero %}
   <!-- End Hero -->
   <main id="main">
@@ -135,9 +130,6 @@
      <!-- ======= About Section ======= -->
     
     {% block acerca %}
-      <section id="about" class="about"><br>
-        {% include 'acerca.html' %}
-      </section>
     {% endblock acerca %}
       
     <!-- End About Section -->
@@ -151,29 +143,30 @@
       </div>
     </section>
     {% endblock contenido %}
+    {% block afiliados %} {% endblock afiliados %}
     <section id="product_mas_vistos" class="product_view">
       <div class="container">
         {% block productos_mas_vistos %}
-        {% include 'tiendas_mas_vistos.html' %}
+
         {% endblock productos_mas_vistos %}
       </div>
     </section>
 
     {% block preg_frecuentes %}
-    {% include 'preguntas_frecuentes.html' %}
+
     {% endblock preg_frecuentes %}
 
       {% block suscipcion_for_email %}
-        {% include 'buscador_general.html' %}
       {% endblock suscipcion_for_email %}
     <!-- ======= Services Section ======= -->
-    <section id="services" class="services section-bg">
-      <div class="container">
-        {% block servicios %}
-          {% include 'servicios.html' %}
-        {% endblock servicios %}
-      </div>
-    </section><!-- End Services Section -->
+    
+      {% block servicios %}
+          <section id="services" class="services section-bg">
+            <div class="container">
+              </div>
+        </section><!-- End Services Section -->
+      {% endblock servicios %}
+      
     <div class="modal fade" id="exampleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
       aria-labelledby="staticBackdropLabel" aria-hidden="true">
       <div class="modal-dialog">
@@ -193,32 +186,11 @@
   <!-- ======= Footer ======= -->
 
   {% block footer_catalog %}
-  {% include 'footer_catalog.html' %}
+  
   {% endblock footer_catalog %}
   <!-- End Footer -->
 
-  {% block button_whatsap %}
-  <a href="#bot_amceb" id="whatsappButton" title="¿Buscas algun producto?"
-    class="back-to-top-w d-flex align-items-center justify-content-center">
-    <i class="bi bi-robot"></i>
-  </a>
-  <script>
-    $(document).ready(function () {
-      const $button = $('#whatsappButton');
-      const tooltip = new bootstrap.Tooltip($button[0]);
-
-      setTimeout(function () {
-        tooltip.show();
-
-        // Ocultar tooltip automáticamente a los 5 segundos
-        setTimeout(function () {
-          tooltip.hide();
-        }, 10000);
-
-      }, 0);
-    });
-  </script>
-  {% endblock button_whatsap %}
+  {% block button_whatsap %} {% endblock button_whatsap %}
   <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="toast-header">
@@ -422,10 +394,16 @@
 
     // Código si la Web Share API es soportada
     document.getElementById("compartir").value = "En más lugares"
+
+    const url = new URL(window.location.href);
+    {% if es_afiliado %}
+        url.searchParams.set('ref', '{{ user.id }}');
+    {% endif %}
+
     const shareData = {
-      title: "Catalogo",
-      text: "Visita mi Catálogo {% now 'M-Y' %} | {{company.name|upper|default:' '}} Una tienda online diseñada especialmente para nuestros clientes, donde pueden descubrir productos exclusivos y realizar sus pedidos de forma fácil, rápida y segura.",
-      url: window.location.href,
+        title: "Catalogo",
+        text: "Visita mi Catálogo {% now 'M-Y' %} | {{company.name|upper|default:' '}}",
+        url: url.toString(),
     };
     let btn = document.getElementById("compartir");
     const resultPara = document.getElementsByClassName("alert-success");
@@ -445,6 +423,22 @@
     // Fallback
     $("#status").hide();
   }
+
+function copiarEnlace(url) {
+  const input = document.createElement('input');
+  input.value = url;
+  document.body.appendChild(input);
+  input.select();
+  document.execCommand('copy');
+  document.body.removeChild(input);
+
+  $('.toast-body')
+      .removeClass('alert-danger')
+      .addClass('alert-success')
+      .html('<strong>Enlace copiado correctamente</strong>');
+
+  mostrar_notificacion();
+}
 </script>
 
 </html>

@@ -1,5 +1,6 @@
 # encoding:utf-8
 from datetime import datetime
+from django.conf import settings as django_settings
 from django.db import models
 from django.forms import model_to_dict
 from app.inicio.models import *
@@ -79,6 +80,15 @@ class Video(models.Model):
 
 class Orden(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name='Cliente')
+    affiliate = models.ForeignKey(
+        django_settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='affiliate_orders',
+        limit_choices_to={'groups__name': 'Afiliados'},
+        verbose_name='Afiliado',
+    )
     subtotal = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Sub Total')
     dscto = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Descuento')
     total = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Total a pagar')
@@ -97,6 +107,8 @@ class Orden(models.Model):
         item = model_to_dict(self)
         item['id'] = int(self.id)
         item['client'] = self.client.names
+        item['affiliate'] = self.affiliate_id
+        item['affiliate_username'] = self.affiliate.username if self.affiliate else None
         item['sub_total'] = self.subtotal
         item['total'] = self.total
         return item
@@ -126,6 +138,47 @@ class Pedido(models.Model):
         orden_id = self.orden_id if self.orden_id else 'Sin orden'
         return f'{self.product.name}, orden # {orden_id}'
 
+class AffiliateCommission(models.Model):
+    affiliate = models.ForeignKey(
+        django_settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='affiliate_commissions',
+        limit_choices_to={'groups__name': 'Afiliados'},
+        verbose_name='Afiliado',
+    )
+    orden = models.ForeignKey(
+        Orden,
+        on_delete=models.CASCADE,
+        related_name='affiliate_commissions',
+        verbose_name='Orden',
+    )
+    pedido = models.OneToOneField(
+        Pedido,
+        on_delete=models.CASCADE,
+        related_name='affiliate_commission',
+        verbose_name='Pedido',
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.PROTECT,
+        related_name='affiliate_commissions',
+        verbose_name='Producto',
+    )
+    quantity = models.IntegerField(default=0, verbose_name='Cantidad')
+    unit_price = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Precio unitario')
+    product_total = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Total producto')
+    commission_ganacia = models.DecimalField(max_digits=5, decimal_places=2, default=0.00, verbose_name='Ganancia afiliado')
+    commission_amount = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Total ganacia')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name='Estado')
+    creation_date = models.DateTimeField(auto_now_add=True, verbose_name='Fecha y hora de registro')
+    date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')
+
+    class Meta:
+        verbose_name = 'Comisión de afiliado'
+        verbose_name_plural = 'Comisiones de afiliados'
+
+    def __str__(self):
+        return f'{self.affiliate} - orden # {self.orden_id} - {self.commission_amount}'
 
 class Like(models.Model):
     like = models.IntegerField(verbose_name='like')
@@ -326,3 +379,11 @@ class Suscripcion(models.Model):
         item = model_to_dict(self)
         item['celular'] = self.celular
         return item
+
+
+class AffiliateProfile(models.Model):
+    user = models.OneToOneField(User,on_delete=models.CASCADE,related_name='affiliate_profile')
+    celular = models.CharField(max_length=20, verbose_name='Celular')
+
+    def __str__(self):
+        return self.user.get_full_name() or self.user.username

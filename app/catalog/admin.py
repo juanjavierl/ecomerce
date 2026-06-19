@@ -21,6 +21,8 @@ admin.site.register([
     RRSS,
     PixelMeta,
     Suscripcion,
+    AffiliateCommission,
+    AffiliateProfile,
 ])
 
 @admin.register(Client)

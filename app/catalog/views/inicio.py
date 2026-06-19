@@ -7,9 +7,10 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, User
+from django.contrib.auth.models import Group
 from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator
-from django.db.models import F, ExpressionWrapper, IntegerField
+from django.db.models import F, ExpressionWrapper, IntegerField, Sum
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import get_template, render_to_string
@@ -17,7 +18,7 @@ from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 
 from app.catalog.company_helpers import get_company
-from app.catalog.forms import formProducto
+from app.catalog.forms import AffiliateRegisterForm, formProducto
 from app.catalog.models import *
 from app.catalog.views.catalog import *
 from app.inicio.views import get_Dashboard
@@ -139,7 +140,7 @@ def login_user(request):
             if user is not None:
                 login(request, user)
                 company = Company.objects.first()
-                return JsonResponse({'redirect_url': '/configuraciones/'})
+                return JsonResponse({'redirect_url': '/'})
             return JsonResponse({'error': 'Contactese con el administrador para resolver el problema gracias.'})
         return JsonResponse({'error': 'Datos incorrectos intente nuevamente gracias.'})
 
@@ -159,6 +160,28 @@ def validar_form(request):
         return JsonResponse({'error': formulario.errors})
     return JsonResponse({'error': 'Método no permitido'})
 
+
+
+def registrar_afiliado(request):
+    if request.method == 'POST':
+        form = AffiliateRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            afiliados_group, _ = Group.objects.get_or_create(name='Afiliados')
+            user.groups.add(afiliados_group)
+            print('celular:', form.cleaned_data['celular'].strip())
+            AffiliateProfile.objects.create(
+                user=user,
+                celular=form.cleaned_data['celular']
+            )
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            return JsonResponse({
+                'success': 'Registro exitoso. Ya formas parte del programa de afiliados.',
+                'redirect_url': '/',
+            })
+        return JsonResponse({'error': form.errors}, status=400)
+
+    return render(request, 'afiliados/form_afiliado.html', {'form': AffiliateRegisterForm()})
 
 
 def redirigir_a_catalogo(request, slug):
@@ -200,33 +223,82 @@ def del_address_comp(request, id_address):
         return JsonResponse({'success': 'Se Borro el registro.'})
     return render(request, 'company/notificaciones/del_addres_company.html', {'address': address})
 
+@login_required(login_url='/')
+def dashboard_afiliado(request):
+    comisiones = AffiliateCommission.objects.filter(affiliate=request.user).order_by('-id')
+    pendientes = comisiones.filter(status='pending')
+    aprobadas = comisiones.filter(status='approved')
+    pagadas = comisiones.filter(status='paid')
+    total_ganado = (pagadas.aggregate(total=Sum('commission_amount'))['total']or 0)
+    print('Total ganado y sumado:', total_ganado)
+    context = {
+        'productos_compartidos': comisiones.count(),
+        'pendientes': pendientes.count(),
+        'aprobadas': aprobadas.count(),
+        'pagadas': pagadas.count(),
+        'total_ganado': total_ganado,
+        'comisiones': comisiones,
+        'company': Company.objects.first(),
+        'categorias': categorys_from_productos(Product.objects.filter(stock__gt=0).order_by('-id')),
+    }
+    return render(
+        request,
+        'afiliados/dashboard_afiliado.html',
+        context
+    )
+
+def info_afiliado(request, id_afiliado):
+    user_afiliado = get_object_or_404(User, id=int(id_afiliado), groups__name='Afiliados')
+    comisiones = AffiliateCommission.objects.filter(affiliate=id_afiliado).order_by('-id')
+    pendientes = comisiones.filter(status='pending')
+    aprobadas = comisiones.filter(status='approved')
+    pagadas = comisiones.filter(status='paid')
+    total_ganado = (pagadas.aggregate(total=Sum('commission_amount'))['total']or 0)
+    context = {
+        'productos_compartidos': comisiones.count(),
+        'pendientes': pendientes.count(),
+        'aprobadas': aprobadas.count(),
+        'pagadas': pagadas.count(),
+        'total_ganado': total_ganado,
+        'comisiones': comisiones,
+        'user_afiliado': user_afiliado,
+    }
+    return render(
+        request,
+        'afiliados/info_afiliado.html',
+        context
+    )
 
 @login_required(login_url='/')
 def configuraciones_company(request):
-    company = get_company(request.user)
-    pedidos = Orden.objects.values('client_id').order_by('-id').distinct()
-    productos = Product.objects.filter(stock__gt=0).order_by('-id')
-    dic = {
-        'reglas': Condicion.objects.all(),
-        'precio': get_precio_envios(),
-        'avisos': Aviso.objects.all()[:1],
-        'banco': Banco.objects.all()[:1],
-        'ordens': list(pedidos),
-        'clientes': Client.objects.all().order_by('-id'),
-        'categorias': categorys_from_productos(productos),
-        'company': company,
-        'total_compra': sum(item['cantidad'] for item in request.session.get('compra', [])),
-        'address': get_address(),
-        'redes': RRSS.objects.all(),
+    if request.user.groups.filter(name='Afiliados').exists():
+        return dashboard_afiliado(request)
+    else:
+        company = get_company(request.user)
+        pedidos = Orden.objects.values('client_id').order_by('-id').distinct()
+        productos = Product.objects.filter(stock__gt=0).order_by('-id')
+        dic = {
+            'reglas': Condicion.objects.all(),
+            #'precio': get_precio_envios(),
+            'avisos': Aviso.objects.all()[:1],
+            'banco': Banco.objects.all()[:1],
+            'ordens': list(pedidos),
+            'clientes': Client.objects.all().order_by('-id'),
+            'categorias': categorys_from_productos(productos),
+            'company': company,
+            'total_compra': sum(item['cantidad'] for item in request.session.get('compra', [])),
+            'address': get_address(),
+            'redes': RRSS.objects.all(),
+            'list_afiliados': User.objects.filter(groups__name='Afiliados').order_by('-id'),
 
-        'form_huvicacion': FormHuvicacion(instance=Sucursal.objects.first()),
-        'form_ban': FormBanco(instance=Banco.objects.first()),
-        'form_precio': PrecioForm(instance=Precio_envio.objects.first()),
-        'form_avisos': Form_avisos(instance=Aviso.objects.first()),
-        'form_regla': Form_condiciones(),
-        'form_red_social': formRedSocial(),
-    }
-    return render(request, 'company/configuraciones_company.html', dic)
+            'form_huvicacion': FormHuvicacion(instance=Sucursal.objects.first()),
+            'form_ban': FormBanco(instance=Banco.objects.first()),
+            #'form_precio': PrecioForm(instance=Precio_envio.objects.first()),
+            'form_avisos': Form_avisos(instance=Aviso.objects.first()),
+            'form_regla': Form_condiciones(),
+            'form_red_social': formRedSocial(),
+        }
+        return render(request, 'company/configuraciones_company.html', dic)
 
 
 def get_precio_envios():
@@ -544,7 +616,6 @@ def send_suscripcion_mail(email_user, url_tienda, company):
             return JsonResponse({'error': 'El email ya está suscrito.'})
     return JsonResponse({'error': 'Método no permitido'}) """
 
-
 def suscribirse(request):
     print("suscribirse")
     if request.method == 'POST':
@@ -575,32 +646,6 @@ def suscribirse(request):
 
 
 @login_required(login_url='/')
-def add_cupon(request):
-    if request.method == 'POST':
-        cupon = Cupon.objects.first()
-        if not cupon:
-            cupon = Cupon()
-        cupon.codigo = request.POST['codigo'].strip()
-        cupon.descuento = int(request.POST['descuento'])
-        cupon.save()
-        return JsonResponse({'success': 'Registro exitoso.'})
-    return JsonResponse({'error': 'Ya existe el registro.'})
-
-
-def get_cupom(request):
-    cupom = Cupon.objects.all()
-    return render(request, 'company/notificaciones/get_cupom.html', {'cupom': cupom})
-
-
-def delete_cupom(request, id_cupom):
-    cupom = get_object_or_404(Cupon, id=int(id_cupom))
-    if request.method == 'POST':
-        cupom.delete()
-        return JsonResponse({'success': 'Se Borro el registro. '})
-    return render(request, 'company/notificaciones/delete_cupom.html', {'cupom': cupom})
-
-
-@login_required(login_url='/')
 def estadoCompany(request):
     company = get_company(request.user)
     initial_url = request.build_absolute_uri('/')
@@ -626,7 +671,7 @@ def autorizar_orden(request, id_orden):
             Product.objects.filter(id=producto.id).update(
                 salida=F('salida') + pedido.cant
             )
-        messages.success(request, 'La orden fue autorizada y las salidas actualizadas correctamente.')
+        AffiliateCommission.objects.filter(orden=orden, status='pending').update(status='approved')
+        messages.success(request, 'La orden fue autorizada y el stock de productos actualizado.')
         return render(request, 'company/notificaciones/orden_autorizada.html', {'orden': orden})
-
     return render(request, 'company/notificaciones/autorizar_orden.html', {'orden': orden})

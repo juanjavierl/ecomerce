@@ -1,32 +1,37 @@
 
+<style>
+     #carouselAvisosTienda.carousel-item div h5 {
+         color: {{ dashboard.color_texto|default:'rgba(255, 255, 255, 0.8)' }};
+     }
+</style>
 <div class="container-fluid px-0 mb-4">
   <div id="carouselAvisosTienda" class="carousel slide" data-bs-ride="carousel" data-bs-touch="true" data-bs-interval="4000">
-    <div class="carousel-inner bg-success">
+    <div class="carousel-inner" style="background-color: {{dashboard.navbar|default:'#fff'}};">
       {% if aviso.mensaje1 %}
         <div class="carousel-item active">
           <div class="d-flex align-items-center justify-content-center text-center px-4 py-4">
-            <p class="h5 text-white mb-0">{{ aviso.mensaje1|title }}</p>
+            <p class="h5 mb-0" style="color: {{ dashboard.color_texto|default:'rgba(255, 255, 255, 0.8)' }}">{{ aviso.mensaje1|title }} </p>
           </div>
         </div>
       {% endif %}
       {% if aviso.mensaje2 %}
         <div class="carousel-item {% if not aviso.mensaje1 %}active{% endif %}">
           <div class="d-flex align-items-center justify-content-center text-center px-4 py-4">
-            <p class="h5 text-white mb-0">{{ aviso.mensaje2|title }}</p>
+            <p class="h5 mb-0" style="color: {{ dashboard.color_texto|default:'rgba(255, 255, 255, 0.8)' }}">{{ aviso.mensaje2|title }}</p>
           </div>
         </div>
       {% endif %}
       {% if aviso.mensaje3 %}
         <div class="carousel-item {% if not aviso.mensaje1 and not aviso.mensaje2 %}active{% endif %}">
           <div class="d-flex align-items-center justify-content-center text-center px-4 py-4">
-            <p class="h5 text-white mb-0">{{ aviso.mensaje3|title }}</p>
+            <p class="h5 mb-0" style="color: {{ dashboard.color_texto|default:'rgba(255, 255, 255, 0.8)' }}">{{ aviso.mensaje3|title }}</p>
           </div>
         </div>
       {% endif %}
       {% if aviso.mensaje4 %}
         <div class="carousel-item {% if not aviso.mensaje1 and not aviso.mensaje2 and not aviso.mensaje3 %}active{% endif %}">
           <div class="d-flex align-items-center justify-content-center text-center px-4 py-4">
-            <p class="h5 text-white mb-0">{{ aviso.mensaje4|title }}</p>
+            <p class="h5 mb-0" style="color: {{ dashboard.color_texto|default:'rgba(255, 255, 255, 0.8)' }}">{{ aviso.mensaje4|title }}</p>
           </div>
         </div>
       {% endif %}

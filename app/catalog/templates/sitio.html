@@ -45,7 +45,7 @@
 {% endblock code_meta %}
 
 {% block carrito %}
-  {% include 'catalog/carrito.html'  with total_compra=total_compra %}
+  {% include 'catalog/carrito.html'  with total_compra=total_compra user=request.user|default:None %}
 {% endblock carrito %}
 
 {% block menus %}
@@ -55,12 +55,6 @@
 {% block hero %}
   <style>
     #hero.company-hero {
-      width: 100%;
-      min-height: calc(100vh - 50px);
-      margin-top: 50px;
-      padding: 96px 0 72px;
-      position: relative;
-      overflow: hidden;
       background:
         linear-gradient(90deg, rgba(8, 27, 39, .82), rgba(8, 27, 39, .44)),
         {% if company.image %}url("{{ company.image.url }}") center center / cover no-repeat{% else %}#0f2d35{% endif %};
@@ -171,6 +165,13 @@
     </div>
   </section>
 {% endblock contenido %}
+
+
+{% block afiliados %}
+  <section id="afiliados" class="afiliados">
+      {% include 'afiliados/afiliados.html' %}
+  </section>
+{% endblock afiliados %}
 
 {% block button_whatsap %}
   {% include 'button_whatsap.html' %}

@@ -32,51 +32,22 @@
     </div>
 </div>
 <script>
-    class Localizacion{
-        constructor(callback){
-            if(navigator.geolocation){
-                navigator.geolocation.getCurrentPosition((position) => {
-                    this.latitude = position.coords.latitude;
-                    this.longitude = position.coords.longitude;
-                    callback();
-                });
-            }else{
-                alert("Tu navegador no soporta geolocalizacion")
-            }
-        }
-    }
+    if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+              function(position) {
+                  document.getElementById('id_latitud').value = position.coords.latitude;
+                  document.getElementById('id_longitud').value = position.coords.longitude;
 
-    function initMap() {
-        const ubicacion = new Localizacion(()=>{
-            const mylatLng = {lat: ubicacion.latitude,lng: ubicacion.longitude}
-
-            $("#id_latitud").val(ubicacion.latitude);
-            $("#id_longitud").val(ubicacion.longitude);
-            const options = {
-                center: mylatLng,
-                zoom: 15
-            }
-            var map = document.getElementById('map');
-            const mapa = new google.maps.Map(map, options);
-            
-            const marker = new google.maps.Marker({
-            //const marker = new google.maps.marker.AdvancedMarkerElement({
-                map: mapa,
-                position:mylatLng,
-                title:'Mi ubicación',
-                draggable: true,
-            });
-            google.maps.event.addListener(marker, 'position_changed',function(){
-                getMarkerCoords(marker);
-            });
-            function getMarkerCoords(marker){
-                var markerCoords = marker.getPosition();
-                $('#id_latitud').val(markerCoords.lat);
-                $('#id_longitud').val(markerCoords.lng);
-            }
-
-        });
-    }
+                  console.log(position.coords.latitude);
+                  console.log(position.coords.longitude);
+              },
+              function(error) {
+                  alert("No se pudo obtener la ubicación.");
+              }
+          );
+      } else {
+          alert("Tu navegador no soporta geolocalización.");
+      }
     $('#form_add_mapa').on('submit', function (e) {
         e.preventDefault();
         $.ajax({
@@ -130,4 +101,6 @@
         });
         return false;
     }
+
+</script>
 </script>

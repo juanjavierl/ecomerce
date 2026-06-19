@@ -1,8 +1,4 @@
 <ul>
-    {% if user.is_authenticated %}
-    
-    {% endif %}
-    
     {% if company.id %}
       <li><a class="nav-link scrollto active" href="/">Productos</a></li>
       <li class="dropdown"><a href="#"><span>Categorias</span> <i class="bi bi-chevron-down"></i></a>
@@ -15,29 +11,33 @@
         </ul>
       </li>
     {% endif %}
+      <li><a class="nav-link scrollto" href="#afiliados">Afiliados</a></li>
       <li><a class="nav-link scrollto" href="#bot_amceb">Suscribirme</a></li>
       <li><a class="nav-link scrollto" href="#contact">Contáctanos</a></li>
-    {% if user.is_authenticated %}
-    <li class="dropdown"><a href="#"><span>Mi Perfil</span> <i class="bi bi-chevron-down"></i></a>
-      <ul>
-        {% if user.first_name %}
-          <li><a class="nav-link scrollto" href="#" >{{request.user.first_name|title}} {{request.user.last_name|title}} </a></li>
-        {% endif %}
-        <li><a class="nav-link scrollto" href="#team_productos" onclick="updateUser('/{{request.user.id}}/update_perfil_user/')">Actualizar mi Perfil</a></li>
-        {% if company.id %}
-          <li><a class="nav-link scrollto" href="/configuraciones/">Administrador</a></li>
-          <li><a class="nav-link scrollto" href="#team_productos" onclick="newProducto('/new_producto/')">Registrar Producto</a></li>
-          <li><a class="nav-link scrollto" href="#team_productos" onclick="newProducto('/informacion_empresa/')">Informacion Empresa</a></li>
-          <li><a class="nav-link scrollto" href="#team_productos" onclick="newProducto('/informacion_web/')">Informacion Web</a></li>
-        {% endif %}
-        <li><a class="nav-link scrollto" href="https://www.tiktok.com/@amceb" target="_blank">Videos de Ayuda</a></li>
-        <li><a class="nav-link scrollto" href="/salir/">Cerrar Sesion</a></li>
-      </ul>
-    </li>
-      
-    {% endif %}
+      {% if not user.is_authenticated %}
+      <li><a class="nav-link scrollto" href="#login" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="login('/login_user/')">Ingresar</a></li>
+      {% else %}
+      <li class="dropdown"><a href="#"><span>Mi Perfil</span> <i class="bi bi-chevron-down"></i></a>
+        <ul>
+          {% if user.first_name %}
+            <li><a class="nav-link scrollto" href="#" >User: {{request.user.username|title}} </a></li>
+          {% endif %}
+          <li><a class="nav-link scrollto" href="#team_productos" onclick="updateUser('/{{request.user.id}}/update_perfil_user/')">Mi Perfil</a></li>
+          {% if company.id and user.is_superuser %}
+            <li><a class="nav-link scrollto" href="/configuraciones/">Administrador</a></li>
+            <li><a class="nav-link scrollto" href="#team_productos" onclick="newProducto('/new_producto/')">Registrar Producto</a></li>
+            <li><a class="nav-link scrollto" href="#team_productos" onclick="newProducto('/informacion_empresa/')">Informacion Empresa</a></li>
+            <li><a class="nav-link scrollto" href="#team_productos" onclick="newProducto('/informacion_web/')">Informacion Web</a></li>
+          {% else %}
+            <li><a class="nav-link scrollto" href="/configuraciones/">Afiliado</a></li> 
+            <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); copiarEnlace('{{ request.scheme }}://{{ request.get_host }}/?ref={{user.id}}');">
+                Copiar mi enlace referido</a></li> 
+          {% endif %}
+          <li><a class="nav-link scrollto" href="/salir/">Cerrar Sesion</a></li>
+        </ul>
+      </li>
+      {% endif %}
   </ul>
-
   <script>
     function newTienda(urls){
       $.ajax({

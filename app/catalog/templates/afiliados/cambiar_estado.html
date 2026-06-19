@@ -1,0 +1,84 @@
+<div class="modal-header border-0 text-white" style="background-color: #58bba9;">
+    <h5 class="modal-title fw-bold">
+        <i class="bi bi-cash-stack me-2"></i>
+        Confirmar Pago de Comisión
+    </h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+</div>
+
+<div class="modal-body p-4">
+    <div class="alert alert-light border shadow-sm text-center">
+
+        {% if ya_pagada %}
+            <i class="bi bi-check-circle-fill me-2"></i>
+            Esta comisión ya fue marcada como <strong>PAGADA</strong>.
+
+        {% else %}
+
+            <i class="bi bi-info-circle text-primary me-2"></i>
+
+            ¿Desea marcar esta comisión como
+            <span class="badge bg-success">
+                PAGADA
+            </span>?
+
+            <br>
+
+            <small class="text-muted">
+                Esta acción confirma que el afiliado ya recibió o recibirá su pago.
+            </small>
+
+        {% endif %}
+    </div>
+
+    <div class="d-flex justify-content-center gap-2 mt-4">
+
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-circle me-1"></i>
+            Cancelar
+        </button>
+
+        <form action="{% url 'cambiar_estado' id_orden %}" method="post" id="confimar_pago">
+            {% csrf_token %}
+            {% if not ya_pagada %}
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-check-circle-fill me-1"></i>
+                    Confirmar Pago
+                </button>
+            {% endif %}
+        </form>
+
+    </div>
+
+</div>
+<script>
+    $("#confimar_pago").on('submit', function (e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: $(this).serialize(),
+            success: function (resp) {
+                if (resp.error) {
+                    $(".pedidos").text(resp.error);
+                }
+                else {
+                    $.ajax({
+                        type: 'post',
+                        url: '/buscar_orden/',
+                        data: {
+                            'codigo_orden': '{{id_orden}}',
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                        },
+                        success: function (resp) {
+                            $('.pedidos').html(resp);
+                        }
+                    });
+                    setTimeout(function () {
+                        $(".btn-close").click();
+                    }, 1000);
+                }
+            }
+        });
+    });
+</script>

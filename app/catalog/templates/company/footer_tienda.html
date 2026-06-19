@@ -8,19 +8,6 @@
                   &copy; {{ dashboard.author|default:"AMCEB" }}
                   - Todos los derechos reservados.
               </small>
-
-              <br>
-
-              {% if user.is_authenticated %}
-                  <a href="/salir/">Cerrar Sesión</a>
-              {% else %}
-                  <a href="#login"
-                     data-bs-toggle="modal"
-                     data-bs-target="#exampleModal"
-                     onclick="login('/login_user/')">
-                      Iniciar Sesión
-                  </a>
-              {% endif %}
           </div>
 
           <!-- Columna derecha -->

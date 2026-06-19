@@ -1,0 +1,58 @@
+<h2 class="accordion-header">
+    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTen"
+        aria-expanded="false" aria-controls="collapseTen">
+        <strong>Lista de Afiliados</strong>
+    </button>
+</h2>
+<div id="collapseTen" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+    <div class="accordion-body row d-flex no-gutters justify-content-center">
+
+        <div class="col-lg-12 d-flex align-items-stretch table-responsive">
+            {% if list_afiliados %}
+            <table class="table table-bordered table-striped table-sm">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Nombre completo</th>
+                        <th>Celular</th>
+                        <th>Email</th>
+                        
+                        <th>Fecha de Registro</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    {% for afiliado in list_afiliados %}
+                    <tr>
+                        <td>{{ afiliado.get_full_name|title}}</td>
+                                <td>{{afiliado.affiliate_profile.celular|default:" - - -"}}</td>
+                                <td>{{afiliado.email|default:" - - -"}}</td>
+                                <td>{{afiliado.date_joined}}</td>
+                                <td> <a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="cargarInformacionAfiliado('/info_afiliado/{{afiliado.id}}/')">Información</a> </td>
+                                <td><a href="https://wa.me/{{afiliado.affiliate_profile.celular}}" target="_blank" title="Enviar mensaje"><i class="bi bi-whatsapp"></i></a></td>
+                            </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="alert alert-warning text-center text-danger" role="alert">No hay afiliados registrados</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function cargarInformacionAfiliado(url) {
+        $.ajax({
+            url: url,
+            method: 'GET',
+            success: function(data) {
+                $('#optenerProducto').html(data);
+            },
+            error: function() {
+                alert('Error al cargar la información del afiliado.');
+            }
+        });
+    }
+</script>

@@ -1,0 +1,176 @@
+<style>
+.card-afiliado{
+    border-radius: 25px;
+    overflow: hidden;
+    transition: .3s;
+    border: none;
+}
+
+.card-afiliado:hover{
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,.15);
+}
+
+.icon-afiliado{
+    width: 180px;
+    height: 180px;
+    background: #f8f9fa;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+}
+
+.icon-afiliado i{
+    font-size: 5rem;
+    color: #198754;
+}
+
+.lista-beneficios li{
+    margin-bottom: 12px;
+}
+
+.info-box{
+    background: #f8f9fa;
+    border-left: 4px solid #0dcaf0;
+    border-radius: 10px;
+    padding: 15px;
+}
+</style>
+
+<div class="container my-4">
+
+    <div class="card card-afiliado shadow-lg">
+
+        <div class="card-body p-4 p-lg-5">
+
+            <div class="row align-items-center">
+
+                <div class="col-lg-7">
+
+                    <span class="badge bg-success px-3 py-2 mb-3">
+                        🚀 Programa de Afiliados
+                    </span>
+
+                    <h2 class="fw-bold mb-3">
+                        Genera ingresos recomendando nuestros productos
+                    </h2>
+
+                    <p class="lead text-muted">
+                        Convierte tus redes sociales, contactos y recomendaciones
+                        en una fuente adicional de ingresos. Únete a nuestro programa
+                        de afiliados y gana una comisión por cada venta realizada
+                        desde tu enlace personalizado.
+                    </p>
+
+                    <ul class="list-unstyled lista-beneficios mt-4">
+
+                        <li>✅ Registro totalmente gratuito.</li>
+
+                        <li>
+                            ✅ Obtén un enlace de referido único para compartir.
+                        </li>
+
+                        <li>
+                            ✅ Comparte productos en WhatsApp, Facebook,
+                            TikTok, Instagram y otras redes sociales.
+                        </li>
+
+                        <li>
+                            ✅ Visualiza tus ventas y ganancias desde tu panel.
+                        </li>
+
+                        <li>
+                            ✅ Recibe comisiones por cada producto validado.
+                        </li>
+
+                        <li>
+                            ✅ Solicita tus pagos de forma rápida y segura.
+                        </li>
+
+                    </ul>
+
+                    <div class="mt-4">
+
+                        <a href="#registro-afiliado"
+                           onclick="form_company('/registrar_afiliado/')"
+                           data-bs-toggle="modal"
+                           data-bs-target="#exampleModal"
+                           class="btn btn-info btn-lg rounded-pill px-4">
+
+                            <i class="bi bi-person-plus-fill"></i>
+                            Registrarme Ahora
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+                <div class="col-lg-5 text-center mt-5 mt-lg-0">
+
+                    <div class="icon-afiliado">
+                        <i class="bi bi-cash-coin"></i>
+                    </div>
+
+                    <div class="mt-4">
+
+                        <h4 class="fw-bold text-success">
+                            ¿Cómo funciona?
+                        </h4>
+
+                        <div class="info-box text-start mt-3">
+
+                            <p class="mb-2">
+                                <strong>Paso 1:</strong>
+                                Regístrate gratuitamente como afiliado.
+                            </p>
+
+                            <p class="mb-2">
+                                <strong>Paso 2:</strong>
+                                Comparte tu enlace de referido con tus clientes,
+                                amigos o seguidores.
+                            </p>
+
+                            <p class="mb-2">
+                                <strong>Paso 3:</strong>
+                                Cuando una persona compre mediante tu enlace,
+                                la venta quedará registrada a tu nombre.
+                            </p>
+
+                            <p class="mb-0">
+                                <strong>Paso 4:</strong>
+                                Una vez validada la compra, recibirás tu comisión.
+                            </p>
+
+                        </div>
+
+                        <div class="mt-0">
+
+                            <small class="text-muted d-block">
+                                * Una vez aprobadas usted podra solicitar sus pagos, ingresando a su panel de control.
+                            </small>
+
+                        </div>
+
+                        <a href="https://api.whatsapp.com/send?phone={{company.mobile}}&text=Hola%20quiero%20más%20información%20sobre%20el%20programa%20de%20afiliados"
+                           target="_blank"
+                           class="btn btn-success rounded-pill mt-4 px-4">
+
+                            <i class="bi bi-whatsapp"></i>
+                            Solicitar Información
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

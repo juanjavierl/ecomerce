@@ -4,6 +4,7 @@ from random import randint
 
 from app.catalog.choices import *
 from django.contrib.auth import get_user_model
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.forms import model_to_dict
 from meta.models import ModelMeta
@@ -135,6 +136,12 @@ class Product(models.Model):
     description = models.CharField(max_length=500, null=True, blank=True, verbose_name='Descripción')
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='Categoría')
     price = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Precio de Venta')
+    comision_ganancia = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        verbose_name='Ganancia referido',
+    )
     price_before = models.DecimalField(
         max_digits=9,
         decimal_places=2,
@@ -210,6 +217,7 @@ class Product(models.Model):
         item['price'] = float(self.price)
         item['price_before'] = float(self.price_before)
         item['image'] = self.get_image()
+        item['comision_ganancia'] = float(self.comision_ganancia)
         return item
 
     def porcentage(self):

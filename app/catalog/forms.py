@@ -82,12 +82,19 @@ class formProducto(forms.ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'code': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea({'class': 'form-control', 'rows': 2, 'cols': 3}),
-           
             'price': forms.NumberInput(attrs={'class': 'form-control'}),
             'price_before': forms.NumberInput(attrs={'class': 'form-control'}),
             'image': forms.FileInput(attrs={'class': 'form-control'}),
-            'stock': forms.NumberInput(attrs={'class': 'form-control'})
+            'stock': forms.NumberInput(attrs={'class': 'form-control'}),
+            'comision_ganancia': forms.NumberInput(
+                attrs={
+                    'type': 'number',
+                    'class': 'form-control',
+                    'id': 'customnumber',
+                }
+            ),
         }
+ 
 
 class formCategory(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -116,6 +123,62 @@ class RegisterForm(UserCreationForm):
     class Meta:
         model = get_user_model()
         fields = ('username','email', 'password1', 'password2')
+
+
+class AffiliateRegisterForm(UserCreationForm):
+    first_name = forms.CharField(
+        max_length=150,
+        label='Nombres',
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+    )
+    last_name = forms.CharField(
+        max_length=150,
+        label='Apellidos',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+    )
+    celular = forms.CharField(
+        label='Celular',
+        max_length=20,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control'
+        })
+    )
+    email = forms.EmailField(
+        label='Correo electrónico',
+        widget=forms.EmailInput(attrs={'class': 'form-control'}),
+    )
+    username = forms.CharField(
+        max_length=140,
+        label='Nombre de usuario ejem. : juanperez',
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+    )
+    class Meta:
+        model = get_user_model()
+        fields = ('first_name', 'last_name','celular', 'email','username', 'password1', 'password2')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['password1'].widget.attrs.update({'class': 'form-control'})
+        self.fields['password2'].widget.attrs.update({'class': 'form-control'})
+
+    def clean_email(self):
+        email = self.cleaned_data['email'].strip().lower()
+        if get_user_model().objects.filter(email__iexact=email).exists():
+            raise ValidationError('Ya existe un usuario registrado con este correo.')
+        return email
+    
+    def clean_celular(self):
+        celular = self.cleaned_data['celular'].strip()
+        print('celular ingresado:', celular)
+        try:
+            parsed = phonenumbers.parse(celular, "BO")
+            if not phonenumbers.is_valid_number(parsed):
+                raise ValidationError("Número de teléfono inválido.")
+        except:
+            raise ValidationError("Ingrese un número válido con su código de país.")
+        
+        return celular
 
 class formCompany(forms.ModelForm):
     def __init__(self, *args, **kwargs):

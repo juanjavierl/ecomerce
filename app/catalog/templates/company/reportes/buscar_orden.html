@@ -4,7 +4,34 @@
     <tbody>
         <tr>
             <td class="label">Número de Orden:</td>
-            <td>{{orden.id}}</td>
+            <td>{{orden.id}}
+                {% if orden.affiliate %}
+                    <span class="badge bg-warning text-dark">Referido por: {{ orden.affiliate.get_full_name|title }}</span>
+                    <span class="badge bg-info text-dark">Ganó: {{ orden.affiliate_commissions.first.commission_amount|default:"0" }}</span>
+                    {% with comision=orden.affiliate_commissions.first %}
+                        {% if comision %}
+                            {% if comision.status == 'pending' %}
+                                <span class="badge bg-warning text-dark">
+                                    Estado: {{ comision.get_status_display }}
+                                </span>
+                            {% elif comision.status == 'approved' %}
+                                <span class="badge bg-success">
+                                    Estado: {{ comision.get_status_display }}
+                                </span>
+                            {% elif comision.status == 'paid' %}
+                                <span class="badge bg-primary">
+                                    Estado: {{ comision.get_status_display }}
+                                </span>
+                            {% elif comision.status == 'cancelled' %}
+                                <span class="badge bg-danger">
+                                    Estado: {{ comision.get_status_display }}
+                                </span>
+                            {% endif %}
+                        {% endif %}
+                    {% endwith %}
+                {% endif %}
+             </td>
+            </td>
         </tr>
         <tr>
             <td class="label">Fecha de Pedido:</td>
@@ -57,10 +84,10 @@
 
         <td colspan="6" class="fw-bold">
             {% if orden.status == False %}
-            <a href="#" onclick="form_company('/autorizar/{{orden.id}}/')" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">Desea confirmar esta orden?</a>
+            <a href="#" onclick="form_company('/autorizar/{{orden.id}}/')" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">¿Autorizar y Aprobar la orden?</a>
             {% else %}
             <div class="d-flex align-items-center">
-                <small class="text-success text-muted">La orden esta autorizada </small>
+                <small class="text-success text-muted">La orden esta autorizada y aprobada </small>
                 <i class="bi bi-check-lg text-success"></i>
                 <select class="form-select form-select-sm w-auto" id="tipo-print-{{ orden.id }}">
                     <option value="ticket" selected>Ticket</option>
@@ -71,8 +98,17 @@
                         onclick="imprimirOrden({{ orden.id }})">
                     <i class="bi bi-print"></i> Imprimir
                 </button>
-                
-</div>
+
+                {% if orden.affiliate %}
+                    <a class="btn btn-success btn-sm"
+                            href="#"
+                            data-bs-toggle="modal"
+                            data-bs-target="#exampleModal"
+                            onclick="PaymentAfiliado('/cambiar_estado/{{ orden.id }}/')">
+                        <i class="bi bi-print"></i> Pagar Comisión
+                    </a>
+                {% endif %}
+            </div>
             {% endif %}
         </td>
     </tr>
@@ -83,11 +119,23 @@
     <div class="alert alert-warning text-center text-danger" role="alert">EL REGISTRO NO EXISTE</div>
 {% endif %}
 <script>
-    function imprimirOrden(ordenId) {
+function imprimirOrden(ordenId) {
     const tipo = document.getElementById(`tipo-print-${ordenId}`).value;
 
     const url = `/orden/print/${ordenId}/?tipo=${tipo}`;
     window.open(url, '_blank');
+}
+function PaymentAfiliado(url) {
+    $.ajax({
+        url: url,
+        method: 'GET',
+        success: function(data) {
+            $('.modal-content').html(data);
+        },
+        error: function() {
+            alert('Error al cargar la información del afiliado.');
+        }
+    });
 }
 </script>
     

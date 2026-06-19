@@ -1,6 +1,8 @@
 #encoding:utf-8
 #import pywhatkit
+from decimal import Decimal, ROUND_HALF_UP
 from datetime import datetime, date, timedelta
+from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives
 import threading
 from django.template.loader import get_template
@@ -18,6 +20,10 @@ from app.inicio.views import get_Dashboard
 from django.db.models import F, ExpressionWrapper, IntegerField
 from django.db.models.functions import Coalesce
 # Create your views here.
+
+User = get_user_model()
+AFFILIATE_SESSION_KEY = 'affiliate_user_id'
+AFFILIATE_GROUP_NAME = 'Afiliados'
 
 def CatalogView(request, url_referido=None):
     template_name = "sitio.html"
@@ -49,6 +55,7 @@ def CatalogView(request, url_referido=None):
             'code':get_code_meta(),
             'reglas':get_rule_condicion(),
             'rrss':RRSS.objects.all(),
+            'es_afiliado':request.user.groups.filter(name='Afiliados').exists(),
         }
         return render(request,template_name, dic)
  
@@ -94,7 +101,20 @@ def categorys_from_productos(productos):
             ct.append({'id':p.category.id, 'name':p.category.name})
     return ct
 
-def optenerProducto(request, id_producto, url_referido=None):
+def store_affiliate_reference(request):
+    affiliate_user_id = request.GET.get('ref', '').strip()
+    if not affiliate_user_id.isdigit():
+        return
+
+    affiliate_exists = User.objects.filter(
+        id=int(affiliate_user_id),
+        is_active=True,
+        groups__name=AFFILIATE_GROUP_NAME,
+    ).exists()
+    if affiliate_exists:
+        request.session[AFFILIATE_SESSION_KEY] = int(affiliate_user_id)
+
+def optenerProducto(request, id_producto):
     productos = Product.objects.all()
     p = get_object_or_404(Product,id = id_producto)
     datos = {}
@@ -152,6 +172,7 @@ def optenerProducto(request, id_producto, url_referido=None):
                 dic['success'] = p.name.title()," agregado al Carrito."
                 return JsonResponse(dic)
     else:
+        store_affiliate_reference(request)
         context = { 'p':p,
                     'total_compra':sum(item['cantidad'] for item in data_cli),
                     'company':get_company(),
@@ -305,17 +326,17 @@ def confirmar_compra(request, url_referido=None):
 
         if tipo_envio == 'tienda':
             ref = 'tienda'
-            try:
-                d = datetime.strptime(request.POST['date_time'] + ":00", '%Y-%m-%dT%H:%M:%S')
-                if d < datetime.now():
-                    return JsonResponse({'error': "Error: La fecha debe ser mayor o igual a hoy"})
-            except Exception:
-                return JsonResponse({'error': "Fecha inválida"})
+            # try:
+            #     d = datetime.strptime(request.POST['date_time'] + ":00", '%Y-%m-%dT%H:%M:%S')
+            #     if d < datetime.now():
+            #         return JsonResponse({'error': "Error: La fecha debe ser mayor o igual a hoy"})
+            # except Exception:
+            #     return JsonResponse({'error': "Fecha inválida"})
 
-            dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-            dia = dias[d.weekday()]
-            fecha = datetime.strftime(d, f"{dia} %d/%m/%y hora: %H:%M %p")
-            lugar = {'fecha': fecha, 'tipo': 'tienda'}
+            # dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+            # dia = dias[d.weekday()]
+            # fecha = datetime.strftime(d, f"{dia} %d/%m/%y hora: %H:%M %p")
+            lugar = {'fecha': datetime.now(), 'tipo': 'tienda'}
 
         elif tipo_envio == 'domicilio':
             ref = 'domicilio'
@@ -341,8 +362,14 @@ def confirmar_compra(request, url_referido=None):
             cliente = forms.save()
         # ✅ Si YA existe → NO validamos, NO registramos, solo seguimos con la orden
 
+        # --- Verificar si un usuario está autenticado ---
+        affiliate_id = request.session.get('affiliate_user_id')
+        if not affiliate_id:
+            if request.user.is_authenticated:
+                if request.user.groups.filter(name='Afiliados').exists():
+                    affiliate_id = request.user.id
         # --- Crear orden ---
-        orden = crear_orden(request, cliente.id, ref)
+        orden = crear_orden(request, cliente.id, ref, affiliate_id=affiliate_id)
 
         # --- Registrar pedidos ---
         for item in compra:
@@ -350,8 +377,9 @@ def confirmar_compra(request, url_referido=None):
             cantidad = int(item['cantidad'])
             precio = float(item['precio_uni'])
             total = cantidad * precio
+            producto = get_object_or_404(Product, id=producto_id)
 
-            Pedido.objects.create(
+            pedido = Pedido.objects.create(
                 orden=orden,
                 product_id=producto_id,
                 cant=cantidad,
@@ -360,30 +388,31 @@ def confirmar_compra(request, url_referido=None):
                 total=total,
                 nota=item.get('nota', '')
             )
-            """ producto = getProducto(producto_id)
-            if not producto.is_service:
-                Product.objects.filter(id=producto_id).update(
-                    salida=producto.salida + cantidad
-                ) """
-
+            if orden.affiliate_id:
+                print("Creando comisión para el afiliado...",orden.affiliate_id)
+                print("Producto:", producto.comision_ganancia)
+                print("ganancia total:", Decimal(str(cantidad)) * producto.comision_ganancia)
+                AffiliateCommission.objects.create(
+                    affiliate_id=orden.affiliate_id,
+                    orden=orden,
+                    pedido=pedido,
+                    product=producto,
+                    quantity=cantidad,
+                    unit_price=Decimal(str(precio)),
+                    product_total=Decimal(str(total)),
+                    commission_ganacia=producto.comision_ganancia,
+                    commission_amount = Decimal(str(cantidad)) * producto.comision_ganancia
+                )
         # --- Vaciar carrito ---
         lista_product = compra.copy()
         request.session['compra'] = []
-
-        # --- Enviar correo al propietario ---
-        """ email_propietario = company.email
-        if email_propietario:
-            threading.Thread(
-                target=send_confirmar_venta_mail,
-                args=(email_propietario, orden, company)
-            ).start() """
-
+        request.session['affiliate_user_id'] = None
         return JsonResponse({
             'success': "Tu pedido fue registrado con éxito.",
             'cliente_object': cliente.toJSON(),
             'company_object': company.toJSON(),
             'orden': orden.toJSON(),
-            'lugar': lugar,
+            #'lugar': lugar,
             'lista': lista_product,
             't_pago': t_pago,
             'precio_envio': determinarPrecioEnvio(),
@@ -411,75 +440,6 @@ def confirmar_compra(request, url_referido=None):
         'dashboard': get_Dashboard(),
     }
     return render(request, 'catalog/confirmar_compra.html', dic)
-
-def confirmarCita(request, id_producto, url_referido=None):
-    p = get_object_or_404(Product,id = id_producto)
-    company = get_company()
-    datos={}
-    data_cli = []
-    datos['id_producto'] = int(p.id)
-    datos['name'] = p.name.title()
-    datos['cantidad'] = 1
-    datos['precio_uni'] = 0.0
-    datos['total'] = 0.0
-    data_cli.append(datos)
-
-    if request.method == 'POST':
-        if not request.POST['dni'].isdigit():
-            return JsonResponse({'error': "El Nro de Nit/CI debe ser numérico."})
-        if not request.POST['mobile'].isdigit():
-            return JsonResponse({'error': "El Nro de Celular debe ser numérico."})
-
-        d = datetime.strptime(request.POST['date_time']+":00", '%Y-%m-%dT%H:%M:%S')
-        if d < datetime.now():
-            return JsonResponse({'error':"Error: La fecha debe ser mayor o igual a hoy"})
-        else:
-            dias={0:'Lunes',1:'Martes',2:'Miercoles',3:'Jueves',4:'Viernes',5:'Sabado',6:'Domingo'}
-            dia = dias[d.weekday()]
-            fecha = datetime.strftime(d, dia + ' %d/%m/%y hora: %H:%M %p')
-            lugar = {'fecha':fecha,'date':'date'}
-        forms=ClientFormOrder(request.POST)
-        if Client.objects.filter(dni = int(request.POST['dni'])).exists():
-            cliente = Client.objects.get(dni = int(request.POST['dni']))
-            orden = crear_orden(request, cliente.id, 'tienda')
-
-            pedido = Pedido.objects.create(orden_id = int(orden.id),product_id=int(datos['id_producto']),cant=int(datos['cantidad']),price=float(datos['precio_uni']),total=float(int(datos['cantidad']) * float(datos['precio_uni'])))
-            pedido.save()
-        else:
-            if forms.is_valid():
-                cliente = forms.save(commit=False)
-                cliente.save()
-                orden = crear_orden(request, cliente.id, 'tienda')
-                pedido = Pedido.objects.create(orden_id = int(orden.id),product_id=int(datos['id_producto']),cant=int(datos['cantidad']),price=float(datos['precio_uni']),total=float(int(datos['cantidad']) * float(datos['precio_uni'])))
-                pedido.save()
-        try:
-            lugar = get_address().toJSON()
-        except:
-            lugar = False
-        return JsonResponse(
-                            {
-                                'company':company.name,
-                                'company_object':company.toJSON(),
-                                'cel_company':company.mobile,
-                                'cliente_object':cliente.toJSON(),
-                                'orden':orden.id,
-                                'lista':data_cli,
-                                'lugar':lugar,
-                                'success':"Tu cita se completo exitosamente gracias."
-                            }
-                        )
-    dic = {
-        'form':ClientFormOrder(),
-        'company':get_company(),
-        'categorias':categorys_from_productos(productosMasVistos()),
-        'datos':data_cli,
-        'productos':productosMasVistos(),
-        'precio_envio':determinarPrecioEnvio(),
-        'aviso':optener_avisos_by_company(),
-        'address':get_address(),
-        'producto':p
-    }
-    return render(request,'catalog/confirmar_cita.html',dic)
 
 def getProducto(id_producto):
     producto = Product.objects.get(id = id_producto)
@@ -513,7 +473,7 @@ def determinarPrecioEnvioCiudad():
         p_envio = 0
         return p_envio#QUIERO ENVIAR SOLO EL PRECIO AL TEMPLATE
 
-def crear_orden(request, id_cliente, ref='tienda'):
+def crear_orden(request, id_cliente, ref='tienda', affiliate_id=None):
     if ref == 'tienda':
         pr_envio = 0
     elif ref == 'domicilio':
@@ -522,8 +482,13 @@ def crear_orden(request, id_cliente, ref='tienda'):
         pr_envio = determinarPrecioEnvioCiudad()
     else:
         pr_envio = 0
+
     orden = Orden()
     orden.client_id = int(id_cliente)
+
+    if affiliate_id:
+        orden.affiliate_id = affiliate_id
+
     orden.subtotal = float(calcular_pago(request))
     orden.total = float(calcular_pago(request)) + pr_envio
     orden.save()
@@ -531,22 +496,19 @@ def crear_orden(request, id_cliente, ref='tienda'):
 
 def newProducto(request):
     if request.method == 'POST':
-        producto = Product()
-        producto.name = request.POST['name']
-        producto.code = request.POST['code']
-        producto.description = request.POST['description']
-        producto.category_id = int(request.POST['category'])
-        producto.price = float(request.POST['price'])
-        producto.price_before = float(request.POST['price_before'])
-        producto.stock = request.POST['stock']
-        producto.image = request.FILES.get('image','')
-        producto.is_promotion = request.POST['is_promotion']
-        producto.save()
-        return JsonResponse({'success': 'Producto registrado exitosamente.'})
-    form = formProducto()
+        form = formProducto(request.POST, request.FILES)
+        if form.is_valid():
+            producto = form.save(commit=False)
+            # Si necesitas hacer lógica adicional aquí, puedes hacerlo
+            producto.save()
+            return JsonResponse({'success': 'Producto registrado exitosamente.'})
+        else:
+            errors = form.errors.as_json()
+            return JsonResponse({'error': errors}, status=400)
+    else:
+        form = formProducto()
     categorys = Category.objects.all().order_by('-id')
-    return render(request, 'catalog/newProducto.html',{'form':form,'categorys':categorys})
-
+    return render(request, 'catalog/newProducto.html', {'form': form,'categorys': categorys})
 
 def informacion_web(request):
     dashboard = Dashboard.objects.first()
@@ -596,3 +558,25 @@ def delete_red_social(request, id_red_social):
     red_social = RRSS.objects.get(id=id_red_social)
     red_social.delete()
     return JsonResponse({'success': 'Red social eliminada exitosamente.'})
+
+def cambiar_estado(request, id_orden):
+    comisiones = AffiliateCommission.objects.filter(orden_id=id_orden)
+
+    ya_pagada = comisiones.filter(status='paid').exists()
+
+    if request.method == 'POST':
+        if ya_pagada:
+            return JsonResponse({
+                'error': 'Esta comisión ya fue pagada.'
+            })
+
+        for comision in comisiones:
+            comision.status = 'paid'
+            comision.save()
+
+        return JsonResponse({
+            'success': 'Estado de la comisión actualizado a pagada.'
+        })
+
+    return render(request,'afiliados/cambiar_estado.html',{'id_orden': id_orden,'comisiones': comisiones,'ya_pagada': ya_pagada}
+    )

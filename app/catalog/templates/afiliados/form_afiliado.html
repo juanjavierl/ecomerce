@@ -1,0 +1,92 @@
+{% load crispy_forms_tags %}
+<style>
+  .iti {
+    width: 100%;
+  }
+</style>
+<div class="modal-header thead-light" style="background-color: #58bba9;">
+  <h5 class="modal-title text-white" id="exampleModalLabel">Registro de afiliado</h5>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<div class="modal-body table-responsive">
+  <form action="{% url 'registrar_afiliado' %}" method="post" id="affiliate_register_form" novalidate>
+    {% csrf_token %}
+    {{ form|crispy }}
+    <div class="form-check mb-3">
+      <input type="checkbox" class="form-check-input" id="affiliate_show_pass">
+      <label class="form-check-label" for="affiliate_show_pass">Ver contraseña</label>
+    </div>
+
+    <div class="modal-footer px-0 pb-0">
+      <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+        <i class="bi bi-arrow-left-circle"></i> Cancelar
+      </button>
+      <button type="submit" class="btn btn-success btn-sm" id="affiliate_register_btn">
+        <i class="bi bi-person-plus"></i> Registrarme
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  const input = document.querySelector("#id_celular");
+  const iti = window.intlTelInput(input, {
+      initialCountry: "bo",
+      separateDialCode: true,
+      utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js",
+  });
+
+  $('#affiliate_show_pass').on('change', function () {
+    const type = this.checked ? 'text' : 'password';
+    $('#affiliate_register_form #id_password1').attr('type', type);
+    $('#affiliate_register_form #id_password2').attr('type', type);
+  });
+
+  $('#affiliate_register_form').on('submit', function (e) {
+    e.preventDefault();
+
+    const $form = $(this);
+    const $button = $('#affiliate_register_btn');
+    const $error = $('#affiliate_register_error');
+
+    $button.prop('disabled', true).html('Registrando...');
+    $error.html('');
+
+    $.ajax({
+      type: 'POST',
+      url: $form.attr('action'),
+      data: $form.serialize(),
+      success: function (resp) {
+        $('.toast-body').removeClass('alert-danger').addClass('alert-success');
+        $('.toast-body').fadeIn(1000).html(resp.success);
+        mostrar_notificacion();
+
+        if (resp.redirect_url) {
+          window.location.href = resp.redirect_url;
+        }
+      },
+      error: function (xhr) {
+        const resp = xhr.responseJSON || {};
+        let message = 'No se pudo completar el registro.';
+
+        if (resp.error) {
+          if (typeof resp.error === 'string') {
+            message = resp.error;
+          } else {
+
+            message = Object.entries(resp.error)
+            .map(([campo, errores]) => `${campo}: ${errores.join(', ')}`)
+            .join('<br>');
+          }
+        }
+
+        $error.html(message);
+        $('.toast-body').removeClass('alert-success').addClass('alert-danger');
+        $('.toast-body').fadeIn(1000).html(message);
+        mostrar_notificacion();
+        $button.prop('disabled', false).html('<i class="bi bi-person-plus"></i> Registrarme');
+      }
+    });
+  });
+</script>

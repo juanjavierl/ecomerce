@@ -84,12 +84,9 @@
         {{ form|crispy }}
         <label for="">Tipo de entrega* </label>
         <select class="form-select" id="tipo_envio" name="tipo_envio" aria-label="Small select example">
-          <option value="tienda">Recogeré en la tienda</option>
+          <option value="tienda">Recogeré en tienda</option>
           <option value="domicilio">Enviame a mi domicilio</option>
-          
-          {% if not company.is_service %}
           <option value="ciudad">Envio a otra Ciudad</option>
-          {% endif %}
         </select>
         <small class="text-muted menj_valor_envio"></small>
         <select class="form-select" id="destino" name="destino" aria-label="Small select example" style="margin-top: 15px;">
@@ -105,17 +102,7 @@
           <option value="Beni">Beni</option>
           <option value="Pando">Pando</option>
         </select>
-        <div id="div_id_fecha">
-          <label for="">Fecha y Hora a Recoger</label>
-          <input type="datetime-local" id="date_time" name="date_time"
-            value="{{ ahora }}"
-            min="{{ ahora }}"
-            max="{{ limite }}"
-            class="textinput form-control">
-          <span id="passwordHelpBlock" class="form-text">
-            fecha y hora que visitará la tienda, máximo en 15 días.
-          </span>
-        </div>
+        
 
         <div class="text-center img_pagoQr" style="margin-bottom: 10px;">
           <div class="text-center" role="alert" style="padding: 0px; margin-top: 10px;">
@@ -294,6 +281,7 @@
       url: $(this).attr("action"),
       data: $(this).serialize(),
       success: function (resp) {
+        console.log(resp);
         if (resp.error) {
             let html = "";
             for (let campo in resp.error) {
@@ -353,11 +341,11 @@
         let total = "";
         let lugar = "";
 
-        // 🏬 Tipo de entrega/envío
+        // Tipo de entrega/envío
         const tipo = resp.lugar?.tipo || "";
 
         if (tipo === "tienda") {
-          lugar = "🏬 *Retiro en tienda:* %0A📅 " + (resp.lugar.fecha || "Sin fecha") + "%0A";
+          lugar = "🏬 *Retiro en tienda:* %0A📅 ";
           total = "💵 *Total a pagar:* {{company.moneda}}. " + parseFloat(resp.t_pago || 0).toFixed(2) + "%0A";
         } 
         else if (tipo === "domicilio") {
@@ -371,11 +359,11 @@
           let envio_c = parseFloat(resp.precio_envio_ciudad || 0);
           let total_envio_c = parseFloat(resp.t_pago || 0) + envio_c;
           lugar = "🛫 *Envío a otra ciudad:* %0A🏙️ Destino: " + (resp.lugar.destino || "Sin destino") + "%0A";
-          Envio = "📦 *Costo de envío:* {{company.moneda}}. " + envio_c.toFixed(2) + "%0A";
+          Envio = "📦 *Costo de envío:* {{company.moneda}}. " + 'Por pagar' + "%0A";
           total = "💵 *Total a pagar:* {{company.moneda}}. " + total_envio_c.toFixed(2) + "%0A";
         } 
         else {
-          lugar = "📍 *Entrega no especificada* %0A";
+          lugar = "📍 *Retiro en tienda:* %0A";
           total = "💵 *Total a pagar:* {{company.moneda}}. " + parseFloat(resp.t_pago || 0).toFixed(2) + "%0A";
         }
 
