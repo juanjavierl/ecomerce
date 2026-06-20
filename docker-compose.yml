@@ -10,7 +10,9 @@ services:
     ports:
       - "8001:8001"
     volumes:
-      - media_data:/app/media
+      - ./staticfiles:/app/staticfiles
+      - ./media:/app/media
 
 volumes:
   media_data:
+  static_data:
