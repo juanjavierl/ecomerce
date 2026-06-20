@@ -5,7 +5,7 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-COPY ecomerce/deploy/requirements.txt .
+COPY deploy/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
