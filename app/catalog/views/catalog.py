@@ -342,7 +342,6 @@ def confirmar_compra(request, url_referido=None):
             ref = 'domicilio'
             lugar = {'direccion': request.POST.get('address', ''), 'tipo': 'domicilio'}
             precio_envio = determinarPrecioEnvio()
-
         elif tipo_envio == 'ciudad':
             ref = 'ciudad'
             lugar = {'destino': request.POST.get('destino', ''), 'tipo': 'ciudad'}
@@ -412,7 +411,7 @@ def confirmar_compra(request, url_referido=None):
             'cliente_object': cliente.toJSON(),
             'company_object': company.toJSON(),
             'orden': orden.toJSON(),
-            #'lugar': lugar,
+            'lugar': lugar,
             'lista': lista_product,
             't_pago': t_pago,
             'precio_envio': determinarPrecioEnvio(),

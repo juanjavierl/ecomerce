@@ -1,0 +1,15 @@
+services:
+  web:
+    build: .
+    restart: always
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn ventas.wsgi:application --bind 0.0.0.0:8001 --workers 3"
+    ports:
+      - "8000:8001"
+    volumes:
+      - media_data:/app/media
+
+volumes:
+  media_data:
