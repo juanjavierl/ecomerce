@@ -6,7 +6,7 @@ services:
       sh -c "python manage.py migrate &&
              python manage.py collectstatic --noinput &&
              python manage.py init_system &&
-             gunicorn ventas.wsgi:application --bind 0.0.0.0:8001 --workers 3"
+             gunicorn ventas.wsgi:application --bind 0.0.0.0:8001 --workers 2"
     ports:
       - "8001:8001"
     volumes:
