@@ -26,6 +26,12 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["vadje.com","www.vadje.com"]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://vadje.com",
+    "https://www.vadje.com",
+]
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Application definition
 
@@ -135,7 +141,7 @@ DATABASES = {
         'NAME': 'ecomercedb',
         'USER': 'ecomerce_user',
         'PASSWORD': '12345',
-        'HOST': '192.168.1.7',
+        'HOST': '172.18.0.1',
         'PORT': '5432',
     }
 }
