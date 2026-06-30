@@ -161,8 +161,6 @@ class Product(models.Model):
     salida = models.IntegerField(default=0, blank=True, null=True)
     is_promotion = models.CharField(
         max_length=50,
-        choices=IS_PROMOTION,
-        default=IS_PROMOTION[0][0],
         verbose_name='¿Elija una opcion?',
         blank=True, null=True
     )

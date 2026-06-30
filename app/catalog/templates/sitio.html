@@ -19,7 +19,7 @@
     {% if company.logo %}
       <img src="{{ company.logo.url }}" alt="{{ company.name|title }}" style="max-height: 38px; width: auto;">
     {% endif %}
-    <span>{{ company.name|title }}</span>
+     <marquee behavior="" direction="">{{ company.name|title }}</marquee>
   </a>
 {% endblock company %}
 
@@ -52,25 +52,11 @@
     {% include 'company/menu_from_user.html' %}
 {% endblock menus %}
 
-{% block hero %}
-  <style>
-    #hero.company-hero {
-      background:
-        linear-gradient(90deg, rgba(8, 27, 39, .82), rgba(8, 27, 39, .44)),
-        {% if company.image %}url("{{ company.image.url }}") center center / cover no-repeat{% else %}#0f2d35{% endif %};
-    }
+{% block hero %}  
+  {% if company.image %}
+    <style>
 
-    #hero.company-hero .company-hero-content {
-      max-width: 760px;
-    }
-
-    #hero.company-hero h1 {
-      margin-bottom: 16px;
-      color: #fff;
-      line-height: 1.05;
-    }
-
-    #hero.company-hero .company-description {
+    .company-description {
       max-width: 680px;
       margin: 0 0 24px;
       color: rgba(255, 255, 255, .9);
@@ -85,61 +71,56 @@
       margin-top: 28px;
     }
 
-    .company-category-list .btn {
-      border-radius: 999px;
-      padding: 8px 16px;
-      border: 1px solid rgba(255, 255, 255, .38);
-      background: rgba(255, 255, 255, .12);
-      color: #fff;
-      backdrop-filter: blur(4px);
-    }
-
-    .company-category-list .btn:hover,
-    .company-category-list .btn:focus {
-      background: #1bac91;
-      border-color: #1bac91;
-      color: #fff;
-    }
-
-    @media (max-width: 768px) {
-      #hero.company-hero {
-        min-height: auto;
-        padding: 72px 0 48px;
-      }
-
-      #hero.company-hero .company-description {
+    .company-description {
         font-size: 16px;
       }
-    }
-  </style>
 
-  <section id="hero" class="company-hero d-flex align-items-center">
-    <div class="container" data-aos="fade-up">
-      <div class="company-hero-content text-center text-md-start">
-        {% if company.description %}
-          <p class="company-description">{{ company.description|truncatewords:28 }}</p>
-        {% endif %}
-
-        <a href="#team_productos" class="btn-get-started scrollto">
-          {{ company.button|default:"Ver productos" }}
-        </a>
-
-        {% if categorias %}
-          <div class="company-category-list" aria-label="Categorias de productos">
-            {% for c in categorias %}
-              <a
-                href="#team_productos"
-                class="btn"
-                onclick="mostrar_por_categoria('/mostrar_por_categoria/{{ c.id }}/')"
-              >
-                <i class="bi bi-bag-check"></i> {{ c.name|title }}
-              </a>
-            {% endfor %}
+      #hero{
+        width: 100%;
+        height: calc(100vh - 50px);
+        background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.12)), url("/media/{{company.image}}");
+        background-position: center center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        position: relative;
+        margin-top: 50px;
+        padding: 0;
+      }
+    </style>
+    <section id="hero" class="d-flex flex-column justify-content-center align-items-center">
+      <div class="container text-center text-md-left" data-aos="fade-up">
+        <br><br><br><br>
+        <a href="#team_productos" class="btn-get-started scrollto"> {{ company.button|default:"Ver productos" }}</a>
+        <h2>
+          <br>
+          <div class="testimonials-slider swiper" data-aos="fade-left" data-aos-delay="100">
+            <div class="swiper-wrapper">
+              {% for c in categorias %}
+              <div class="swiper-slide">
+                <div class="testimonial-item">
+                  <p>
+                    <a type="button" onclick="mostrar_por_categoria('/mostrar_por_categoria/{{c.id}}/')" 
+                    href="#team_productos" class="btn btn-success btn-lg" 
+                    style="background-color: #1bac91;; color: white; border-radius: 50px;">
+                    <i class="bi bi-bag-check"></i> {{c.name|title}}
+                    </a>
+                  </p>
+                </div>
+              </div><!-- End testimonial item -->
+              {% endfor %}
+            </div><br><br>
+            <div class="swiper-pagination"></div>
           </div>
-        {% endif %}
+        </h2>
       </div>
-    </div>
-  </section>
+    </section>
+  {% else %}
+    <style>
+      .portfolio {
+        margin-top: 80px;
+      }
+    </style>
+  {% endif %}
 {% endblock hero %}
 
 

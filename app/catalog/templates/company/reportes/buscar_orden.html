@@ -7,7 +7,7 @@
             <td>{{orden.id}}
                 {% if orden.affiliate %}
                     <span class="badge bg-warning text-dark">Referido por: {{ orden.affiliate.get_full_name|title }}</span>
-                    <span class="badge bg-info text-dark">Ganó: {{ orden.affiliate_commissions.first.commission_amount|default:"0" }}</span>
+                    <span class="badge bg-info text-dark">Ganó: {{ orden.total_affiliate_commission }}</span>
                     {% with comision=orden.affiliate_commissions.first %}
                         {% if comision %}
                             {% if comision.status == 'pending' %}

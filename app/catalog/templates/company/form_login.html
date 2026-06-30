@@ -43,7 +43,7 @@
     });
     $('.modal-body #login_forms').on('submit', function(e){
       e.preventDefault();
-      $("#btn_sesion").html("Iniciando...!");
+      $("#btn_sesion").html("Iniciando...!").prop("disabled", true);
       $.ajax({
             type:'POST',
             url:$("#login_forms").attr('action'),

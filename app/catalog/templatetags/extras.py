@@ -30,7 +30,7 @@ def urlize_mode(text, args="ver_mas,br"):
     if mode == "ver_mas":
         def replace_url(match):
             url = match.group(0)
-            return f'<a href="{url}" target="_blank">Ver más</a>'
+            return f'<a href="{url}" target="_blank">Abrir enlace</a>'
         new_text = re.sub(url_pattern, replace_url, text)
 
     elif mode == "ocultar":

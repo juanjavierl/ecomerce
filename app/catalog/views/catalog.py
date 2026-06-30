@@ -21,11 +21,7 @@ from django.db.models import F, ExpressionWrapper, IntegerField
 from django.db.models.functions import Coalesce
 # Create your views here.
 
-User = get_user_model()
-AFFILIATE_SESSION_KEY = 'affiliate_user_id'
-AFFILIATE_GROUP_NAME = 'Afiliados'
-
-def CatalogView(request, url_referido=None):
+def CatalogView(request):
     template_name = "sitio.html"
     if request.method == 'GET':
         productos = Product.objects.select_related(
@@ -101,19 +97,6 @@ def categorys_from_productos(productos):
             ct.append({'id':p.category.id, 'name':p.category.name})
     return ct
 
-def store_affiliate_reference(request):
-    affiliate_user_id = request.GET.get('ref', '').strip()
-    if not affiliate_user_id.isdigit():
-        return
-
-    affiliate_exists = User.objects.filter(
-        id=int(affiliate_user_id),
-        is_active=True,
-        groups__name=AFFILIATE_GROUP_NAME,
-    ).exists()
-    if affiliate_exists:
-        request.session[AFFILIATE_SESSION_KEY] = int(affiliate_user_id)
-
 def optenerProducto(request, id_producto):
     productos = Product.objects.all()
     p = get_object_or_404(Product,id = id_producto)
@@ -122,7 +105,7 @@ def optenerProducto(request, id_producto):
     try:
         data_cli = request.session['compra']
     except:
-        request.session['compra'] = []
+        data_cli = request.session.get('compra', [])
     if request.method == 'POST':
         if not request.POST['cantidad'].isdigit():
             return JsonResponse({'error': "La cantidad debe ser numerico."})
@@ -172,7 +155,6 @@ def optenerProducto(request, id_producto):
                 dic['success'] = p.name.title()," agregado al Carrito."
                 return JsonResponse(dic)
     else:
-        store_affiliate_reference(request)
         context = { 'p':p,
                     'total_compra':sum(item['cantidad'] for item in data_cli),
                     'company':get_company(),
@@ -300,12 +282,11 @@ def send_confirmar_venta_mail(email_propietario, orden, company):
     )
     mail.send(fail_silently=False)
 
-def confirmar_compra(request, url_referido=None):
+def confirmar_compra(request):
     company = get_company()
     t_pago = calcular_pago(request)
     compra = request.session.get('compra', [])
     total_compra = sum(item['cantidad'] for item in compra)
-
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
         mobile = request.POST.get('mobile', '').strip()
@@ -363,13 +344,12 @@ def confirmar_compra(request, url_referido=None):
 
         # --- Verificar si un usuario está autenticado ---
         affiliate_id = request.session.get('affiliate_user_id')
-        if not affiliate_id:
-            if request.user.is_authenticated:
-                if request.user.groups.filter(name='Afiliados').exists():
-                    affiliate_id = request.user.id
+        if affiliate_id is None:
+            if (request.user.is_authenticated and request.user.groups.filter(name='Afiliados').exists()):
+                affiliate_id = request.user.id
+
         # --- Crear orden ---
         orden = crear_orden(request, cliente.id, ref, affiliate_id=affiliate_id)
-
         # --- Registrar pedidos ---
         for item in compra:
             producto_id = int(item['id_producto'])
@@ -388,9 +368,6 @@ def confirmar_compra(request, url_referido=None):
                 nota=item.get('nota', '')
             )
             if orden.affiliate_id:
-                print("Creando comisión para el afiliado...",orden.affiliate_id)
-                print("Producto:", producto.comision_ganancia)
-                print("ganancia total:", Decimal(str(cantidad)) * producto.comision_ganancia)
                 AffiliateCommission.objects.create(
                     affiliate_id=orden.affiliate_id,
                     orden=orden,
@@ -449,7 +426,7 @@ def productosMasVistos():
         stock_real=F('stock') - Coalesce(F('salida'), 0)
         ).filter(
             stock_real__gt=0,
-            is_promotion='Ofertas del dia',
+            is_promotion__icontains="ofertas",
             image__isnull=False
         ).exclude(
             image=''
@@ -473,6 +450,7 @@ def determinarPrecioEnvioCiudad():
         return p_envio#QUIERO ENVIAR SOLO EL PRECIO AL TEMPLATE
 
 def crear_orden(request, id_cliente, ref='tienda', affiliate_id=None):
+    print("affiliate_id recibido:", affiliate_id)
     if ref == 'tienda':
         pr_envio = 0
     elif ref == 'domicilio':

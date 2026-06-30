@@ -72,16 +72,9 @@
 
           <div class="col-md-6 form-group mt-3 mt-md-0">
             <label for="{{ form.is_promotion.id_for_label }}">
-                  Accion del producto
+                  Baner del producto
               </label>
-          
-              <select name="is_promotion"id="id_is_promotion"class="form-select">
-                  {% for value, text in form.is_promotion.field.choices %}
-                      <option value="{{ value }}">
-                          {{ text }}
-                      </option>
-                  {% endfor %}
-              </select>
+              {{form.is_promotion}}
           </div>
           <div class="form-group mt-3">
             <label for="{{ form.comision_ganancia.id_for_label }}" class="form-label">Ganancia de Comisión:*</label>

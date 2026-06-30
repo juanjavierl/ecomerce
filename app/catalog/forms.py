@@ -86,6 +86,7 @@ class formProducto(forms.ModelForm):
             'price_before': forms.NumberInput(attrs={'class': 'form-control'}),
             'image': forms.FileInput(attrs={'class': 'form-control'}),
             'stock': forms.NumberInput(attrs={'class': 'form-control'}),
+            'is_promotion':forms.TextInput(attrs={'class':'form-control','placeholder':'Ejem. Nuevo'}),
             'comision_ganancia': forms.NumberInput(
                 attrs={
                     'type': 'number',

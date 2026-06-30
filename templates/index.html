@@ -82,9 +82,7 @@
         background: {{ dashboard.navbar|default:"#000" }};
         
     }
-    .navbar ul li a{
-      color: {{ dashboard.color_texto|default:"rgba(255, 255, 255, 0.8)" }};
-    }
+    
   </style>
 </head>
 
@@ -97,7 +95,7 @@
         <h1>
           {% block company %}
           <a href="/">
-            {{dashboard.name|upper|cut:" "}}
+            <marquee behavior="" direction="">{{dashboard.name|upper|cut:" "}}</marquee>
           </a>
           {% endblock company %}
         </h1>

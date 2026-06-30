@@ -6,6 +6,7 @@ from django.forms import model_to_dict
 from app.inicio.models import *
 from ventas import settings
 from app.catalog.choices import *
+from django.db.models import Sum
 
 class Dashboard(models.Model):
 
@@ -102,6 +103,14 @@ class Orden(models.Model):
 
     def __str__(self):
         return self.client.names
+    
+    @property
+    def total_affiliate_commission(self):
+        return (
+            self.affiliate_commissions.aggregate(
+                total=Sum('commission_amount')
+            )['total'] or 0
+        )
 
     def toJSON(self):
         item = model_to_dict(self)
